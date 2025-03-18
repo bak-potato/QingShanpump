@@ -1,0 +1,217 @@
+<template>
+  <div class="register-container">
+    <el-card class="register-card">
+      <h2 class="title">用户注册</h2>
+
+      <el-form
+        :model="registerForm"
+        :rules="rules"
+        ref="registerFormRef"
+        label-position="top"
+        @submit.prevent="handleRegister"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input
+            v-model="registerForm.username"
+            placeholder="请输入用户名"
+            prefix-icon="User"
+          />
+        </el-form-item>
+
+        <el-form-item label="密码" prop="password">
+          <el-input
+            v-model="registerForm.password"
+            type="password"
+            placeholder="请输入密码"
+            prefix-icon="Lock"
+            show-password
+          />
+        </el-form-item>
+
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input
+            v-model="registerForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入密码"
+            prefix-icon="Lock"
+            show-password
+          />
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input
+            v-model="registerForm.email"
+            placeholder="请输入邮箱"
+            prefix-icon="Message"
+          />
+        </el-form-item>
+
+        <el-form-item label="手机号" prop="phone">
+          <el-input
+            v-model="registerForm.phone"
+            placeholder="请输入手机号"
+            prefix-icon="Iphone"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button
+            class="submit-btn"
+            type="primary"
+            native-type="submit"
+            :loading="loading"
+          >
+            立即注册
+          </el-button>
+        </el-form-item>
+
+        <div class="third-party-login">
+          <span class="divider">或使用第三方账号注册</span>
+          <div class="social-icons">
+            <el-icon :size="24"><ChatDotRound /></el-icon>
+            <el-icon :size="24"><UserFilled /></el-icon>
+            <el-icon :size="24"><Share /></el-icon>
+          </div>
+        </div>
+      </el-form>
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
+
+const registerFormRef = ref()
+const loading = ref(false)
+
+const registerForm = reactive({
+  username: '',
+  password: '',
+  confirmPassword: '',
+  email: '',
+  phone: ''
+})
+
+const validatePassword = (rule, value, callback) => {
+  if (value !== registerForm.password) {
+    callback(new Error('两次输入密码不一致!'))
+  } else {
+    callback()
+  }
+}
+
+const rules = reactive({
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 4, max: 16, message: '长度在4到16个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 18, message: '长度在6到18个字符', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    { validator: validatePassword, trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+  ],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+  ]
+})
+
+const handleRegister = () => {
+  registerFormRef.value.validate(valid => {
+    if (valid) {
+      loading.value = true
+      // 这里模拟API请求
+      setTimeout(() => {
+        loading.value = false
+        ElMessage.success('注册成功!')
+        registerFormRef.value.resetFields()
+      }, 1500)
+    } else {
+      ElMessage.warning('请填写完整信息')
+      return false
+    }
+  })
+}
+</script>
+
+<style scoped>
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  text-align: center;
+  color: #303133;
+  margin-bottom: 30px;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 40px;
+  margin-top: 10px;
+}
+
+.third-party-login {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.divider {
+  display: block;
+  color: #909399;
+  font-size: 14px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: #dcdfe6;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  color: #606266;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.social-icons .el-icon:hover {
+  color: #409eff;
+}
+</style>

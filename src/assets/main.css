@@ -1,0 +1,70 @@
+@import './base.css';
+
+/* #app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+} */
+  body {
+        background-color: #fcfcff;
+        cursor: default;
+    }
+html {
+width: 100vw;
+}
+
+.clickable {
+  cursor: pointer;
+}
+  /* 默认样式 - 大于等于1700px时隐藏滚动条 */
+  html, body {
+    width: 100%;
+    margin: 0; /* 移除默认边距 */
+  }
+
+  body {
+    overflow-x: hidden; /* 隐藏水平滚动条 */
+    overflow-y: hidden; /* 隐藏垂直滚动条 */
+  }
+
+  /* 小于1700px时显示滚动条 */
+  @media (max-width: 1700px) {
+    body {
+      overflow-x: auto; /* 自动显示水平滚动条（按需） */
+      overflow-y: auto; /* 自动显示垂直滚动条（按需） */
+    }
+  }
+.white{
+  color: white;
+}
+.hidden{
+  display: none;
+}
