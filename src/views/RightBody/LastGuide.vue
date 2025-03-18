@@ -36,7 +36,7 @@
 <script setup>
 import LastLeftViewone from './LastLeftViewone.vue';
 import LastRightViewone from './LastRightViewone.vue';
-import PublicNotice from './PublicNotice.vue';
+import PublicNotice from '../PublicNotice.vue';
 import { ref } from 'vue';
 
 const isShow = ref(true);

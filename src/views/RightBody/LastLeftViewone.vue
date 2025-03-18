@@ -5,19 +5,19 @@
     <!-- <div v-for="item in 20" :key="item" class="scrollbar-demo-item">{{ item }}</div> -->
     <div class="shanji"  v-for="item in 20" :key="item">
       <div class="ftx">
-<img width="20px" height="20px" src="../icons/20250314204717.png" ><p>山清API @ShanQingAPI</p>
+<img width="20px" height="20px" src="@/icons/20250314204717.png" ><p>山清API @ShanQingAPI</p>
  <el-button>+ 关注</el-button>
 <div class="h2c">向你推荐</div>
 
 </div>
 <el-card style="width: 90%;margin: 10px auto; height: 80px;" shadow="hover" class="ftc">
 
-<img class="ftcimg" width="48px" height="48px" src="../images/20250314210839.png" >
+<img class="ftcimg" width="48px" height="48px" src="@/images/20250314210839.png" >
 <p class="ftcp">文案改写</p>
 <div class="ftca">
-<img width="16px" height="16px" src="../icons/navbar_guanzhong.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="../icons/31pinglun.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="../icons/shoucang.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
 
 </div>
 </el-card>

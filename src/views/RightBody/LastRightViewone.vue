@@ -7,11 +7,11 @@
 <div class="lrr">
   <div class="lrr1">图文生成工具
     <div class="lrr2 clickable">
-      <img  width="12px" src="../icons/wenjianxiazaicopy.png">
+      <img  width="12px" src="@/icons/wenjianxiazaicopy.png">
       应用</div>
   </div>
   <div class="lrr3">
-<img width="16px" src="../icons/50309213222.png" >&nbsp; @山清官方
+<img width="16px" src="@/icons/50309213222.png" >&nbsp; @山清官方
   </div>
   <div class="lrr4">
     这是一个图文生成工具，你可以通过输入文字生成图片，也可以通过输入图片生成文字。
@@ -20,9 +20,9 @@
   <div class="hrt1"></div>
 
 <div class="ftca">
-<img width="16px" height="16px" src="../icons/navbar_guanzhong.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="../icons/31pinglun.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="../icons/shoucang.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
+<img width="16px" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
 
 </div>
  </el-card>
@@ -119,7 +119,7 @@ margin-left: 10px;
 .lrf{
   width: 80px;
   background-color: antiquewhite;
-  background-image: url("../icons/img1.png");
+  background-image: url("@/icons/img1.png");
   background-size: 100% 100%;
   height: 80px;
   position:absolute;

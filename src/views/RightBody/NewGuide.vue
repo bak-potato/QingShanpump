@@ -62,9 +62,8 @@ onMounted(() => {
 .el-card{
   position: relative;
   width: 31%;
-
   min-width: 300px;
-  background-image: url(../images/20250313191013.png);
+  background-image: url('@/images/20250313191013.png');
   background-size: 100% 100%;
   height: 200px;
   margin: 1%;

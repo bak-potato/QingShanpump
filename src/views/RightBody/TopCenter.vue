@@ -33,7 +33,7 @@
 .divbac{
   width: 100%;
   height: 100%;
-  background-image: url('../images/asdfg.png');
+  background-image: url('@/images/asdfg.png');
   background-size: 100% 100%;
 }
 .el-carousel{

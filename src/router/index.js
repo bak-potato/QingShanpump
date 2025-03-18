@@ -15,7 +15,7 @@ const router = createRouter({
         {
           path: 'store',
           name: 'store',
-          component: () => import('../views/DShop.vue')
+          component: () => import('../views/RightBody/DShop.vue')
         }
       ]
     },
