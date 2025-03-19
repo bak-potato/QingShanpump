@@ -27,8 +27,12 @@ const router = createRouter({
           path:'/SoftwareManagement',
           name:'SoftwareManagement',
           component: () => import('../views/Manage/SoftwareManagement.vue')
-
-        }
+        },
+        {
+          path:'/user',
+          name:'user',
+          component: () => import('../views/UserView.vue')
+        },
       ]
     },
     {

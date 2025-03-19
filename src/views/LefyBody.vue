@@ -35,7 +35,7 @@
           <div class="last1 clickable">
             <img width="20px" src="../icons/yijiangoumai.png" />
           </div>
-          <div class="last1 clickable">
+          <div @click="handleviewlast1" class="last1 clickable">
             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
           </div>
         </div>
@@ -111,7 +111,14 @@ const handleview2 = () => {
   updateActiveClass(2);
   router.push('/store');
 };
+const handleviewlast1 = () => {
+  sessionStorage.setItem('view', 0);
 
+  view.value = 0;
+  updateActiveClass(0);
+  router.push('/user');
+
+}
 const rightbody = ref(null);
 
 const handleright = () => {
