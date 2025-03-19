@@ -13,22 +13,16 @@ const router = createRouter({
           component: () => import('../views/MainContent.vue')
         },
         {
-          path: '/store',
+          path: 'store',
           name: 'store',
           component: () => import('../views/RightBody/DShop.vue')
         },
-
         {
-          path:'/questionmanage',
-          name:'questionmanage',
-          component: () => import('../views/Manage/QuestionManagement.vue')
-        },
-        {
-          path:'/SoftwareManagement',
-          name:'SoftwareManagement',
-          component: () => import('../views/Manage/SoftwareManagement.vue')
-
+          path: 'user',
+          name: 'user',
+          component: () => import('../views/UserView.vue'),
         }
+       
       ]
     },
     {
@@ -41,6 +35,7 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue')
     },
+    
 
   ],
 })
