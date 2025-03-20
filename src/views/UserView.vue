@@ -100,42 +100,47 @@
         </template>
       </el-dialog>
 
-
+      <!-- 答题记录 -->
       <el-card class="user-record mt-4">
         <div class="record-container">
           <h3 class="record-title">答题记录</h3>
-          <el-table 
-            :data="answerRecords" 
-            border 
-            style="width: 100%"
-          >
-            <el-table-column 
-              prop="questionName" 
-              label="题目名称" 
-              min-width="200"
-            />
-            <el-table-column 
-              prop="score" 
-              label="得分" 
-              width="100"
-            />
-            <el-table-column 
-              label="答题时间" 
-              width="180"
-            >
+        <div class="search-controls">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索题目名称"
+          prefix-icon="el-icon-search"
+          clearable
+          class="mr-2"
+        />
+        <el-button 
+          type="primary" 
+          @click="handleSearch"
+        >
+          搜索
+        </el-button>
+        <el-button 
+          type="default" 
+          @click="handleReset"
+        >
+          重置
+        </el-button>
+        </div>
+
+          <el-table   :data="filteredRecords"  border  style="width: 100%">
+            <el-table-column   prop="questionName"  label="题目名称" min-width="200"/>
+            <el-table-column  prop="score" label="得分" width="100" />
+
+            <el-table-column  label="答题时间"  width="180">
               <template #default="scope">
                 {{ formatDate(scope.row.createTime) }}
               </template>
             </el-table-column>
-            <el-table-column 
-              prop="status" 
-              label="状态" 
-              width="120"
-            >
+
+            <el-table-column  prop="status"  label="状态"  width="120">
               <template #default="scope">
                 <el-tag 
                   :type="scope.row.status === 'correct' ? 'success' : 
-                          scope.row.status === 'wrong' ? 'danger' : 'info'"
+                          scope.row.status === 'wrong' ? 'warning' : 'info'"
                   :effect="scope.row.status === 'correct' ? 'dark' : 
                           scope.row.status === 'wrong' ? 'dark' : 'plain'"
                 >
@@ -144,9 +149,67 @@
                 </el-tag>
               </template>
             </el-table-column>
+
+            <el-table-column label="操作" width="180" fixed="right">
+              <template #default="scope">
+                <el-button  size="small"  type="primary"  @click="handleView(scope.row)" >
+                    查看
+                </el-button>
+          
+                <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleDelete(scope.$index)">
+                  <template #reference>
+                    <el-button size="small" type="danger" >
+                      删除
+                    </el-button>
+                  </template>
+                </el-popconfirm>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-card>
+
+      <!-- 查看题目信息对话框 -->
+      <el-dialog  v-model="selectedRecord"  title="题目信息"  width="600px">
+        <el-form>
+          <el-form-item label="题目名称:">
+            {{ selectedRecord.questionName }}
+          </el-form-item>
+          <!-- <el-form-item label="题目描述">
+            {{ selectedRecord.description }}
+          </el-form-item> -->
+          <!-- <el-form-item label="题目类型">
+            {{ selectedRecord.type }}
+          </el-form-item> -->
+          <!-- <el-form-item label="题目难度">
+            {{ selectedRecord.difficulty }}
+          </el-form-item> -->
+          <el-form-item label="题目选项:">
+            <el-radio-group v-model="selectedRecord.selectedOption">
+              <el-radio v-for="(option, index) in selectedRecord.options" :key="index" :label="index">
+                {{ option }}
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="用户答案:">
+            {{ selectedRecord.userAnswer }}
+          </el-form-item>
+          <el-form-item label="正确答案:">
+            {{ selectedRecord.correctAnswer }}
+          </el-form-item>
+          <el-form-item label="得分:">
+            {{ selectedRecord.score }}
+          </el-form-item>
+          <el-form-item label="答题时间:">
+            {{ formatDate(selectedRecord.createTime)}}
+          </el-form-item> 
+        </el-form>
+        <template #footer>
+          <el-button @click="selectedRecord = false" type="primary">关闭</el-button>
+        </template>
+      </el-dialog>
+
+      <!-- 答题数据分析 -->
        <el-card class="user-record mt-4">
           <UserE/>
       </el-card>
@@ -160,6 +223,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import UserE from './UserBody/UserE.vue'
+
 // 用户信息数据
 const userInfo = reactive({
   username: '青山用户',
@@ -173,6 +237,7 @@ const userInfo = reactive({
 
 // 编辑相关状态
 const showEditDialog = ref(false)
+const selectedRecord = ref(null)
 const editFormRef = ref(null)
 const editForm = reactive({
   username: userInfo.username,
@@ -264,11 +329,59 @@ const answerRecords = ref([
     status: 'unfinished'
   }
 ])
+
+// 搜索关键字
+const searchKeyword = ref('')
+// 筛选后的记录
+const filteredRecords = ref([])
+// 搜索处理
+const handleSearch = () => {
+  filteredRecords.value = answerRecords.value.filter(record =>
+    record.questionName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+  )
+}
+// 重置搜索
+const handleReset = () => {
+  searchKeyword.value = ''
+  filteredRecords.value = answerRecords.value
+ 
+}
+filteredRecords.value = answerRecords.value
+// 查看题目信息
+const handleView = (row) => {
+
+  selectedRecord.value = row
+  console.log(selectedRecord.value)
+}
+
+// 删除记录
+const handleDelete = (index) => {
+  answerRecords.value.splice(index, 1)
+  ElMessage.success('记录已删除')
+ 
+}
 </script>
 
 <style scoped>
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-controls {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
 .el-main {
-  height: 800px;
+  height: 500px;
 }
 .el-header {
   background-color: #ffffff;
