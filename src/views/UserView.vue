@@ -9,9 +9,9 @@
         <div class="profile-container">
           <!-- 左侧头像区域 -->
           <div class="avatar-section">
-            <el-avatar 
-              :size="120" 
-              :src="userInfo.avatar" 
+            <el-avatar
+              :size="120"
+              :src="userInfo.avatar"
               class="profile-avatar"
             />
             <el-upload
@@ -27,9 +27,9 @@
 
           <!-- 右侧信息区域 -->
           <div class="info-section">
-            <el-descriptions 
-              title="基本信息" 
-              :column="2" 
+            <el-descriptions
+              title="基本信息"
+              :column="2"
               border
             >
               <el-descriptions-item label="用户名">
@@ -56,8 +56,8 @@
             </el-descriptions>
 
             <div class="action-buttons mt-4">
-              <el-button 
-                type="primary" 
+              <el-button
+                type="primary"
                 @click="showEditDialog = true"
               >
                 编辑信息
@@ -71,14 +71,14 @@
       </el-card>
 
       <!-- 编辑信息对话框 -->
-      <el-dialog 
-        v-model="showEditDialog" 
-        title="编辑个人信息" 
+      <el-dialog
+        v-model="showEditDialog"
+        title="编辑个人信息"
         width="600px"
       >
-        <el-form 
-          :model="editForm" 
-          label-width="100px" 
+        <el-form
+          :model="editForm"
+          label-width="100px"
           :rules="formRules"
           ref="editFormRef"
         >
@@ -112,14 +112,14 @@
           clearable
           class="mr-2"
         />
-        <el-button 
-          type="primary" 
+        <el-button
+          type="primary"
           @click="handleSearch"
         >
           搜索
         </el-button>
-        <el-button 
-          type="default" 
+        <el-button
+          type="default"
           @click="handleReset"
         >
           重置
@@ -138,13 +138,13 @@
 
             <el-table-column  prop="status"  label="状态"  width="120">
               <template #default="scope">
-                <el-tag 
-                  :type="scope.row.status === 'correct' ? 'success' : 
+                <el-tag
+                  :type="scope.row.status === 'correct' ? 'success' :
                           scope.row.status === 'wrong' ? 'warning' : 'info'"
-                  :effect="scope.row.status === 'correct' ? 'dark' : 
+                  :effect="scope.row.status === 'correct' ? 'dark' :
                           scope.row.status === 'wrong' ? 'dark' : 'plain'"
                 >
-                  {{ scope.row.status === 'correct' ? '正确' : 
+                  {{ scope.row.status === 'correct' ? '正确' :
                         scope.row.status === 'wrong' ? '错误' : '未完成' }}
                 </el-tag>
               </template>
@@ -155,7 +155,7 @@
                 <el-button  size="small"  type="primary"  @click="handleView(scope.row)" >
                     查看
                 </el-button>
-          
+
                 <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleDelete(scope.$index)">
                   <template #reference>
                     <el-button size="small" type="danger" >
@@ -202,7 +202,7 @@
           </el-form-item>
           <el-form-item label="答题时间:">
             {{ formatDate(selectedRecord.createTime)}}
-          </el-form-item> 
+          </el-form-item>
         </el-form>
         <template #footer>
           <el-button @click="selectedRecord = false" type="primary">关闭</el-button>
@@ -215,7 +215,7 @@
       </el-card>
     </el-main>
   </el-container>
-  
+
 </template>
 
 <script setup>
@@ -344,7 +344,7 @@ const handleSearch = () => {
 const handleReset = () => {
   searchKeyword.value = ''
   filteredRecords.value = answerRecords.value
- 
+
 }
 filteredRecords.value = answerRecords.value
 // 查看题目信息
@@ -357,8 +357,9 @@ const handleView = (row) => {
 // 删除记录
 const handleDelete = (index) => {
   answerRecords.value.splice(index, 1)
+  filteredRecords.value.splice(index, 1)
   ElMessage.success('记录已删除')
- 
+
 }
 </script>
 
@@ -386,7 +387,7 @@ const handleDelete = (index) => {
 .el-header {
   background-color: #ffffff;
   padding: 15px;
-  text-align: center; 
+  text-align: center;
   margin-top: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
