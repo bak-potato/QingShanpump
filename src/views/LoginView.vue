@@ -38,6 +38,7 @@
             class="submit-btn"
             type="primary"
             native-type="submit"
+            @click="handleLogin"
             :loading="loading"
           >
             立即登录
@@ -99,12 +100,16 @@ const handleLogin = () => {
         router.push('/')
         loginFormRef.value.resetFields()
       }, 1500)
+        localStorage.setItem('isLoggedIn', 'true');
+      this.$router.push({ name: 'home' }); // 跳转到主页或其他目标页面
     } else {
       ElMessage.warning('请填写完整信息')
       return false
     }
   })
 }
+
+
 </script>
 
 <style scoped>

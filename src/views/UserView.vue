@@ -63,7 +63,7 @@
                 编辑信息
               </el-button>
               <el-button @click="handleSecuritySettings">
-                安全设置
+                退出登录
               </el-button>
             </div>
           </div>
@@ -219,11 +219,12 @@
 </template>
 
 <script setup>
-
+import { useRouter } from 'vue-router'
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import UserE from './UserBody/UserE.vue'
 
+const router = useRouter()
 // 用户信息数据
 const userInfo = reactive({
   username: '青山用户',
@@ -297,6 +298,12 @@ const handleSaveInfo = async () => {
 const handleSecuritySettings = () => {
   // 跳转到安全设置页面
   console.log('跳转到安全设置')
+  localStorage.removeItem('isLoggedIn');
+  ElMessage.error('退出登录成功')
+
+  router.push({ name: 'login' }); // 跳转到登录页面
+  //刷新页面
+
 }
 // 答题记录数据
 const answerRecords = ref([
