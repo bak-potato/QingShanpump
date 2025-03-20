@@ -36,7 +36,11 @@ const router = createRouter({
           name: 'user',
           component: () => import('../views/UserView.vue'),
           meta: { requiresAuth: true } // 需要登录
-        },
+        }, {
+          path: '/usermanage',
+          name: 'usermanage',
+          component: () => import('../views/AdminManage/UserManageView.vue'),
+        }
       ],
     },
     {
@@ -49,6 +53,7 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+
   ],
 });
 

@@ -2,7 +2,7 @@
   <div class="lastguide">
     <div class="lastguidein">
       <div class="topf clickable">&nbsp;&nbsp;&nbsp;关注</div>
-      <div class="topf2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;智能应用推荐</div>
+      <div class="topf2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;网站公告 </div>
 
       <div class="lastf">
         <LastRightViewone />
@@ -10,23 +10,6 @@
       </div>
       <div class="lasts">
 
-         <div class="lastf1">
-          <div
-            ref="a1"
-            @click="handleisshow(true)"
-            :class="['l2a', { l21: isShow }]"
-          >
-            关于我们
-          </div>
-          <div
-            ref="a2"
-            @click="handleisshow(false)"
-            :class="['l2a', { l21: !isShow }]"
-          >
-            公告
-          </div>
-        </div>
-        <LastLeftViewone v-if="isShow" />
         <PublicNotice v-if="!isShow" />
       </div>
     </div>
@@ -34,16 +17,10 @@
 </template>
 
 <script setup>
-import LastLeftViewone from './LastLeftViewone.vue';
 import LastRightViewone from './LastRightViewone.vue';
-import PublicNotice from '../PublicNotice.vue';
-import { ref } from 'vue';
+import PublicNotice from '../../components/PublicNotice.vue';
 
-const isShow = ref(true);
 
-const handleisshow = (show) => {
-  isShow.value = show;
-};
 </script>
 
 <style scoped>

@@ -26,7 +26,10 @@
           <p>山清API</p>
         </div>
         <div class="bodyl">
-          <div class="last1 clickable">
+          <div   @click="handleviewmanage"  class="last1 clickable">
+            <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />
+          </div>
+            <div class="last1 clickable">
             <img width="20px" src="../icons/shiyongwendang.png" />
           </div>
           <div class="last1 clickable">
@@ -45,6 +48,8 @@
         <LeftBDiv0 v-if="view === 0" />
         <LeftBDiv2 v-if="view === 2" />
         <LeftBDiv1 v-if="view === 1" />
+        <LeftBDiv100 v-if="view === 100" />
+
       </div>
     </div>
   </div>
@@ -54,6 +59,7 @@
 import LeftBDiv0 from './LeftBodyDiv/LeftBDiv0.vue';
 import LeftBDiv1 from './LeftBodyDiv/LeftBDiv1.vue';
 import LeftBDiv2 from './LeftBodyDiv/LeftBDiv2.vue';
+import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -103,6 +109,15 @@ const handleview1 = () => {
     console.error('Router push error:', error);
   });
 };
+
+const handleviewmanage = () => {
+  view.value = 100;
+  sessionStorage.setItem('view', 100);
+  updateActiveClass(100);
+  router.push('/usermanage');
+
+}
+
 
 // 处理商店点击
 const handleview2 = () => {
