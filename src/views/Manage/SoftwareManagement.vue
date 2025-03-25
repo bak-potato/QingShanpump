@@ -27,7 +27,7 @@
               <div v-for="(questionSet, setIndex) in questionSets" :key="setIndex" class="scrollbar-demo-item">
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    {{ questionSet.name }}
+                    {{ questionSet.name }}&nbsp;&nbsp;({{questionSet.value}})
                     <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
                       <ArrowDown />
                     </el-icon>
@@ -145,6 +145,9 @@
           <div class="handquestion" v-if="isShow">
             <div class="tmmc">
               请输入应用名称： <el-input class="tmmc1" v-model="newQuestionSet.name" placeholder="请输入应用名称"></el-input>
+                            <el-select v-model="newQuestionSet.value" placeholder="类型选择" style="width: 100px;size: 100px;">
+                                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
+                            </el-select>
             </div>
             <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
               <el-form :model="question" label-width="120px">
@@ -195,15 +198,47 @@ const questionSets = ref([]);
 const isShow = ref(true);
 const isShowa = ref(true);
 
+// 定义选择类型
+const options = [
+  {
+    value: '心理测试',
+    label: '心理测试',
+  },
+  {
+    value: '生活实用',
+    label: '生活实用',
+  },
+  {
+    value: '娱乐休闲',
+    label: '娱乐休闲',
+  },
+  {
+    value: '科普',
+    label: '科普',
+  },
+  {
+    value: '智力挑战',
+    label: '智力挑战',
+  },
+  {
+    value: '学习',
+    label: '学习',
+  },
+  {
+    value: '其他',
+    label: '其他',
+  },
+]
 // 定义新习题集的数据结构
 const newQuestionSet = ref({
   name: '',
+  value: '',
   questions: [
     {
       text: '',
       options: [
-        { text: '', isAnswer: false },
-        { text: '', isAnswer: false }
+        { text: '', isAnswer: false ,option:''},
+        { text: '', isAnswer: false ,option:''}
       ]
     }
   ]
@@ -270,6 +305,11 @@ const saveEdit = (index) => {
   // 检查应用名称是否为空
   if (questionSet.editName.trim() === '') {
     ElMessage.error('应用名称不能为空');
+    return;
+  }
+  // 检查类型是否为空
+  if (questionSet.value.trim() === '') {
+    ElMessage.error('类型不能为空');
     return;
   }
 
@@ -558,6 +598,7 @@ h2 {
   margin: 0; /* 去除默认 margin */
 }
 .tmmc1 {
+  padding-right: 30px;
   width: 200px;
 }
 .tmmc {

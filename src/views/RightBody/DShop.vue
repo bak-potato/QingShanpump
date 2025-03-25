@@ -67,8 +67,25 @@
 
 </div>
 <div class="dshoptitleta">
- <el-card shadow="hover" v-for="item in 20" :key="item"  style="max-width: 480px">
+ <el-card shadow="hover" v-for="item in 21" :key="item"  style="max-width: 1000px; width: 450px;">
   <div class="dshoptitleta2"></div>
+  <div class="dshoptitleta3">
+     <div class="head">
+     </div>
+     <div class="content">
+     <h3 class="title">题目名称题目名称题名称题名称称题</h3>
+   <p class="description">题目介绍</p>
+   <el-button type="primary" class="view-btn">查看</el-button>
+     </div>
+  </div>
+  <div class="hrt1"></div>
+  <div class="dshoptitleta4">
+     <div class="ftca">
+        <img width="16px" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
+        <img width="16px" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
+        <img width="16px" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
+     </div>
+  </div>
 </el-card>
 </div>
 </div>
@@ -110,12 +127,101 @@ source.value = 172000;
   max-width: 1350px ;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+
   margin-top: 30px;
   width: 100%;
   /* margin-top: 30px; */
   height: 220px;
   position: relative;
+  .dshoptitleta3 {
+    height: 130px;
+    width: 100%;
+    .head {
+      float: left;
+      height: 130px;
+      width: 130px;
+       background-size: 100% 100%;
+       border-radius: 10px;
+      background-image: url("@/icons/img1.png");
+    }
+   .content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  height: 100%;
+  margin-left: 140px; /* 根据头像宽度调整 */
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 限制两行显示 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.description {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 限制三行显示 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.view-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 8px 20px;
+  border-radius: 15px;
+  background-color: #5147ff;
+  transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+  background-color: #4538ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(81,71,255,0.3);
+}
+  }
+  .hrt1{
+  height: 1px;
+  width: 100%;
+  background-color: #ebedff;
+  position: relative;
+  top: 10px;
+}
+  .dshoptitleta4 {
+    height: 90px;
+    width: 100%;
+.ftca p {
+  float: left;
+  font-size: 18px;
+  margin-left: 10px;
+  margin-top: 20px;
+}
+.ftca img{
+  float: left;
+  margin-top: 20px;
+margin-left: 10px;
+}
+.ftca{
+  color: #757a8c;
+  margin-top: 10px;
+  height: 16px;
+  bottom: 13px;
+  line-height: 16px;
+}
+  }
 }
 .elbut1{
   margin-left: 20px;
