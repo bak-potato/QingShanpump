@@ -40,7 +40,22 @@ const router = createRouter({
           path: '/usermanage',
           name: 'usermanage',
           component: () => import('../views/AdminManage/UserManageView.vue'),
+        },
+        {
+          path: '/usermanage1',
+          name: 'usermanage1',
+          component: () => import('../views/AdminManage/USEMAN.vue'),
+        },
+        {
+          path: '/ApplicationManagement',
+          name: 'ApplicationManagement',
+          component: () => import('../views/AdminManage/ApplicationManagement.vue'),
+        },{
+          path: '/VueDataAnalyticsPanel',
+          name: 'VueDataAnalyticsPanel',
+          component: () => import('../views/AdminManage/VueDataAnalyticsPanel.vue'),
         }
+
       ],
     },
     {

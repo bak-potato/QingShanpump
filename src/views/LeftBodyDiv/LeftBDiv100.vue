@@ -1,20 +1,20 @@
 <template>
   <div class="lefymenu">
     <div @click="router.push('/usermanage')" class="leftmenu1">
-      <img width="20px" src="@/icons/yingyongguanli.png">用户管理
+      <img width="20px" src="@/icons/yonghuguanli.png">用户管理
     </div>
-     <div @click="router.push('/usermanage')" class="leftmenu1">
-      <img width="20px" src="@/icons/1-5qitazuoye.png">
+     <div @click="router.push('/usermanage1')" class="leftmenu1">
+      <img width="20px" src="@/icons/huidaguanli.png">
 
       回答管理
     </div>
-     <div @click="router.push('/usermanage')" class="leftmenu1">
-      <img width="20px" src="@/icons/1-5qitazuoye.png">
+     <div @click="router.push('/ApplicationManagement')" class="leftmenu1">
+      <img width="20px" src="@/icons/a-yingyongguanli1.png">
 
       应用管理
     </div>
-     <div @click="router.push('/usermanage')" class="leftmenu1">
-      <img width="20px" src="@/icons/1-5qitazuoye.png">
+     <div @click="router.push('/VueDataAnalyticsPanel')" class="leftmenu1">
+      <img width="20px" src="@/icons/tongjifenxi.png">
 
       统计分析
     </div>
