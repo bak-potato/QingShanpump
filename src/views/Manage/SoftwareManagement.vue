@@ -422,6 +422,10 @@ const saveQuestionSet = () => {
       ElMessage.error('每个问题必须至少有一个答案');
       return;
     }
+    if (newSet.value.trim() === '') {
+      ElMessage.error('类型不能为空');
+      return;
+    }
   }
 
   // 如果所有验证通过，保存新应用

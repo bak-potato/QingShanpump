@@ -14,7 +14,7 @@
 
     </el-input>
   </div>
-    <el-button class="dstt2" type="primary">上架应用</el-button>
+    <el-button @click="handlecjapp" class="dstt2" type="primary">上架应用</el-button>
 </div>
 <div class="dshoptitlet">
   <div class="dshoptitlet2">
@@ -67,7 +67,7 @@
 
 </div>
 <div class="dshoptitleta">
- <el-card shadow="hover" v-for="item in 21" :key="item"  style="max-width: 1000px; width: 450px;">
+ <el-card shadow="hover" v-for="item in 21" :key="item"  style="max-width: 500px; width: 440px;">
   <div class="dshoptitleta2"></div>
   <div class="dshoptitleta3">
      <div class="head">
@@ -103,7 +103,12 @@ const handleSearch = () => {
 };
 import { useTransition } from '@vueuse/core';
 import { ChatLineRound, Male } from '@element-plus/icons-vue';
+import router from '@/router';
 
+const handlecjapp = () => {
+  router.push('/SoftwareManagement');
+  sessionStorage.setItem('view', 1);
+};
 const source = ref(0);
 const outputValue = useTransition(source, {
   duration: 1500,
@@ -127,7 +132,9 @@ source.value = 172000;
   max-width: 1350px ;
   display: flex;
   flex-wrap: wrap;
-
+display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
   margin-top: 30px;
   width: 100%;
   /* margin-top: 30px; */

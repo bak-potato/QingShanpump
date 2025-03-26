@@ -18,6 +18,7 @@ const data = [
     label: '应用商店',
     children: [
       {
+
         label: '最近更新',
       },
       {
@@ -32,16 +33,27 @@ const data = [
     label: '分类查看',
     children: [
       {
-        label: 'Level two 2-1',
+
+        label: '学习教育',
       },
       {
-        label: 'Level two 2-2',
-        children: [
-          {
-            label: 'Level three 2-2-1',
-          },
-        ],
+        label: '娱乐休闲',
       },
+      {
+        label: '心理测试',
+      },
+      {
+        label: '生活实用',
+      },
+      {
+        label: '智力挑战',
+      },
+      {
+        label: '科普知识',
+      },
+      {
+        label: '其他',
+      }
     ],
   },
   {

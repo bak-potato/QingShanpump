@@ -4,8 +4,8 @@
       <!-- 第一行文字 -->
       <div class="ffont">
         <div>新手指南</div>
-        <div><img width="16px" src="../icons/xiangyoula.png"></div>
-        <div> <img @click="handleclose" src="../icons/guanbi.png" width="20px" ></div>
+        <div><img width="16px" src="@/icons/xiangyoula.png"></div>
+        <div> <img @click="handleclose" src="@/icons/guanbi.png" width="20px" ></div>
       </div>
       <!-- 内容 -->
       <div class="fcontent">

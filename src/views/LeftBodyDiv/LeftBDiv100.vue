@@ -1,13 +1,13 @@
 <template>
   <div class="lefymenu">
-    <div @click="router.push('/usermanage')" class="leftmenu1">
+    <div @click="router.push('/usermanage1')" class="leftmenu1">
       <img width="20px" src="@/icons/yonghuguanli.png">用户管理
     </div>
-     <div @click="router.push('/usermanage1')" class="leftmenu1">
+     <!-- <div @click="router.push('/usermanage')" class="leftmenu1">
       <img width="20px" src="@/icons/huidaguanli.png">
 
       回答管理
-    </div>
+    </div> -->
      <div @click="router.push('/ApplicationManagement')" class="leftmenu1">
       <img width="20px" src="@/icons/a-yingyongguanli1.png">
 

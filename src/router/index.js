@@ -69,6 +69,12 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
 
+    {
+      path: '/PhoneVue',
+      name: 'PhoneVue',
+      component: () => import('../components/PhoneVue.vue'),
+    }
+
   ],
 });
 

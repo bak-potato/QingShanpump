@@ -117,6 +117,21 @@ const handleviewmanage = () => {
   router.push('/usermanage');
 
 }
+function isComputer() {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'iemobile', 'opera mini','mobile'];
+      for (const keyword of mobileKeywords) {
+        if (userAgent.includes(keyword)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (!isComputer()) {
+      console.log('当前登录设备不是电脑端');
+      router.push('/PhoneVue');
+    }
 
 
 // 处理商店点击
