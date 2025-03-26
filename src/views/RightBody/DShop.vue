@@ -1,7 +1,7 @@
 <template>
 <div class="dshop">
 <div class="dshoptitle">
-<p class="dshoptitle1 ">项目商店</p>
+<p class="dshoptitle1 ">应用商店</p>
   <div class="search-container">
     <!-- 输入框 + 搜索按钮 -->
     <el-input
