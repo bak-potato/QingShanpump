@@ -108,7 +108,7 @@
           </el-table-column>
           <el-table-column label="应用类型" prop="type">
             <template #default="{ row }">
-              <el-tag :type="getTagType(row.type)" effect="light">
+              <el-tag :type="getTagType(row.type) || 'primary'" effect="light">
                 {{ row.type }}
               </el-tag>
             </template>
@@ -271,10 +271,21 @@ const initPieChart = () => {
   pieChart.resize();
   pieChart.setOption(option);
 
-  // 添加窗口大小变化事件监听
+  // 添加窗口大小变化事件监听，标记为 passive
   window.addEventListener('resize', function() {
     pieChart.resize();
-  });
+  }, { passive: true });
+
+  // 获取echarts实例的画布元素
+  const canvas = pieChart.getZr().canvas;
+  if (canvas) {
+    canvas.addEventListener('mousewheel', function () {
+      // 这里可以添加你需要的逻辑
+    }, { passive: true });
+    canvas.addEventListener('wheel', function () {
+      // 这里可以添加你需要的逻辑
+    }, { passive: true });
+  }
 };
 
 /**
@@ -287,13 +298,13 @@ const getTagType = (type) => {
     '学习': 'primary',
     '娱乐休闲': 'success',
     '心理测试': 'warning',
-    '生活实用': '',
+    '生活实用': 'info',
     '智力挑战': 'danger',
     '科普': 'info',
-    '其他': ''
-  }
-  return typeMap[type] || ''
-}
+    '其他': 'info'
+  };
+  return typeMap[type] || 'info';
+};
 
 /**
  * 格式化数字显示
@@ -302,10 +313,10 @@ const getTagType = (type) => {
  */
 const formatCount = (count) => {
   if (count >= 10000) {
-    return (count / 10000).toFixed(1) + '万'
+    return (count / 10000).toFixed(1) + '万';
   }
-  return count
-}
+  return count;
+};
 
 // 排行榜数据
 const rankList = ref([
@@ -448,6 +459,17 @@ const initChart = () => {
   const chartDom = document.getElementById('chart');
   myChart = echarts.init(chartDom);
   myChart.setOption(option);
+
+  // 获取echarts实例的画布元素
+  const canvas = myChart.getZr().canvas;
+  if (canvas) {
+    canvas.addEventListener('mousewheel', function () {
+      // 这里可以添加你需要的逻辑
+    }, { passive: true });
+    canvas.addEventListener('wheel', function () {
+      // 这里可以添加你需要的逻辑
+    }, { passive: true });
+  }
 };
 
 /**
@@ -496,6 +518,7 @@ onMounted(() => {
   }, 100);
 });
 </script>
+
 
 <style scoped>
 /* 全局样式 */

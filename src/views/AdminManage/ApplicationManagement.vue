@@ -103,9 +103,10 @@
             header-align="center"
           >
             <template #default="scope">
-              <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+              <!-- 将 size="mini" 修改为 size="small" -->
+              <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
               <el-button
-                size="mini"
+                size="small"
                 :type="scope.row.status === 'active' ? 'danger' : 'success'"
                 @click="toggleStatus(scope.row)"
               >
@@ -116,7 +117,8 @@
                 @confirm="handleDelete(scope.row)"
               >
                 <template #reference>
-                  <el-button size="mini" type="danger">删除</el-button>
+                  <!-- 将 size="mini" 修改为 size="small" -->
+                  <el-button size="small" type="danger">删除</el-button>
                 </template>
               </el-popconfirm>
             </template>

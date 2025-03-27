@@ -14,6 +14,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useQuestionStore } from "../../store/qusetion.js"
 const questions = ref([
   {
     id:1,
@@ -40,9 +41,11 @@ const questions = ref([
     correct: 0
   },
 ])
+const store = useQuestionStore()
 const activeId = ref(null)
 const handleMenuClick = (id) => {
   activeId.value = id
+  store.setSelectedQuestionId(activeId.value)
 }
 
 </script>

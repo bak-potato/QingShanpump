@@ -59,10 +59,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed ,watch} from 'vue'
 import { Clock } from '@element-plus/icons-vue'
 import { useIntervalFn } from '@vueuse/core'
+import { useQuestionStore } from "../../store/qusetion.js"
+import { storeToRefs } from 'pinia'
+const store = useQuestionStore()
+const { selectedQuestionId } = storeToRefs(store)
+watch(selectedQuestionId, (newId) => {
+  if (!newId) return
 
+  // 在题目列表中查找匹配的索引
+  const targetIndex = questions.value.findIndex(q => q.id === newId)
+
+  if (targetIndex !== -1) {
+    currentQuestionIndex.value = targetIndex
+    console.log('已定位到题目:', targetIndex + 1)
+  } else {
+    console.warn('未找到对应题目，ID:', newId)
+  }
+})
 // 题目数据示例
 const questions = ref([
   {
@@ -103,7 +119,9 @@ const { pause: pauseTimer } = useIntervalFn(() => {
 }, 1000)
 
 // 计算属性
+
 const currentQuestion = computed(() => questions.value[currentQuestionIndex.value])
+
 
 const progress = computed(() =>
   ((currentQuestionIndex.value + 1) / questions.value.length) * 100
@@ -132,7 +150,9 @@ const prevQuestion = () => {
 
 const submitQuiz = () => {
   pauseTimer()
+
   // 提交逻辑...
+
   console.log('提交答卷')
 }
 

@@ -15,7 +15,6 @@
     v-model="showDialog"
     :title= "currentNotice.title"
      width="500"
-    :before-close="handleClose"
   >
       <span>{{ currentNotice.content}}</span>
       <template #footer>
