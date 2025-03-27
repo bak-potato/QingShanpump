@@ -2,10 +2,10 @@
   <div class="lastright">
 <el-scrollbar height="670px">
  <el-card  v-for="item in 20" :key="item" style="min-width: 400px; position: relative; margin: 10px; height: 140px; width: 90%;border-radius: 15px;" shadow="hover">
-<div class="lrf">
+<div class="lrf mouse">
 </div>
-<div class="lrr">
-  <div class="lrr1">图文生成工具
+<div class="lrr ">
+  <div class="lrr1 mouse">图文生成工具
     <div class="lrr2 clickable">
       <img  width="12px" src="@/icons/wenjianxiazaicopy.png">
       应用</div>
@@ -20,9 +20,9 @@
   <div class="hrt1"></div>
 
 <div class="ftca">
-<img width="16px" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
-<img width="16px" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
+<img width="16px" class="mouse" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
+<img width="16px" class="mouse" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
+<img width="16px" class="mouse" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
 
 </div>
  </el-card>

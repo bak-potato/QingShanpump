@@ -104,27 +104,34 @@
       <el-card class="user-record mt-4">
         <div class="record-container">
           <h3 class="record-title">答题记录</h3>
-        <div class="search-controls">
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索题目名称"
-          prefix-icon="el-icon-search"
-          clearable
-          class="mr-2"
-        />
-        <el-button
-          type="primary"
-          @click="handleSearch"
-        >
-          搜索
-        </el-button>
-        <el-button
-          type="default"
-          @click="handleReset"
-        >
-          重置
-        </el-button>
-        </div>
+
+  <div class="search-controls">
+    <el-input
+      v-model="searchKeyword"
+      placeholder="搜索题目名称"
+      clearable
+      class="mr-2"
+      @keyup.enter="handleSearch"
+    >
+      <template #prefix>
+        <el-icon><Search /></el-icon>
+      </template>
+    </el-input>
+    <el-button
+      type="primary"
+      @click="handleSearch"
+      :icon="Search"
+    >
+      搜索
+    </el-button>
+    <el-button
+      type="default"
+      @click="handleReset"
+    >
+      重置
+    </el-button>
+  </div>
+
 
           <el-table   :data="filteredRecords"  border  style="width: 100%">
             <el-table-column   prop="questionName"  label="题目名称" min-width="200"/>
@@ -220,6 +227,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { Search } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import UserE from './UserBody/UserE.vue'
@@ -371,6 +379,25 @@ const handleDelete = (index) => {
 </script>
 
 <style scoped>
+/* 更新搜索区域的样式 */
+.search-controls {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-controls .mr-2 {
+  flex: 1;
+  max-width: 1100px;
+}
+
+/* 使搜索图标更明显 */
+:deep(.el-input__prefix) {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
 .search-container {
   display: flex;
   justify-content: space-between;

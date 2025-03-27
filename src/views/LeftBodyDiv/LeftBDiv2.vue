@@ -18,7 +18,6 @@ const data = [
     label: '应用商店',
     children: [
       {
-
         label: '最近更新',
       },
       {
@@ -60,21 +59,8 @@ const data = [
     label: '我的收藏',
     children: [
       {
-        label: 'Level two 3-1',
-        children: [
-          {
-            label: 'Level three 3-1-1',
-          },
-        ],
-      },
-      {
-        label: 'Level two 3-2',
-        children: [
-          {
-            label: 'Level three 3-2-1',
-          },
-        ],
-      },
+        label: '收藏夹1',
+      }
     ],
   },
 ];

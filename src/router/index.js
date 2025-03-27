@@ -20,6 +20,11 @@ const router = createRouter({
           meta: { requiresAuth: true } // 需要登录
         },
         {
+          path: '/answer',
+          name: 'answer',
+          component: () => import('../views/RightBody/Answer.vue'),
+        },
+        {
           path: '/questionmanage',
           name: 'questionmanage',
           component: () => import('../views/Manage/QuestionManagement.vue'),
@@ -50,7 +55,7 @@ const router = createRouter({
           path: '/ApplicationManagement',
           name: 'ApplicationManagement',
           component: () => import('../views/AdminManage/ApplicationManagement.vue'),
-        },{
+        }, {
           path: '/VueDataAnalyticsPanel',
           name: 'VueDataAnalyticsPanel',
           component: () => import('../views/AdminManage/VueDataAnalyticsPanel.vue'),

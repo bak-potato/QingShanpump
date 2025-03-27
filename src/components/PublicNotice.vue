@@ -1,11 +1,11 @@
 <template>
   <div class="public-notice">
     <div class="notice-card">
-      <h2 class="notice-title">最新公告</h2>
+      <h2 class="notice-title mouse">最新公告</h2>
       <ul class="notice-list">
         <li v-for="(notice, index) in notices" :key="index" class="notice-item">
-          <span class="notice-date">{{ notice.date }}</span>
-          <a @click="add(notice.id)" class="notice-link">{{ notice.title }}</a>
+          <span class="notice-date mouse">{{ notice.date }}</span>
+          <a @click="add(notice.id)" class="notice-link mouse">{{ notice.title }}</a>
         </li>
       </ul>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="user-admin-manage">
-    <!-- 搜索栏 -->
+    <!-- 搜索栏和操作按钮 -->
     <div class="search-container">
       <el-input
         v-model="searchPhone"
@@ -21,6 +21,7 @@
         style="width: 240px"
       />
       <el-button type="primary" @click="handleSearch">搜索</el-button>
+      <el-button type="success" @click="handleAdd">新增用户</el-button>
     </div>
 
     <!-- 用户表格 -->
@@ -31,8 +32,6 @@
         v-loading="loading"
         stripe
       >
-        <!-- border -->
-
         <el-table-column
           type="index"
           label="序号"
@@ -88,7 +87,7 @@
 
         <el-table-column
           label="操作"
-          width="200"
+          width="240"
           fixed="right"
         >
           <template #default="{ row }">
@@ -106,6 +105,14 @@
             >
               {{ row.status === '正常' ? '禁用' : '启用' }}
             </el-button>
+            <el-popconfirm
+              title="确定要删除该用户吗？"
+              @confirm="handleDelete(row)"
+            >
+              <template #reference>
+                <el-button size="small" type="danger">删除</el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
 
@@ -127,10 +134,10 @@
       />
     </div>
 
-    <!-- 编辑对话框 -->
+    <!-- 编辑/添加对话框 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="`编辑用户 - ${currentUser.account}`"
+      :title="dialogTitle"
       width="500px"
     >
       <el-form
@@ -139,6 +146,10 @@
         :rules="formRules"
         ref="formRef"
       >
+        <el-form-item label="用户账号" prop="account" v-if="isAdd">
+          <el-input v-model="currentUser.account" :disabled="!isAdd" />
+        </el-form-item>
+
         <el-form-item label="姓名" prop="name">
           <el-input v-model="currentUser.name" />
         </el-form-item>
@@ -168,6 +179,10 @@
             />
           </el-select>
         </el-form-item>
+
+        <el-form-item label="密码" prop="password" v-if="isAdd">
+          <el-input v-model="currentUser.password" type="password" show-password />
+        </el-form-item>
       </el-form>
 
       <template #footer>
@@ -179,7 +194,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 
 // 模拟数据
@@ -216,20 +231,38 @@ const loading = ref(false)
 
 // 对话框相关
 const dialogVisible = ref(false)
+const isAdd = ref(false)
+const formRef = ref(null)
 const currentUser = reactive({
   account: '',
   name: '',
   phone: '',
   role: '',
-  status: ''
+  status: '',
+  password: ''
+})
+
+// 计算对话框标题
+const dialogTitle = computed(() => {
+  return isAdd.value ? '新增用户' : `编辑用户 - ${currentUser.account}`
 })
 
 // 表单验证规则
 const formRules = {
+  account: [
+    { required: true, message: '请输入用户账号', trigger: 'blur' },
+    { min: 4, max: 20, message: '长度在4到20个字符', trigger: 'blur' }
+  ],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+  ],
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' }
   ]
 }
 
@@ -249,9 +282,9 @@ const filteredUserList = computed(() => {
       user.phone.includes(searchPhone.value) &&
       user.account.includes(searchAccount.value) &&
       user.name.includes(searchName.value)
-    )
+  )})
 })
-})
+
 // 分页后的数据
 const paginatedList = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -264,6 +297,7 @@ const handleSearch = async () => {
   loading.value = true
   // 模拟API请求
   await new Promise(resolve => setTimeout(resolve, 500))
+  currentPage.value = 1
   loading.value = false
 }
 
@@ -278,24 +312,105 @@ const handleCurrentChange = (newPage) => {
 }
 
 // 用户状态切换
-const toggleStatus = (user) => {
-  user.status = user.status === '正常' ? '禁用' : '正常'
-  ElMessage.success('状态更新成功')
+const toggleStatus = async (user) => {
+  loading.value = true
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500))
+    user.status = user.status === '正常' ? '禁用' : '正常'
+    ElMessage.success('状态更新成功')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 新增用户
+const handleAdd = () => {
+  isAdd.value = true
+  Object.assign(currentUser, {
+    account: '',
+    name: '',
+    phone: '',
+    role: '普通用户',
+    status: '正常',
+    password: '',
+    createTime: new Date().toISOString()
+  })
+  dialogVisible.value = true
+
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate()
+    }
+  })
 }
 
 // 编辑用户
 const handleEdit = (user) => {
-  Object.assign(currentUser, user)
+  isAdd.value = false
+  Object.assign(currentUser, JSON.parse(JSON.stringify(user)))
   dialogVisible.value = true
 }
 
+// 删除用户
+const handleDelete = async (user) => {
+  loading.value = true
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500))
+    userList.value = userList.value.filter(u => u.account !== user.account)
+    ElMessage.success('用户删除成功')
+
+    // 如果当前页没有数据了，且不是第一页，则返回上一页
+    if (paginatedList.value.length === 0 && currentPage.value > 1) {
+      currentPage.value -= 1
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
 // 保存用户
-const saveUser = () => {
-  const index = userList.value.findIndex(u => u.account === currentUser.account)
-  if (index !== -1) {
-    userList.value[index] = { ...currentUser }
-    ElMessage.success('用户信息更新成功')
+const saveUser = async () => {
+  // 表单验证
+  try {
+    await formRef.value.validate()
+  } catch (error) {
+    console.error('表单验证失败', error)
+    ElMessage.warning('请填写完整且正确的表单信息')
+    return
+  }
+
+  loading.value = true
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    if (isAdd.value) {
+      // 检查账号是否已存在
+      if (userList.value.some(u => u.account === currentUser.account)) {
+        ElMessage.error('该用户账号已存在')
+        return
+      }
+
+      // 新增用户
+      userList.value.push({
+        ...currentUser,
+        createTime: new Date().toLocaleString()
+      })
+      ElMessage.success('用户添加成功')
+    } else {
+      // 编辑用户
+      const index = userList.value.findIndex(u => u.account === currentUser.account)
+      if (index !== -1) {
+        userList.value[index] = { ...currentUser }
+        ElMessage.success('用户信息更新成功')
+      }
+    }
+
     dialogVisible.value = false
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -312,6 +427,7 @@ const saveUser = () => {
   display: flex;
   gap: 15px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .user-table {
@@ -333,16 +449,15 @@ const saveUser = () => {
 }
 
 @media (max-width: 768px) {
-  .search-container {
-    flex-wrap: wrap;
-  }
-
-  .search-container .el-input {
+  .search-container .el-input,
+  .search-container .el-button {
     width: 100% !important;
   }
+}
 
-  .search-container .el-button {
-    width: 100%;
-  }
+.operation-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 </style>

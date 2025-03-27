@@ -49,7 +49,7 @@
         <LeftBDiv2 v-if="view === 2" />
         <LeftBDiv1 v-if="view === 1" />
         <LeftBDiv100 v-if="view === 100" />
-
+        <LeftBDiv99 v-if="view === 99" />
       </div>
     </div>
   </div>
@@ -59,6 +59,7 @@
 import LeftBDiv0 from './LeftBodyDiv/LeftBDiv0.vue';
 import LeftBDiv1 from './LeftBodyDiv/LeftBDiv1.vue';
 import LeftBDiv2 from './LeftBodyDiv/LeftBDiv2.vue';
+import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
 import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -114,7 +115,7 @@ const handleviewmanage = () => {
   view.value = 100;
   sessionStorage.setItem('view', 100);
   updateActiveClass(100);
-  router.push('/usermanage');
+  router.push('/usermanage1');
 
 }
 function isComputer() {

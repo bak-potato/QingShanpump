@@ -1,10 +1,10 @@
 <template>
   <div class="lefymenu">
-    <div @click="router.push('/SoftwareManagement')" class="leftmenu1">
-      <img width="20px" src="@/icons/yingyongguanli.png">应用管理
+    <div @click="router.push('/SoftwareManagement')" class="leftmenu1 mouse">
+      <img class="mouse" width="20px" src="@/icons/yingyongguanli.png">应用管理
     </div>
-     <div @click="router.push('/questionmanage')" class="leftmenu1">
-      <img width="20px" src="@/icons/1-5qitazuoye.png">
+     <div @click="router.push('/questionmanage')" class="leftmenu1 mouse">
+      <img class="mouse" width="20px" src="@/icons/1-5qitazuoye.png">
 
       题目管理
     </div>

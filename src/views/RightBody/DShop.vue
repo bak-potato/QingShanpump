@@ -75,7 +75,7 @@
      <div class="content">
      <h3 class="title">题目名称题目名称题名称题名称称题</h3>
    <p class="description">题目介绍</p>
-   <el-button type="primary" class="view-btn">查看</el-button>
+   <el-button type="primary" class="view-btn" @click="answer">查看</el-button>
      </div>
   </div>
   <div class="hrt1"></div>
@@ -114,6 +114,19 @@ const outputValue = useTransition(source, {
   duration: 1500,
 });
 source.value = 172000;
+
+const answer = () => {
+
+   sessionStorage.setItem('view', 99);
+     router.push('/answer');
+  // updateActiveClass(99);
+  //延迟刷新
+  setTimeout(() => {
+    window.location.reload();
+  }, 100);
+
+
+}
 </script>
 
 <style scoped>

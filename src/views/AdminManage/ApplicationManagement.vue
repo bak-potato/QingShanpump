@@ -1,31 +1,34 @@
 <template>
   <el-container>
     <el-header>
-      <el-card style=" width: 1350px;height: 60px; margin-top: 1vh;">
-      <h1 class="apptitle">应用管理</h1>
-
+      <el-card style="width: 1350px; height: 60px; margin-top: 1vh;">
+        <h1 class="apptitle">应用管理</h1>
       </el-card>
     </el-header>
     <el-main style="width: 1380px;">
       <!-- 卡片容器 -->
       <el-card shadow="hover" style="border-radius: 8px;">
-        <!-- 搜索栏 -->
+        <!-- 搜索栏和操作按钮 -->
         <el-row :gutter="20" style="margin-bottom: 20px;">
-          <el-col :span="6">
+          <el-col :span="5">
             <el-input v-model="searchParams.uploader" placeholder="按作者搜索" clearable></el-input>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="5">
             <el-select v-model="searchParams.status" placeholder="按状态筛选" clearable>
+              <el-option label="全部" value=""></el-option>
               <el-option label="正常" value="active"></el-option>
               <el-option label="已下架" value="inactive"></el-option>
             </el-select>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="5">
             <el-input v-model="searchParams.name" placeholder="按题目名称搜索" clearable></el-input>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="4">
             <el-button type="primary" @click="handleSearch">搜索</el-button>
             <el-button @click="resetSearch">重置</el-button>
+          </el-col>
+          <el-col :span="5" style="text-align: right;">
+            <el-button type="success" @click="handleAdd">新增应用</el-button>
           </el-col>
         </el-row>
 
@@ -33,7 +36,7 @@
         <el-table
           v-loading="loading"
           stripe
-          :data="filteredApplications"
+          :data="paginatedApplications"
           style="width: 100%"
           border
           :default-sort="{ prop: 'createdAt', order: 'descending' }"
@@ -95,7 +98,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="auto"
+            width="240"
             align="center"
             header-align="center"
           >
@@ -108,19 +111,95 @@
               >
                 {{ scope.row.status === 'active' ? '下架' : '恢复' }}
               </el-button>
+              <el-popconfirm
+                title="确定要删除该应用吗？"
+                @confirm="handleDelete(scope.row)"
+              >
+                <template #reference>
+                  <el-button size="mini" type="danger">删除</el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
+
+        <!-- 分页 -->
+        <el-pagination
+          class="pagination"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="filteredApplications.length"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </el-card>
     </el-main>
+
+    <!-- 编辑/添加对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        :model="currentApp"
+        label-width="100px"
+        :rules="formRules"
+        ref="formRef"
+      >
+        <el-form-item label="上传者" prop="uploader">
+          <el-input v-model="currentApp.uploader" placeholder="请输入上传者姓名"></el-input>
+        </el-form-item>
+        <el-form-item label="题目名称" prop="name">
+          <el-input v-model="currentApp.name" placeholder="请输入题目名称"></el-input>
+        </el-form-item>
+        <el-form-item label="题目数量" prop="questionCount">
+          <el-input-number
+            v-model="currentApp.questionCount"
+            :min="1"
+            :max="1000"
+            controls-position="right"
+          ></el-input-number>
+        </el-form-item>
+        <el-form-item label="答题人数" prop="answerCount">
+          <el-input-number
+            v-model="currentApp.answerCount"
+            :min="0"
+            :max="100000"
+            controls-position="right"
+          ></el-input-number>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="currentApp.status" placeholder="请选择状态">
+            <el-option label="正常" value="active"></el-option>
+            <el-option label="已下架" value="inactive"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="创建时间" v-if="!isAdd">
+          <el-date-picker
+            v-model="currentApp.createdAt"
+            type="datetime"
+            disabled
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveApp">保存</el-button>
+      </template>
+    </el-dialog>
   </el-container>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
 
 // 应用数据
-
 const applications = ref([
   {
     uploader: '张三',
@@ -146,18 +225,60 @@ const applications = ref([
     status: 'active',
     createdAt: '2023-10-05T10:15:00',
   },
-  // 更多应用数据...
 ]);
 
 // 搜索参数
 const searchParams = ref({
-  uploader: '', // 按作者搜索
-  status: '', // 按状态筛选
-  name: '', // 按题目名称搜索
+  uploader: '',
+  status: '',
+  name: '',
 });
+
+// 分页相关
+const currentPage = ref(1);
+const pageSize = ref(10);
 
 // 加载状态
 const loading = ref(false);
+
+// 对话框相关
+const dialogVisible = ref(false);
+const isAdd = ref(false);
+const formRef = ref(null);
+const currentApp = reactive({
+  uploader: '',
+  questionCount: 1,
+  name: '',
+  answerCount: 0,
+  status: 'active',
+  createdAt: new Date().toISOString()
+});
+
+// 表单验证规则
+const formRules = {
+  uploader: [
+    { required: true, message: '请输入上传者姓名', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在2到20个字符', trigger: 'blur' }
+  ],
+  name: [
+    { required: true, message: '请输入题目名称', trigger: 'blur' },
+    { min: 2, max: 50, message: '长度在2到50个字符', trigger: 'blur' }
+  ],
+  questionCount: [
+    { required: true, message: '请输入题目数量', trigger: 'blur' }
+  ],
+  answerCount: [
+    { required: true, message: '请输入答题人数', trigger: 'blur' }
+  ],
+  status: [
+    { required: true, message: '请选择状态', trigger: 'change' }
+  ]
+};
+
+// 计算对话框标题
+const dialogTitle = computed(() => {
+  return isAdd.value ? '新增应用' : `编辑应用 - ${currentApp.name}`;
+});
 
 // 过滤后的应用列表
 const filteredApplications = computed(() => {
@@ -175,12 +296,19 @@ const filteredApplications = computed(() => {
   });
 });
 
+// 分页后的应用列表
+const paginatedApplications = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredApplications.value.slice(start, end);
+});
+
 // 搜索
 const handleSearch = () => {
   loading.value = true;
   setTimeout(() => {
+    currentPage.value = 1;
     loading.value = false;
-    console.log('搜索参数:', searchParams.value);
   }, 500);
 };
 
@@ -191,29 +319,130 @@ const resetSearch = () => {
     status: '',
     name: '',
   };
+  currentPage.value = 1;
+};
+
+// 分页处理
+const handleSizeChange = (newSize) => {
+  pageSize.value = newSize;
+  currentPage.value = 1;
+};
+
+const handleCurrentChange = (newPage) => {
+  currentPage.value = newPage;
+};
+
+// 新增应用
+const handleAdd = () => {
+  isAdd.value = true;
+  Object.assign(currentApp, {
+    uploader: '',
+    questionCount: 1,
+    name: '',
+    answerCount: 0,
+    status: 'active',
+    createdAt: new Date().toISOString()
+  });
+  dialogVisible.value = true;
+
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  });
 };
 
 // 编辑应用
 const handleEdit = (row) => {
-  console.log('编辑应用', row);
-  // 这里可以跳转到编辑页面或弹出编辑对话框
+  isAdd.value = false;
+  Object.assign(currentApp, JSON.parse(JSON.stringify(row)));
+  dialogVisible.value = true;
 };
 
-// 切换应用状态（下架或恢复）
-const toggleStatus = (row) => {
-  row.status = row.status === 'active' ? 'inactive' : 'active';
-  console.log('应用状态已更新', row);
+// 删除应用
+const handleDelete = async (row) => {
+  loading.value = true;
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500));
+    applications.value = applications.value.filter(app => app.name !== row.name);
+    ElMessage.success('应用删除成功');
+
+    // 如果当前页没有数据了，且不是第一页，则返回上一页
+    if (paginatedApplications.value.length === 0 && currentPage.value > 1) {
+      currentPage.value -= 1;
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 切换应用状态
+const toggleStatus = async (row) => {
+  loading.value = true;
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500));
+    row.status = row.status === 'active' ? 'inactive' : 'active';
+    ElMessage.success(`应用已${row.status === 'active' ? '恢复' : '下架'}`);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 保存应用
+const saveApp = async () => {
+  // 表单验证
+  try {
+    await formRef.value.validate();
+  } catch (error) {
+    console.error('表单验证失败', error);
+    ElMessage.warning('请填写完整且正确的表单信息');
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (isAdd.value) {
+      // 检查名称是否已存在
+      if (applications.value.some(app => app.name === currentApp.name)) {
+        ElMessage.error('该题目名称已存在');
+        return;
+      }
+
+      // 新增应用
+      applications.value.push({
+        ...currentApp,
+        createdAt: new Date().toISOString()
+      });
+      ElMessage.success('应用添加成功');
+    } else {
+      // 编辑应用
+      const index = applications.value.findIndex(app => app.name === currentApp.name);
+      if (index !== -1) {
+        applications.value[index] = { ...currentApp };
+        ElMessage.success('应用信息更新成功');
+      }
+    }
+
+    dialogVisible.value = false;
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 格式化日期
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleString(); // 根据本地时间格式化
+  return date.toLocaleString();
 };
 </script>
 
 <style scoped>
-.apptitle{
+.apptitle {
   font-size: 20px;
   font-weight: bold;
   text-align: center;
@@ -221,6 +450,7 @@ const formatDate = (dateString) => {
   line-height: 60px;
   text-align: center;
 }
+
 .el-header {
   color: white;
   text-align: center;
@@ -249,5 +479,26 @@ const formatDate = (dateString) => {
 .el-table td,
 .el-table th {
   padding: 12px 0;
+}
+
+.pagination {
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.operation-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .el-col {
+    margin-bottom: 10px;
+  }
+
+  .el-button {
+    width: 100%;
+  }
 }
 </style>
