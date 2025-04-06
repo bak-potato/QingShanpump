@@ -15,4 +15,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: '120.46.86.24:8080/',
+        changeOrigin: true,
+        ws: true,
+        pathRewritre: {
+          '^/': '',
+        },
+      },
+    },
+  },
 })

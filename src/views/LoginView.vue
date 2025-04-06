@@ -100,7 +100,7 @@ const handleLogin = () => {
         loginFormRef.value.resetFields()
       }, 1500)
       localStorage.setItem('isLoggedIn', 'true');
-      router.push({ name: 'home' }); // 跳转到主页或其他目标页面
+      // router.push({ name: 'home' }); // 跳转到主页或其他目标页面
     } else {
       ElMessage.warning('请填写完整信息')
       return false

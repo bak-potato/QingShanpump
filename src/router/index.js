@@ -4,7 +4,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '',
+      path: '/',
       component: () => import('../views/HomeView.vue'),
       children: [
         {
@@ -14,51 +14,56 @@ const router = createRouter({
           meta: { requiresAuth: true } // 需要登录
         },
         {
-          path: '/store',
+          path: 'store',
           name: 'store',
           component: () => import('../views/RightBody/DShop.vue'),
           meta: { requiresAuth: true } // 需要登录
         },
         {
-          path: '/answer',
+          path: 'answer',
           name: 'answer',
           component: () => import('../views/RightBody/Answer.vue'),
         },
         {
-          path: '/questionmanage',
+          path: 'questionmanage',
           name: 'questionmanage',
           component: () => import('../views/Manage/QuestionManagement.vue'),
           meta: { requiresAuth: true } // 需要登录
         },
         {
-          path: '/SoftwareManagement',
+          path: 'SoftwareManagement',
           name: 'SoftwareManagement',
           component: () => import('../views/Manage/SoftwareManagement.vue'),
           meta: { requiresAuth: true } // 需要登录
         },
         {
-          path: '/user',
+          path: 'user',
           name: 'user',
           component: () => import('../views/UserView.vue'),
           meta: { requiresAuth: true } // 需要登录
         }, {
-          path: '/usermanage',
+          path: 'usermanage',
           name: 'usermanage',
           component: () => import('../views/AdminManage/UserManageView.vue'),
         },
         {
-          path: '/usermanage1',
+          path: 'usermanage1',
           name: 'usermanage1',
           component: () => import('../views/AdminManage/USEMAN.vue'),
         },
         {
-          path: '/ApplicationManagement',
+          path: 'ApplicationManagement',
           name: 'ApplicationManagement',
           component: () => import('../views/AdminManage/ApplicationManagement.vue'),
         }, {
-          path: '/VueDataAnalyticsPanel',
+          path: 'VueDataAnalyticsPanel',
           name: 'VueDataAnalyticsPanel',
           component: () => import('../views/AdminManage/VueDataAnalyticsPanel.vue'),
+        },
+        {
+          path: 'ApplicationReview',
+          name: 'ApplicationReview',
+          component: () => import('../views/AdminManage/ApplicationReview.vue'),
         }
 
       ],

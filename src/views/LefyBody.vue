@@ -17,14 +17,7 @@
           <img class="fclass3" width="20px" src="../icons/shangdian.png" />
           <p>商店</p>
         </div>
-        <div class="fc3body clickable">
-          <img class="fclass3" width="20px" src="../icons/mobankuangjia-xianxing.png" />
-          <p>模板</p>
-        </div>
-        <div class="fc3body clickable">
-          <img class="fclass3" width="20px" src="../icons/api-fill.png" />
-          <p>山清API</p>
-        </div>
+
        <div class="bodyl">
           <div @click="handleviewmanage" class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />

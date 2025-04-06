@@ -56,7 +56,8 @@
                         <template v-if="!question.editing">
                           <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
                           <span class="option-text">{{ option.text }}</span>
-                          <span v-if="option.isAnswer" class="answer-tag">(答案)</span>
+                          <span class="answer-tag" v-if="value3">({{option.score}}分)</span>
+                           <span class="answer-tag" v-if="!value3">({{option.result}}属性)</span>
                         </template>
                         <template v-else>
                           <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
@@ -140,13 +141,12 @@
             AI出题
           </div>
         </div>
-
-
-
-
         <div>
           <div class="AIquestion" v-if="!isShow"></div>
           <div class="handquestion" v-if="isShow">
+            <label class="switch">
+                <el-switch v-model="value3" inline-prompt active-text="评分" inactive-text="测评" />
+            </label>
              <div class="tou">
               <el-avatar :size="40" :src="newQuestionSet.avatar" class="profile-avatar" />
                <el-upload action="#" :show-file-list="false"  :before-upload="handleAvatarUpload" >
@@ -155,17 +155,13 @@
               </el-button>
                </el-upload>
              </div>
-
-
-
             <div class="tmmc">
               请输入应用名称： <el-input class="tmmc1" v-model="newQuestionSet.name" placeholder="请输入应用名称"></el-input>
                             <el-select v-model="newQuestionSet.value" placeholder="类型选择" style="width: 100px;size: 100px;">
                                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
                             </el-select>
+
             </div>
-
-
 
             <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
               <el-form :model="question" label-width="120px">
@@ -177,7 +173,8 @@
                     <div class="option-row">
                       <span class="option-label">{{ getOptionLabel(index) }}</span>
                       <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(index)}`" class="option-input"></el-input>
-                      <el-checkbox v-model="option.isAnswer" class="answer-checkbox">设为答案</el-checkbox>
+                      <el-input v-model="option.score" class="option-input2" placeholder="请输入分数" v-if="value3"></el-input>
+                       <el-input v-model="option.result" class="option-input2" placeholder="请输入属性" v-if="!value3"></el-input>
                       <el-button
                         type="danger"
                         circle
@@ -187,7 +184,7 @@
                         class="delete-button"
                       >
                         <el-icon>
-                          <img width="20px" src="@/icons/delete.png">
+                          <img width="20px" src="@/icons/delete.png" style="position: relative;left: 100px;">
                         </el-icon>
                       </el-button>
                     </div>
@@ -196,20 +193,27 @@
                 </el-form-item>
               </el-form>
             </div>
-
-
-
-
-
-
-
-
             <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
             <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button>
-            <el-button type="primary" @click="saveQuestionSet">保存应用</el-button>
+            <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
+            <el-button type="primary" @click="judge()">判断</el-button>
           </div>
         </div>
+        <!-- 判断页面 -->
+        <el-dialog v-model="dialogVisible" title="判断" width="500" :before-close="handleClose">
+          <div v-if="value3">
 
+          </div>
+          <div v-if="!value3">222</div>
+          <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="dialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="dialogVisible = false">
+              确定
+            </el-button>
+          </div>
+          </template>
+        </el-dialog>
       </div>
     </div>
   </div>
@@ -219,7 +223,15 @@
 import { ref } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-
+// 判断页面
+const dialogVisible = ref(false)
+const judge = () => {
+  dialogVisible.value = true
+  const newJudge  = newQuestionSet.value;
+  console.log(newJudge)
+}
+// 定义是评分还是测评
+const value3 = ref(true)
 // 定义习题集列表
 const questionSets = ref([]);
 const isShow = ref(true);
@@ -265,8 +277,10 @@ const newQuestionSet = ref({
     {
       text: '',
       options: [
-        { text: '', isAnswer: false ,option:''},
-        { text: '', isAnswer: false ,option:''}
+        { text: '', isAnswer: false ,score:'',result:'' },
+        { text: '', isAnswer: false ,score:'',result:''},
+        { text: '', isAnswer: false ,score:'',result:''},
+        { text: '', isAnswer: false ,score:'',result:''}
       ]
     }
   ]
@@ -423,7 +437,7 @@ const removeQuestion = (qIndex) => {
 // 保存新应用
 const saveQuestionSet = () => {
   const newSet = newQuestionSet.value;
-
+  console.log(newSet)
   // 检查应用名称是否为空
   if (newSet.name.trim() === '') {
     ElMessage.error('应用名称不能为空');
@@ -444,12 +458,23 @@ const saveQuestionSet = () => {
         return;
       }
     }
+    // 检查分数是否为空
+    for (const option of question.options) {
+      if(value3.value) {
+        if (option.score.trim() === '') {
+          ElMessage.error('分数不能为空');
+          return;
+        }
+      }
+      if(!value3.value) {
+        if (option.result.trim() === '') {
+          ElMessage.error('属性不能为空');
+          return;
+        }
+      }
+    }
 
     // 检查每个问题是否至少有一个答案
-    if (!question.options.some(option => option.isAnswer)) {
-      ElMessage.error('每个问题必须至少有一个答案');
-      return;
-    }
     if (newSet.value.trim() === '') {
       ElMessage.error('类型不能为空');
       return;
@@ -458,6 +483,7 @@ const saveQuestionSet = () => {
       ElMessage.error('头像不能为空');
       return;
     }
+
   }
 
   // 如果所有验证通过，保存新应用
@@ -476,10 +502,14 @@ const saveQuestionSet = () => {
         text: '',
         options: [
           { text: '', isAnswer: false },
+          { text: '', isAnswer: false },
+          { text: '', isAnswer: false },
           { text: '', isAnswer: false }
         ]
       }
-    ]
+    ],
+    avatar:'',
+    value:'',
   };
 };
 
@@ -576,6 +606,10 @@ position: absolute;
 .option-input {
   flex: 1;
 }
+.option-input2 {
+  width: 110px;
+  height: 30px;
+}
 
 .delete-button {
   margin-left: 10px;
@@ -622,7 +656,7 @@ position: absolute;
   height: 200px;
   position: relative;
   left: 350px;
-  top: -7px;
+  top: 27px;
   .profile-avatar {
     margin-top: 20px;
   }
@@ -695,6 +729,21 @@ h2 {
   margin: 20px auto;
   font-size: 18px;
 }
+
+
+
+
+.switch {
+ position: relative;
+ top: 56px;
+ display: inline-block;
+ left: -10px;
+ width: 120px;
+ height: 34px;
+}
+
+
+
 .cjxx {
   margin-left: 10px;
   margin-top: -10px;

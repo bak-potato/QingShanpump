@@ -1,31 +1,50 @@
 <template>
   <div class="lefymenu">
-    <div @click="router.push('/SoftwareManagement')" class="leftmenu1 mouse">
+    <div
+      @click="router.push('/SoftwareManagement'); activeMenu = 'SoftwareManagement'"
+      class="leftmenu1 mouse"
+      :class="{ active: activeMenu === 'SoftwareManagement' }"
+    >
       <img class="mouse" width="20px" src="@/icons/yingyongguanli.png">应用管理
     </div>
-     <div @click="router.push('/questionmanage')" class="leftmenu1 mouse">
+    <div
+      @click="router.push('/questionmanage'); activeMenu = 'questionmanage'"
+      class="leftmenu1 mouse"
+      :class="{ active: activeMenu === 'questionmanage' }"
+    >
       <img class="mouse" width="20px" src="@/icons/1-5qitazuoye.png">
-
       题目管理
     </div>
-   </div>
+  </div>
 </template>
 
 <script setup>
 import router from '@/router'
+import { ref, onMounted } from 'vue'
 
+const activeMenu = ref('')
+
+// 根据当前路由设置初始激活菜单
+onMounted(() => {
+  const path = router.currentRoute.value.path
+  if (path.includes('SoftwareManagement')) activeMenu.value = 'SoftwareManagement'
+  else if (path.includes('questionmanage')) activeMenu.value = 'questionmanage'
+})
 </script>
+
 <style scoped>
-.leftmenu1:hover{
+.leftmenu1:hover {
   background-color: #f5f5f5;
   border-radius: 25px;
 }
-.leftmenu1 img{
+
+.leftmenu1 img {
   margin-top: 10px;
   margin-left: 20px;
   float: left;
 }
-.leftmenu1{
+
+.leftmenu1 {
   width: 100%;
   position: relative;
   border-radius: 25px;
@@ -34,8 +53,17 @@ import router from '@/router'
   line-height: 40px;
   text-align: center;
   color: #757a8c;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
-.lefymenu{
+
+.leftmenu1.active {
+  background-color: #e6e6e6; /* 比hover状态稍深的颜色 */
+  color: #333; /* 文字颜色加深 */
+  font-weight: 500; /* 文字加粗 */
+}
+
+.lefymenu {
   width: 100%;
 }
 </style>

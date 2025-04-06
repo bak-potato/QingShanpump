@@ -3,11 +3,12 @@ import axios from 'axios'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: '6666666', // 后端API基础地址
+  baseURL: '/api', // 后端API基础地址
   timeout: 10000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true
 })
 
 // 请求拦截器
@@ -38,11 +39,15 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // 处理未授权
+          console.log('401')
           break
         case 404:
           // 处理未找到
+          console.log('404')
+
           break
         // 其他状态码处理
+
       }
     }
     return Promise.reject(error)
