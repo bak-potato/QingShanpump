@@ -17,8 +17,8 @@ import { ref } from 'vue'
 import { useQuestionStore } from "../../store/qusetion.js"
 const questions = ref([
   {
-    id:1,
-    title: '题目:Vue基础知识',
+    id: 1,
+    title: '题目1：Vue基础知识',
     content: '下列关于Vue的说法正确的是？',
     options: [
       'Vue是一个基于JavaScript的框架',
@@ -26,21 +26,23 @@ const questions = ref([
       'Vue由Facebook团队维护',
       'Vue不支持TypeScript'
     ],
-    correct: 0
+    correct: 0,
+    isMultiple: false
   },
   {
-     id:2,
-    title: '题目:Vue基础知识',
-    content: '下列关于Vue的说法正确的是？',
+    id: 2,
+    title: '题目2：Vue基础知识（多选）',
+    content: '以下哪些是Vue的特性？',
     options: [
-      'Vue是一个基于JavaScript的框架',
-      'Vue使用单向数据流',
-      'Vue由Facebook团队维护',
-      'Vue不支持TypeScript'
+      '响应式',
+      '组件化',
+      '虚拟DOM',
+      '双向数据绑定'
     ],
-    correct: 0
-  },
-])
+    correct: [0, 1, 2],
+    isMultiple: true
+  }
+]);
 const store = useQuestionStore()
 const activeId = ref(null)
 const handleMenuClick = (id) => {

@@ -15,7 +15,7 @@
               class="profile-avatar"
             />
             <el-upload
-              action="#"
+               action="#"
               :show-file-list="false"
               :before-upload="handleAvatarUpload"
             >
@@ -99,6 +99,50 @@
           </el-button>
         </template>
       </el-dialog>
+
+
+      <!-- 我的应用 -->
+      <el-card class="user-record mt-4">
+        <div class="record-container">
+          <h3 class="record-title">我的应用</h3>
+
+          <!-- 应用列表 -->
+          <el-row :gutter="20">
+            <el-col
+              v-for="(app, index) in myApps"
+              :key="index"
+              :xs="24" :sm="12" :md="8" :lg="6"
+              class="mb-4"
+            >
+              <el-card
+                class="app-card"
+                shadow="hover"
+                @click="handleAppClick(app)"
+              >
+                <div class="app-content">
+                  <el-avatar
+                    :size="60"
+                    :src="app.icon"
+                    class="app-icon"
+                  />
+                  <div class="app-info">
+                    <h4 class="app-title">{{ app.name }}</h4>
+                    <p class="app-desc">{{ app.description }}</p>
+                  </div>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click.stop="handleManage(app)"
+                  >
+                    管理
+                  </el-button>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+        </div>
+      </el-card>
+
 
       <!-- 答题记录 -->
       <el-card class="user-record mt-4">
@@ -376,9 +420,86 @@ const handleDelete = (index) => {
   ElMessage.success('记录已删除')
 
 }
+
+// 我的应用数据
+const myApps = ref([
+  {
+    name: '智能问答系统',
+    description: '基于AI的智能问答平台',
+    icon: 'https://example.com/ai-icon.png',
+    link: '/qa-system',
+    manageLink: '/admin/qa'
+  },
+  {
+    name: '数据看板',
+    description: '可视化数据分析平台',
+    icon: 'https://example.com/dashboard-icon.png',
+    link: '/dashboard',
+    manageLink: '/admin/dashboard'
+  },
+  // 其他应用数据...
+])
+
+// 应用点击处理
+const handleAppClick = (app) => {
+  console.log(`点击应用: ${app.name}`)
+}
+
+// 应用管理
+const handleManage = (app) => {
+  console.log(`管理应用: ${app.name}`)
+}
 </script>
 
 <style scoped>
+/* 我的应用样式 */
+.app-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+  height: 180px;
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 16px;
+}
+
+.app-icon {
+  margin-bottom: 12px;
+}
+
+.app-info {
+  text-align: center;
+  flex-grow: 1;
+}
+
+.app-title {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.app-desc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
 /* 更新搜索区域的样式 */
 .search-controls {
   margin-bottom: 20px;

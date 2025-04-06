@@ -25,21 +25,26 @@
           <img class="fclass3" width="20px" src="../icons/api-fill.png" />
           <p>山清API</p>
         </div>
-        <div class="bodyl">
-          <div   @click="handleviewmanage"  class="last1 clickable">
+       <div class="bodyl">
+          <div @click="handleviewmanage" class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />
+            <div class="tooltip">后台管理系统</div>
           </div>
-            <div class="last1 clickable">
+          <div class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/shiyongwendang.png" />
+            <div class="tooltip">使用文档</div>
           </div>
-          <div class="last1 clickable">
+          <div class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/xiaoxi.png" />
+            <div class="tooltip">消息提醒</div>
           </div>
-          <div class="last1 clickable">
+          <div class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/yijiangoumai.png" />
+            <div class="tooltip">了解更多</div>
           </div>
-          <div @click="handleviewlast1" class="last1 clickable">
+          <div @click="handleviewlast1" class="last1 clickable tooltip-container">
             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+            <div class="tooltip">个人中心</div>
           </div>
         </div>
       </div>
@@ -50,6 +55,8 @@
         <LeftBDiv1 v-if="view === 1" />
         <LeftBDiv100 v-if="view === 100" />
         <LeftBDiv99 v-if="view === 99" />
+
+
       </div>
     </div>
   </div>
@@ -59,8 +66,8 @@
 import LeftBDiv0 from './LeftBodyDiv/LeftBDiv0.vue';
 import LeftBDiv1 from './LeftBodyDiv/LeftBDiv1.vue';
 import LeftBDiv2 from './LeftBodyDiv/LeftBDiv2.vue';
-import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
 import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
+import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -163,6 +170,71 @@ const handleright = () => {
 </script>
 
 <style scoped>
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: max-content;
+  max-width: 120px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  z-index: 100;
+  left: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  font-size: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #333 transparent transparent;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Keep your existing styles but remove the inblowdiv specific ones */
+.last1:hover {
+  background-color: #f2f3f8;
+  border-radius: 10px;
+}
+
+.last1 {
+  height: 40px;
+  position: relative;
+  width: 40px;
+  margin: 0px auto;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.inblowdiv {
+  font-size: 10px;
+  width: 100px;
+  left: 40px;
+  z-index: 100;
+  position: absolute;
+  color: #757a8c;
+  margin-top: 5px;
+}
 /* 样式保持不变 */
 .visiable {
   z-index: 2;
@@ -198,6 +270,7 @@ const handleright = () => {
 }
 .last1 {
   height: 40px;
+  position: relative;
   width: 40px;
   margin: 0px auto;
   margin-bottom: 20px;

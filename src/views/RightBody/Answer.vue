@@ -1,15 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="quiz-container">
-    <!-- 头部进度和计时 -->
-    <div class="quiz-header">
-      <el-progress :percentage="progress" :stroke-width="8" />
-      <div class="timer">
-        <el-icon><Clock /></el-icon>
-        <span>{{ formatTime(timeLeft) }}</span>
-      </div>
-    </div>
-
     <!-- 题目区域 -->
     <div class="question-container">
       <h2 class="question-title">{{ currentQuestion.title }}</h2>
@@ -20,8 +11,8 @@
         <li
           v-for="(option, index) in currentQuestion.options"
           :key="index"
-          :class="{ 'selected': selectedAnswer === index }"
-          @click="selectAnswer(index)"
+          :class="{ 'selected': isOptionSelected(index) }"
+          @click="toggleOption(index)"
         >
           <span class="option-index">{{ optionLabels[index] }}</span>
           <div class="option-content">{{ option }}</div>
@@ -59,30 +50,30 @@
 </template>
 
 <script setup>
-import { ref, computed ,watch} from 'vue'
-import { Clock } from '@element-plus/icons-vue'
-import { useIntervalFn } from '@vueuse/core'
+import { ref, computed,watch  } from 'vue';
 import { useQuestionStore } from "../../store/qusetion.js"
 import { storeToRefs } from 'pinia'
+
 const store = useQuestionStore()
 const { selectedQuestionId } = storeToRefs(store)
 watch(selectedQuestionId, (newId) => {
-  if (!newId) return
+    if (!newId) return
 
-  // 在题目列表中查找匹配的索引
-  const targetIndex = questions.value.findIndex(q => q.id === newId)
+    // 在题目列表中查找匹配的索引
+    const targetIndex = questions.value.findIndex(q => q.id === newId)
 
-  if (targetIndex !== -1) {
-    currentQuestionIndex.value = targetIndex
-    console.log('已定位到题目:', targetIndex + 1)
-  } else {
-    console.warn('未找到对应题目，ID:', newId)
-  }
+    if (targetIndex !== -1) {
+        currentQuestionIndex.value = targetIndex
+        selectedAnswer.value = userAnswers.value[targetIndex]
+        console.log('已定位到题目:', currentQuestionIndex.value)
+    } else {
+        console.warn('未找到对应题目，ID:', newId)
+    }
 })
-// 题目数据示例
+// 题目数据示例，添加 isMultiple 字段区分单选和多选
 const questions = ref([
   {
-    id:1,
+    id: 1,
     title: '题目1：Vue基础知识',
     content: '下列关于Vue的说法正确的是？',
     options: [
@@ -91,76 +82,105 @@ const questions = ref([
       'Vue由Facebook团队维护',
       'Vue不支持TypeScript'
     ],
-    correct: 0
+    correct: 0,
+    isMultiple: false
   },
   {
-     id:2,
-    title: '题目1：Vue基础知识',
-    content: '下列关于Vue的说法正确的是？',
+    id: 2,
+    title: '题目2：Vue基础知识（多选）',
+    content: '以下哪些是Vue的特性？',
     options: [
-      'Vue是一个基于JavaScript的框架',
-      'Vue使用单向数据流',
-      'Vue由Facebook团队维护',
-      'Vue不支持TypeScript'
+      '响应式',
+      '组件化',
+      '虚拟DOM',
+      '双向数据绑定'
     ],
-    correct: 0
-  },
-  // 更多题目...
-])
+    correct: [0, 1, 2],
+    isMultiple: true
+  }
+]);
 
 // 当前题目索引
-const currentQuestionIndex = ref(0)
-const selectedAnswer = ref(null)
+const currentQuestionIndex = ref(0);
+// 用户选择的答案数组，单选存储单个索引，多选存储索引数组
+const userAnswers = ref(new Array(questions.value.length).fill(null));
+// 当前选中的答案
+const selectedAnswer = ref(null);
 
-// 计时功能
-const timeLeft = ref(1800) // 30分钟
-const { pause: pauseTimer } = useIntervalFn(() => {
-  timeLeft.value = Math.max(0, timeLeft.value - 1)
-}, 1000)
+// 计算当前题目
+const currentQuestion = computed(() => questions.value[currentQuestionIndex.value]);
+const optionLabels = ['A', 'B', 'C', 'D'];
 
-// 计算属性
+// 判断选项是否被选中
+const isOptionSelected = (index) => {
+  if (currentQuestion.value.isMultiple) {
+    return userAnswers.value[currentQuestionIndex.value]?.includes(index);
+  }
+  return userAnswers.value[currentQuestionIndex.value] === index;
+};
 
-const currentQuestion = computed(() => questions.value[currentQuestionIndex.value])
-
-
-const progress = computed(() =>
-  ((currentQuestionIndex.value + 1) / questions.value.length) * 100
-)
-
-const optionLabels = ['A', 'B', 'C', 'D']
-
-// 方法
-const selectAnswer = (index) => {
-  selectedAnswer.value = index
-}
+// 切换选项选择状态
+const toggleOption = (index) => {
+  if (currentQuestion.value.isMultiple) {
+    const currentAnswers = userAnswers.value[currentQuestionIndex.value] || [];
+    const newAnswers = currentAnswers.includes(index)
+     ? currentAnswers.filter((i) => i!== index)
+      : [...currentAnswers, index];
+    userAnswers.value[currentQuestionIndex.value] = newAnswers;
+  } else {
+    userAnswers.value[currentQuestionIndex.value] = index;
+  }
+};
 
 const nextQuestion = () => {
   if (currentQuestionIndex.value < questions.value.length - 1) {
-    currentQuestionIndex.value++
-    selectedAnswer.value = null
+    currentQuestionIndex.value++;
+    selectedAnswer.value = userAnswers.value[currentQuestionIndex.value];
   }
-}
+};
 
 const prevQuestion = () => {
   if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--
-    selectedAnswer.value = null
+    currentQuestionIndex.value--;
+    selectedAnswer.value = userAnswers.value[currentQuestionIndex.value];
   }
-}
+};
 
+// 提交答卷
 const submitQuiz = () => {
-  pauseTimer()
+  // 收集所有答案并转换为选项内容
+  const selectedOptions = userAnswers.value.map((answer, i) => {
+    if (answer === null) {
+      return '未回答';
+    }
+    if (questions.value[i].isMultiple) {
+      return answer.map((index) => questions.value[i].options[index]).join(', ');
+    }
+    return questions.value[i].options[answer];
+  });
 
-  // 提交逻辑...
+  // 验证答案并计算得分
+  const score = userAnswers.value.reduce((acc, answer, index) => {
+    const question = questions.value[index];
+    if (question.isMultiple) {
+      if (
+        answer &&
+        answer.length === question.correct.length &&
+        answer.every((i) => question.correct.includes(i))
+      ) {
+        return acc + 1;
+      }
+    } else {
+      if (answer === question.correct) {
+        return acc + 1;
+      }
+    }
+    return acc;
+  }, 0);
 
-  console.log('提交答卷')
-}
-
-const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-}
+  console.log('提交的选项内容:', selectedOptions);
+  console.log('你的得分是:', score, '/', questions.value.length);
+};
 </script>
 
 <style scoped>
@@ -171,7 +191,7 @@ const formatTime = (seconds) => {
   padding: 24px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-header {
@@ -246,5 +266,12 @@ const formatTime = (seconds) => {
   justify-content: center;
   gap: 16px;
   margin-top: 32px;
+}
+
+.result-message {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #333;
 }
 </style>

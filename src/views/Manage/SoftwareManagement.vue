@@ -27,7 +27,7 @@
               <div v-for="(questionSet, setIndex) in questionSets" :key="setIndex" class="scrollbar-demo-item">
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    {{ questionSet.name }}&nbsp;&nbsp;({{questionSet.value}})
+                    <el-avatar :size="40" :src="questionSet.avatar" class="profile-avatar2"/> {{ questionSet.name }}&nbsp;&nbsp;({{questionSet.value}})
                     <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
                       <ArrowDown />
                     </el-icon>
@@ -140,15 +140,33 @@
             AI出题
           </div>
         </div>
+
+
+
+
         <div>
           <div class="AIquestion" v-if="!isShow"></div>
           <div class="handquestion" v-if="isShow">
+             <div class="tou">
+              <el-avatar :size="40" :src="newQuestionSet.avatar" class="profile-avatar" />
+               <el-upload action="#" :show-file-list="false"  :before-upload="handleAvatarUpload" >
+                  <el-button type="Default" size="small" class="mt-2">
+                上传照片
+              </el-button>
+               </el-upload>
+             </div>
+
+
+
             <div class="tmmc">
               请输入应用名称： <el-input class="tmmc1" v-model="newQuestionSet.name" placeholder="请输入应用名称"></el-input>
                             <el-select v-model="newQuestionSet.value" placeholder="类型选择" style="width: 100px;size: 100px;">
                                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
                             </el-select>
             </div>
+
+
+
             <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
               <el-form :model="question" label-width="120px">
                 <el-form-item :label="`问题 ${qIndex + 1}`">
@@ -178,11 +196,20 @@
                 </el-form-item>
               </el-form>
             </div>
+
+
+
+
+
+
+
+
             <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
             <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button>
             <el-button type="primary" @click="saveQuestionSet">保存应用</el-button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -233,6 +260,7 @@ const options = [
 const newQuestionSet = ref({
   name: '',
   value: '',
+  avatar: '',
   questions: [
     {
       text: '',
@@ -426,6 +454,10 @@ const saveQuestionSet = () => {
       ElMessage.error('类型不能为空');
       return;
     }
+    if (newSet.avatar.trim() === '') {
+      ElMessage.error('头像不能为空');
+      return;
+    }
   }
 
   // 如果所有验证通过，保存新应用
@@ -473,9 +505,25 @@ const toggleEdit = (index) => {
 const deleteQuestionSet = (index) => {
   questionSets.value.splice(index, 1);
 };
+// 上传头像
+const handleAvatarUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件')
+    return false
+  }
+  // 实际应调用上传API
+  const reader = new FileReader()
+  reader.readAsDataURL(file)
+  reader.onload = () => {
+    newQuestionSet.value.avatar = reader.result
+  }
+  return false // 阻止自动上传
+}
 </script>
 
 <style scoped>
+
 .bccas1 {
 position: absolute;
 }
@@ -489,6 +537,7 @@ position: absolute;
 }
 
 .question-item {
+  margin-top: 30px;
   margin-bottom: 20px;
   width: 1000px;
   padding: 15px;
@@ -544,6 +593,15 @@ position: absolute;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .question-set-name {
+    margin-bottom: 10px;
+  }
+  .profile-avatar2 {
+    position: relative;
+    top: 10px;
+    left: -2px;
+
+  }
 }
 
 /* .action-buttons {
@@ -558,6 +616,33 @@ position: absolute;
 </style>
 
 <style scoped>
+.tou{
+  float: left;
+  width: 200px;
+  height: 200px;
+  position: relative;
+  left: 350px;
+  top: -7px;
+  .profile-avatar {
+    margin-top: 20px;
+  }
+  .mt-2 {
+    position: relative;
+    top: -35px;
+    left: -87px;
+  }
+}
+
+.question-set-info {
+  display: flex;
+  align-items: center;
+}
+
+.create-time {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+}
 .lastf12 {
   display: flex;
   align-content: center;
