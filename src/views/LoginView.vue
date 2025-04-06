@@ -9,17 +9,17 @@
         label-position="top"
         @submit.prevent="handleLogin"
       >
-        <el-form-item label="用户名/邮箱" prop="account">
+        <el-form-item label="用户名/邮箱" prop="userAccount">
           <el-input
-            v-model="loginForm.account"
+            v-model="loginForm.userAccount"
             placeholder="请输入用户名或邮箱"
             prefix-icon="User"
           />
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码" prop="userPassword">
           <el-input
-            v-model="loginForm.password"
+            v-model="loginForm.userPassword"
             type="password"
             placeholder="请输入密码"
             prefix-icon="Lock"
@@ -62,53 +62,59 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
-import router from '@/router'
+import { ref, reactive } from 'vue';
+import { loginApi } from '../api/user.js';
+import { ElMessage } from 'element-plus';
+import router from '@/router';
 
-
-const loginFormRef = ref()
-const loading = ref(false)
-const rememberMe = ref(false)
+const loginFormRef = ref();
+const loading = ref(false);
+const rememberMe = ref(false);
 
 const loginForm = reactive({
-  account: '',
-  password: ''
-})
+  userAccount: '',
+  userPassword: ''
+});
 
 const rules = reactive({
-  account: [
+  userAccount: [
     { required: true, message: '请输入用户名或邮箱', trigger: 'blur' },
     { min: 4, message: '长度至少4个字符', trigger: 'blur' }
   ],
-  password: [
+  userPassword: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 18, message: '长度在6到18个字符', trigger: 'blur' }
   ]
-})
+});
 
-const handleLogin = () => {
-  loginFormRef.value.validate(valid => {
-    if (valid) {
-      loading.value = true
-      // 模拟登录请求
-      setTimeout(() => {
-        loading.value = false
-        ElMessage.success('登录成功!')
-        // 登录成功后跳转到首页
-        router.push('/')
-        loginFormRef.value.resetFields()
-      }, 1500)
-      localStorage.setItem('isLoggedIn', 'true');
-      // router.push({ name: 'home' }); // 跳转到主页或其他目标页面
-    } else {
-      ElMessage.warning('请填写完整信息')
-      return false
+const handleLogin = async () => {
+  try {
+    loading.value = true;
+    const valid = await loginFormRef.value.validate();
+    if (!valid) {
+      ElMessage.warning('请填写完整信息');
+      return;
     }
-  })
-}
 
-
+    const res = await loginApi(loginForm);
+    if (res.status === 200) {
+      ElMessage.success('登录成功');
+      // 存储登录状态到本地存储
+      localStorage.setItem('isLoggedIn', 'true');
+      if (rememberMe.value) {
+        localStorage.setItem('userAccount', loginForm.userAccount);
+      }
+      router.push('/');
+    } else {
+      ElMessage.error('登录失败，请检查用户名或密码');
+    }
+  } catch (error) {
+    ElMessage.error('登录失败，请检查网络或重试');
+    console.error('登录请求错误:', error);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped>

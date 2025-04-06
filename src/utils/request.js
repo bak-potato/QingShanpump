@@ -1,4 +1,4 @@
-import service from './axios'
+import service from 'axios'
 
 function get(url, params) {
   return service.get(url, { params })
