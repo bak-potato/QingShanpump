@@ -38,22 +38,6 @@
           />
         </el-form-item>
 
-        <el-form-item label="邮箱" prop="email">
-          <el-input
-            v-model="registerForm.email"
-            placeholder="请输入邮箱"
-            prefix-icon="Message"
-          />
-        </el-form-item>
-
-        <el-form-item label="手机号" prop="phone">
-          <el-input
-            v-model="registerForm.phone"
-            placeholder="请输入手机号"
-            prefix-icon="Iphone"
-          />
-        </el-form-item>
-
         <el-form-item>
           <el-button
             class="submit-btn"
@@ -79,27 +63,26 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+import { registerApi } from '../api/user.js';
 
-const registerFormRef = ref()
-const loading = ref(false)
+const registerFormRef = ref();
+const loading = ref(false);
 
 const registerForm = reactive({
   username: '',
   password: '',
-  confirmPassword: '',
-  email: '',
-  phone: ''
-})
+  confirmPassword: ''
+});
 
 const validatePassword = (rule, value, callback) => {
-  if (value !== registerForm.password) {
-    callback(new Error('两次输入密码不一致!'))
+  if (value!== registerForm.password) {
+    callback(new Error('两次输入密码不一致!'));
   } else {
-    callback()
+    callback();
   }
-}
+};
 
 const rules = reactive({
   username: [
@@ -113,33 +96,40 @@ const rules = reactive({
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
     { validator: validatePassword, trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-  ],
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ]
-})
+});
 
-const handleRegister = () => {
-  registerFormRef.value.validate(valid => {
-    if (valid) {
-      loading.value = true
-      // 这里模拟API请求
-      setTimeout(() => {
-        loading.value = false
-        ElMessage.success('注册成功!')
-        registerFormRef.value.resetFields()
-      }, 1500)
+const handleRegister = async () => {
+  try {
+    registerFormRef.value.validate(valid => {
+      if (!valid) {
+        ElMessage.warning('请填写完整信息');
+        return;
+      }
+    });
+
+    loading.value = true;
+    const requestData = {
+      userAccount: registerForm.username,
+      userPassword: registerForm.password,
+      checkPassword: registerForm.confirmPassword
+    };
+console.log(requestData)
+    const res = await registerApi(requestData);
+    console.log(res)
+    if (res.data.code === 0) {
+      ElMessage.success('注册成功!');
+      registerFormRef.value.resetFields();
     } else {
-      ElMessage.warning('请填写完整信息')
-      return false
+      ElMessage.error(res.message || '注册失败，请检查输入信息');
     }
-  })
-}
+  } catch (error) {
+    ElMessage.error('注册失败，请检查网络或稍后重试');
+    console.error('注册请求错误:', error);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped>

@@ -128,7 +128,7 @@
         :page-sizes="[5, 10, 20, 50]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="filteredUserList.length"
+        :total="totalCount"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -196,26 +196,7 @@
 <script setup>
 import { ref, computed, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-
-// 模拟数据
-const userList = ref([
-  {
-    account: 'admin',
-    name: '张三',
-    phone: '13800138000',
-    role: '管理员',
-    status: '正常',
-    createTime: '2023-01-01 10:00:00'
-  },
-  {
-    account: 'user001',
-    name: '李四',
-    phone: '13912345678',
-    role: '普通用户',
-    status: '禁用',
-    createTime: '2023-02-15 14:30:00'
-  }
-])
+import { listuserbypage } from '../../api/user.js'
 
 // 搜索条件
 const searchPhone = ref('')
@@ -225,6 +206,7 @@ const searchName = ref('')
 // 分页相关
 const currentPage = ref(1)
 const pageSize = ref(10)
+const totalCount = ref(0)
 
 // 加载状态
 const loading = ref(false)
@@ -275,6 +257,9 @@ const formatDate = (row, column, cellValue) => {
   return cellValue // 实际项目中可使用 dayjs 格式化
 }
 
+// 用户列表
+const userList = ref([])
+
 // 过滤后的用户列表
 const filteredUserList = computed(() => {
   return userList.value.filter(user => {
@@ -282,7 +267,8 @@ const filteredUserList = computed(() => {
       user.phone.includes(searchPhone.value) &&
       user.account.includes(searchAccount.value) &&
       user.name.includes(searchName.value)
-  )})
+    )
+  })
 })
 
 // 分页后的数据
@@ -295,20 +281,47 @@ const paginatedList = computed(() => {
 // 搜索处理
 const handleSearch = async () => {
   loading.value = true
-  // 模拟API请求
-  await new Promise(resolve => setTimeout(resolve, 500))
-  currentPage.value = 1
-  loading.value = false
+  try {
+    const requestData = {
+      current: currentPage.value - 1,
+      id: 0,
+      mpOpenId: "",
+      pageSize: pageSize.value,
+      sortField: "",
+      sortOrder: "",
+      unionId: "",
+      userName: searchName.value,
+      userProfile: "",
+      userRole: ""
+    }
+    const response = await listuserbypage(requestData)
+    console.log(response.data)
+    console.log(requestData)
+
+    if (response.code === 0) {
+      userList.value = response.data.records
+      totalCount.value = response.data.total
+    } else {
+      ElMessage.error(response.message || '获取用户列表失败')
+    }
+  } catch (error) {
+    console.error('请求出错:', error)
+    ElMessage.error('请求出错，请检查网络或联系管理员')
+  } finally {
+    loading.value = false
+  }
 }
 
 // 分页处理
 const handleSizeChange = (newSize) => {
   pageSize.value = newSize
   currentPage.value = 1
+  handleSearch()
 }
 
 const handleCurrentChange = (newPage) => {
   currentPage.value = newPage
+  handleSearch()
 }
 
 // 用户状态切换
@@ -366,7 +379,7 @@ const handleDelete = async (user) => {
       currentPage.value -= 1
     }
   } finally {
-    loading.value = false
+  loading.value = false
   }
 }
 
@@ -413,6 +426,9 @@ const saveUser = async () => {
     loading.value = false
   }
 }
+
+// 初始加载数据
+handleSearch()
 </script>
 
 <style scoped>

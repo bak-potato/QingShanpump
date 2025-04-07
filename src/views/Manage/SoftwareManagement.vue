@@ -196,19 +196,53 @@
             <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
             <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button>
             <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
-            <el-button type="primary" @click="judge()">判断</el-button>
+            <el-button type="primary" @click="judge">判断</el-button>
           </div>
         </div>
         <!-- 判断页面 -->
-        <el-dialog v-model="dialogVisible" title="判断" width="500" :before-close="handleClose">
+        <el-dialog v-model="dialogVisible" title="判断" width="520" :before-close="handleClose">
           <div v-if="value3">
-
+            <el-form :model="judgeSettings" label-width="140px">
+              <el-form-item label="优秀分数范围">
+                <el-input v-model="judgeSettings.excellentRange" placeholder="请输入优秀分数范围"></el-input>
+              </el-form-item>
+              <el-form-item label="良好分数范围">
+                <el-input v-model="judgeSettings.goodRange" placeholder="请输入良好分数范围"></el-input>
+              </el-form-item>
+              <el-form-item label="有待提高分数范围">
+                <el-input v-model="judgeSettings.poorRange" placeholder="请输入有待提高分数范围"></el-input>
+              </el-form-item>
+              <el-form-item label="优秀评价内容">
+                <el-input v-model="judgeSettings.excellentComment" placeholder="请输入优秀评价内容"></el-input>
+              </el-form-item>
+              <el-form-item label="良好评价内容">
+                <el-input v-model="judgeSettings.goodComment" placeholder="请输入良好评价内容"></el-input>
+              </el-form-item>
+              <el-form-item label="有待提高评价内容">
+                <el-input v-model="judgeSettings.poorComment" placeholder="请输入有待提高评价内容"></el-input>
+              </el-form-item>
+            </el-form>
           </div>
-          <div v-if="!value3">222</div>
+          <div v-if="!value3">
+           <el-form :model="judgeSettings" label-width="140px">
+              <el-form-item label="i属性最多">
+                <el-input v-model="judgeSettings.i" placeholder="请输入评价"></el-input>
+              </el-form-item>
+              <el-form-item label="o属性最多">
+                <el-input v-model="judgeSettings.o" placeholder="请输入评价"></el-input>
+              </el-form-item>
+              <el-form-item label="p属性最多">
+                <el-input v-model="judgeSettings.p" placeholder="请输入评价"></el-input>
+              </el-form-item>
+              <el-form-item label="j属性最多">
+                <el-input v-model="judgeSettings.j" placeholder="请输入评价"></el-input>
+              </el-form-item>
+            </el-form>
+          </div>
           <template #footer>
           <div class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="dialogVisible = false">
+            <el-button type="primary" @click="newJudge">
               确定
             </el-button>
           </div>
@@ -224,11 +258,26 @@ import { ref } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
 // 判断页面
+const judgeSettings = ref({
+  excellentRange: '',
+  goodRange: '',
+  poorRange: '',
+  excellentComment: '',
+  goodComment: '',
+  poorComment: '',
+  i: '',
+  o: '',
+  p: '',
+  j: ''
+});
 const dialogVisible = ref(false)
 const judge = () => {
   dialogVisible.value = true
-  const newJudge  = newQuestionSet.value;
-  console.log(newJudge)
+}
+const newJudge = () => {
+  // 在这里处理判断逻辑
+  console.log('判断设置:', judgeSettings.value);
+  dialogVisible.value = false;
 }
 // 定义是评分还是测评
 const value3 = ref(true)

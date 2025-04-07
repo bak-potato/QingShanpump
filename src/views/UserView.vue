@@ -102,10 +102,9 @@
 
 
       <!-- 我的应用 -->
-      <el-card class="user-record mt-4">
+     <el-card class="user-record mt-4">
         <div class="record-container">
           <h3 class="record-title">我的应用</h3>
-
           <!-- 应用列表 -->
           <el-row :gutter="20">
             <el-col
@@ -115,33 +114,50 @@
               class="mb-4"
             >
               <el-card
-                class="app-card"
-                shadow="hover"
-                @click="handleAppClick(app)"
-              >
-                <div class="app-content">
-                  <el-avatar
-                    :size="60"
-                    :src="app.icon"
-                    class="app-icon"
-                  />
-                  <div class="app-info">
-                    <h4 class="app-title">{{ app.name }}</h4>
-                    <p class="app-desc">{{ app.description }}</p>
-                  </div>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click.stop="handleManage(app)"
-                  >
-                    管理
-                  </el-button>
-                </div>
+  class="app-card"
+  shadow="hover"
+  @click="handleAppClick(app)"
+>
+  <div class="app-content">
+    <el-avatar
+      :size="60"
+      :src="app.icon"
+      class="app-icon"
+    />
+    <div class="app-info">
+      <h4 class="app-title">{{ app.name }}</h4>
+      <p class="app-desc">{{ app.description }}</p>
+    </div>
+    <div class="app-actions">
+      <el-button
+        type="primary"
+        size="small"
+        @click.stop="handleManage(app)"
+      >
+        管理
+      </el-button>
+      <el-popconfirm
+        title="确定要删除该应用吗？"
+        @confirm="handleDeleteApp(index)"
+      >
+        <template #reference>
+          <el-button
+            size="small"
+            type="danger"
+            @click.stop
+          >
+            删除
+          </el-button>
+        </template>
+      </el-popconfirm>
+    </div>
+  </div>
               </el-card>
             </el-col>
           </el-row>
         </div>
       </el-card>
+
 
 
       <!-- 答题记录 -->
@@ -266,26 +282,26 @@
       </el-card>
     </el-main>
   </el-container>
-
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import UserE from './UserBody/UserE.vue'
-
+import { getLoginUser } from '../api/user.js'
+import {userLogout} from '../api/user.js'
 const router = useRouter()
 // 用户信息数据
 const userInfo = reactive({
-  username: '青山用户',
-  email: 'user@qingshan.com',
-  emailVerified: true,
-  phone: '138-0013-8000',
-  avatar: 'https://example.com/avatar.jpg',
-  createTime: new Date('2023-01-01'),
-  lastLogin: new Date()
+  username: '',
+  email: '',
+  emailVerified: false,
+  phone: '',
+  avatar: '',
+  createTime: null,
+  lastLogin: null
 })
 
 // 编辑相关状态
@@ -346,17 +362,28 @@ const handleSaveInfo = async () => {
   }
 }
 
-// 安全设置处理
-const handleSecuritySettings = () => {
-  // 跳转到安全设置页面
-  console.log('跳转到安全设置')
-  localStorage.removeItem('isLoggedIn');
-  ElMessage.error('退出登录成功')
+// 退出登录处理
+const handleSecuritySettings = async () => {
+    try {
+        console.log('执行退出登录操作');
+        const response = await userLogout();
 
-  router.push({ name: 'login' }); // 跳转到登录页面
-  //刷新页面
+        if (response.data.code === 0 && response.data.data) {
+            // 退出登录成功
+            localStorage.removeItem('isLoggedIn');
+            ElMessage.success('退出登录成功');
+            router.push({ name: 'login' });
+        } else {
+            // 退出登录失败
+            ElMessage.error('退出登录失败，请稍后重试');
+        }
+    } catch (error) {
+        // 处理请求出错的情况
+        console.error('退出登录请求出错:', error);
+        ElMessage.error('退出登录请求出错，请检查网络');
+    }
+};
 
-}
 // 答题记录数据
 const answerRecords = ref([
   {
@@ -408,7 +435,6 @@ const handleReset = () => {
 filteredRecords.value = answerRecords.value
 // 查看题目信息
 const handleView = (row) => {
-
   selectedRecord.value = row
   console.log(selectedRecord.value)
 }
@@ -418,7 +444,6 @@ const handleDelete = (index) => {
   answerRecords.value.splice(index, 1)
   filteredRecords.value.splice(index, 1)
   ElMessage.success('记录已删除')
-
 }
 
 // 我的应用数据
@@ -449,14 +474,48 @@ const handleAppClick = (app) => {
 const handleManage = (app) => {
   console.log(`管理应用: ${app.name}`)
 }
+
+// 在组件挂载时调用接口获取用户信息
+onMounted(async () => {
+  try {
+    const response = await getLoginUser()
+    console.log(response.data)
+    if (response.status === 200) {
+      const data = response.data.data
+      userInfo.username = data.userName||data.id
+      userInfo.email = data.userEmail
+      userInfo.emailVerified = false // 这里需要根据接口实际返回字段调整
+      userInfo.phone = data.userPhone
+      userInfo.avatar = data.userAvatar
+      userInfo.createTime = data.createTime
+      userInfo.lastLogin = data.updateTime // 这里假设接口不返回最后登录时间，实际需调整
+    } else {
+      ElMessage.error('获取用户信息失败')
+    }
+  } catch (error) {
+    console.error('请求出错:', error)
+    ElMessage.error('请求出错，请检查网络或联系管理员')
+  }
+})
+// 删除应用
+const handleDeleteApp = (index) => {
+  myApps.value.splice(index, 1)
+  ElMessage.success('应用已删除')
+}
 </script>
 
+
 <style scoped>
+.app-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
 /* 我的应用样式 */
 .app-card {
   cursor: pointer;
   transition: transform 0.2s;
-  height: 180px;
+  height: 250px;
 }
 
 .app-card:hover {
