@@ -162,8 +162,13 @@
                             </el-select>
 
             </div>
-
-            <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
+            <!-- 新增应用描述输入框 -->
+            <div class="app-description">
+                <el-form-item label="应用描述" style="margin-top: 20px;">
+                    <el-input  v-model="newQuestionSet.description" type="textarea"  :rows="3"  placeholder="请输入应用描述（最多200字）" maxlength="200" show-word-limit style="width: 500px;">               </el-input>
+                </el-form-item>
+            </div>
+            <!-- <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
               <el-form :model="question" label-width="120px">
                 <el-form-item :label="`问题 ${qIndex + 1}`">
                   <el-input v-model="question.text" placeholder="请输入问题"></el-input>
@@ -192,62 +197,14 @@
                   <el-button class="cjxx" type="primary" @click="addOption(-1, qIndex)">增加选项</el-button>
                 </el-form-item>
               </el-form>
-            </div>
-            <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
-            <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button>
+            </div> -->
+            <!-- <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
+            <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button> -->
             <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
-            <el-button type="primary" @click="judge">判断</el-button>
+
           </div>
         </div>
-        <!-- 判断页面 -->
-        <el-dialog v-model="dialogVisible" title="判断" width="520" :before-close="handleClose">
-          <div v-if="value3">
-            <el-form :model="judgeSettings" label-width="140px">
-              <el-form-item label="优秀分数范围">
-                <el-input v-model="judgeSettings.excellentRange" placeholder="请输入优秀分数范围"></el-input>
-              </el-form-item>
-              <el-form-item label="良好分数范围">
-                <el-input v-model="judgeSettings.goodRange" placeholder="请输入良好分数范围"></el-input>
-              </el-form-item>
-              <el-form-item label="有待提高分数范围">
-                <el-input v-model="judgeSettings.poorRange" placeholder="请输入有待提高分数范围"></el-input>
-              </el-form-item>
-              <el-form-item label="优秀评价内容">
-                <el-input v-model="judgeSettings.excellentComment" placeholder="请输入优秀评价内容"></el-input>
-              </el-form-item>
-              <el-form-item label="良好评价内容">
-                <el-input v-model="judgeSettings.goodComment" placeholder="请输入良好评价内容"></el-input>
-              </el-form-item>
-              <el-form-item label="有待提高评价内容">
-                <el-input v-model="judgeSettings.poorComment" placeholder="请输入有待提高评价内容"></el-input>
-              </el-form-item>
-            </el-form>
-          </div>
-          <div v-if="!value3">
-           <el-form :model="judgeSettings" label-width="140px">
-              <el-form-item label="i属性最多">
-                <el-input v-model="judgeSettings.i" placeholder="请输入评价"></el-input>
-              </el-form-item>
-              <el-form-item label="o属性最多">
-                <el-input v-model="judgeSettings.o" placeholder="请输入评价"></el-input>
-              </el-form-item>
-              <el-form-item label="p属性最多">
-                <el-input v-model="judgeSettings.p" placeholder="请输入评价"></el-input>
-              </el-form-item>
-              <el-form-item label="j属性最多">
-                <el-input v-model="judgeSettings.j" placeholder="请输入评价"></el-input>
-              </el-form-item>
-            </el-form>
-          </div>
-          <template #footer>
-          <div class="dialog-footer">
-            <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="newJudge">
-              确定
-            </el-button>
-          </div>
-          </template>
-        </el-dialog>
+
       </div>
     </div>
   </div>
@@ -257,64 +214,23 @@
 import { ref } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-// 判断页面
-const judgeSettings = ref({
-  excellentRange: '',
-  goodRange: '',
-  poorRange: '',
-  excellentComment: '',
-  goodComment: '',
-  poorComment: '',
-  i: '',
-  o: '',
-  p: '',
-  j: ''
-});
-const dialogVisible = ref(false)
-const judge = () => {
-  dialogVisible.value = true
-}
-const newJudge = () => {
-  // 在这里处理判断逻辑
-  console.log('判断设置:', judgeSettings.value);
-  dialogVisible.value = false;
-}
+import {addApp, common} from "@/api/app";
+
 // 定义是评分还是测评
 const value3 = ref(true)
 // 定义习题集列表
 const questionSets = ref([]);
 const isShow = ref(true);
 const isShowa = ref(true);
-
 // 定义选择类型
 const options = [
   {
-    value: '心理测试',
-    label: '心理测试',
+    value: '系统测评',
+    label: '系统测评',
   },
   {
-    value: '生活实用',
-    label: '生活实用',
-  },
-  {
-    value: '娱乐休闲',
-    label: '娱乐休闲',
-  },
-  {
-    value: '科普',
-    label: '科普',
-  },
-  {
-    value: '智力挑战',
-    label: '智力挑战',
-  },
-  {
-    value: '学习',
-    label: '学习',
-  },
-  {
-    value: '其他',
-    label: '其他',
+    value: 'ai评测',
+    label: 'ai评测',
   },
 ]
 // 定义新习题集的数据结构
@@ -322,17 +238,7 @@ const newQuestionSet = ref({
   name: '',
   value: '',
   avatar: '',
-  questions: [
-    {
-      text: '',
-      options: [
-        { text: '', isAnswer: false ,score:'',result:'' },
-        { text: '', isAnswer: false ,score:'',result:''},
-        { text: '', isAnswer: false ,score:'',result:''},
-        { text: '', isAnswer: false ,score:'',result:''}
-      ]
-    }
-  ]
+  description: '' // 新增描述字段
 });
 
 // 获取选项的标签（A、B、C、D...）
@@ -350,44 +256,7 @@ const handleisshow = (show) => {
   isShow.value = show;
 };
 
-// 增加问题
-const addQuestion = (setIndex) => {
-  if (setIndex === -1) {
-    newQuestionSet.value.questions.push({
-      text: '',
-      options: [
-        { text: '', isAnswer: false },
-        { text: '', isAnswer: false }
-      ]
-    });
-  } else {
-    questionSets.value[setIndex].questions.push({
-      text: '',
-      options: [
-        { text: '', isAnswer: false },
-        { text: '', isAnswer: false }
-      ]
-    });
-  }
-};
 
-// 增加选项
-const addOption = (setIndex, qIndex) => {
-  if (setIndex === -1) {
-    newQuestionSet.value.questions[qIndex].options.push({ text: '', isAnswer: false });
-  } else {
-    questionSets.value[setIndex].questions[qIndex].options.push({ text: '', isAnswer: false });
-  }
-};
-
-// 删除选项
-const removeOption = (setIndex, qIndex, oIndex) => {
-  if (setIndex === -1) {
-    newQuestionSet.value.questions[qIndex].options.splice(oIndex, 1);
-  } else {
-    questionSets.value[setIndex].questions[qIndex].options.splice(oIndex, 1);
-  }
-};
 
 // 保存编辑
 const saveEdit = (index) => {
@@ -475,65 +344,84 @@ const cancelQuestionEdit = (setIndex, qIndex) => {
 };
 
 // 删除题目
-const removeQuestion = (qIndex) => {
-  if (qIndex === -1) {
-    newQuestionSet.value.questions.pop();
-  } else {
-    questionSets.value[qIndex].questions.splice(qIndex, 1);
-  }
-};
+// const removeQuestion = (qIndex) => {
+//   if (qIndex === -1) {
+//     newQuestionSet.value.questions.pop();
+//   } else {
+//     questionSets.value[qIndex].questions.splice(qIndex, 1);
+//   }
+// };
 
 // 保存新应用
-const saveQuestionSet = () => {
+const saveQuestionSet = async() => {
   const newSet = newQuestionSet.value;
-  console.log(newSet)
+  // 对接接口
+  const addApi = {
+    appName: newSet.name,
+    appType:1,
+    appIcon: newSet.avatar,
+    appDesc: newSet.description,
+    scoringStrategy:1
+  }
+  console.log(addApi)
+ const {data:{code}} = await addApp(addApi)
+  if(code === 0) {
+    ElMessage.success('上传成功');
+  } else {
+    ElMessage.error('上传失败');
+  }
   // 检查应用名称是否为空
   if (newSet.name.trim() === '') {
     ElMessage.error('应用名称不能为空');
     return;
   }
+  // 检查描述是否为空
+  if (newSet.description.trim() === '') {
+    ElMessage.error('描述不能为空');
+    return;
+  }
 
   // 检查每个问题是否为空
-  for (const question of newSet.questions) {
-    if (question.text.trim() === '') {
-      ElMessage.error('问题不能为空');
-      return;
-    }
+  // for (const question of newSet.questions) {
+  //   if (question.text.trim() === '') {
+  //     ElMessage.error('问题不能为空');
+  //     return;
+  //   }
 
-    // 检查每个选项是否为空
-    for (const option of question.options) {
-      if (option.text.trim() === '') {
-        ElMessage.error('选项不能为空');
-        return;
-      }
-    }
-    // 检查分数是否为空
-    for (const option of question.options) {
-      if(value3.value) {
-        if (option.score.trim() === '') {
-          ElMessage.error('分数不能为空');
-          return;
-        }
-      }
-      if(!value3.value) {
-        if (option.result.trim() === '') {
-          ElMessage.error('属性不能为空');
-          return;
-        }
-      }
-    }
+  //   // 检查每个选项是否为空
+  //   for (const option of question.options) {
+  //     if (option.text.trim() === '') {
+  //       ElMessage.error('选项不能为空');
+  //       return;
+  //     }
+  //   }
+  //   // 检查分数是否为空
+  //   for (const option of question.options) {
+  //     if(value3.value) {
+  //       if (option.score.trim() === '') {
+  //         ElMessage.error('分数不能为空');
+  //         return;
+  //       }
+  //     }
+  //     if(!value3.value) {
+  //       if (option.result.trim() === '') {
+  //         ElMessage.error('属性不能为空');
+  //         return;
+  //       }
+  //     }
+  //   }
 
-    // 检查每个问题是否至少有一个答案
-    if (newSet.value.trim() === '') {
-      ElMessage.error('类型不能为空');
-      return;
-    }
-    if (newSet.avatar.trim() === '') {
-      ElMessage.error('头像不能为空');
-      return;
-    }
+  //   // 检查每个问题是否至少有一个答案
+  //   if (newSet.value.trim() === '') {
+  //     ElMessage.error('类型不能为空');
+  //     return;
+  //   }
+  //   if (newSet.avatar.trim() === '') {
+  //     ElMessage.error('头像不能为空');
+  //     return;
+  //   }
 
-  }
+  // }
 
   // 如果所有验证通过，保存新应用
   questionSets.value.push({
@@ -542,21 +430,10 @@ const saveQuestionSet = () => {
     editing: false,
     editName: ''
   });
-
   // 重置新应用表单
   newQuestionSet.value = {
     name: '',
-    questions: [
-      {
-        text: '',
-        options: [
-          { text: '', isAnswer: false },
-          { text: '', isAnswer: false },
-          { text: '', isAnswer: false },
-          { text: '', isAnswer: false }
-        ]
-      }
-    ],
+    description: '',
     avatar:'',
     value:'',
   };
@@ -585,19 +462,19 @@ const deleteQuestionSet = (index) => {
   questionSets.value.splice(index, 1);
 };
 // 上传头像
-const handleAvatarUpload = (file) => {
+const handleAvatarUpload = async(file) => {
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
     ElMessage.error('只能上传图片文件')
     return false
   }
-  // 实际应调用上传API
-  const reader = new FileReader()
-  reader.readAsDataURL(file)
-  reader.onload = () => {
-    newQuestionSet.value.avatar = reader.result
-  }
-  return false // 阻止自动上传
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await common(formData)
+  newQuestionSet.value.avatar = res.data.data
+  ElMessage.success('上传成功')
+  return true
+
 }
 </script>
 

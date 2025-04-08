@@ -44,8 +44,8 @@
                   未验证
                 </el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label="手机号">
-                {{ userInfo.phone || '未绑定' }}
+              <el-descriptions-item label="用户id">
+                {{ userInfo.id || '未绑定' }}
               </el-descriptions-item>
               <el-descriptions-item label="注册时间">
                 {{ formatDate(userInfo.createTime) }}
@@ -84,12 +84,6 @@
         >
           <el-form-item label="用户名" prop="username">
             <el-input v-model="editForm.username" />
-          </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input v-model="editForm.email" />
-          </el-form-item>
-          <el-form-item label="手机号" prop="phone">
-            <el-input v-model="editForm.phone" />
           </el-form-item>
         </el-form>
         <template #footer>
@@ -291,14 +285,15 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import UserE from './UserBody/UserE.vue'
 import { getLoginUser } from '../api/user.js'
-import {userLogout} from '../api/user.js'
+import { updateUserInfo } from '../api/user.js'
+import { userLogout,commonController } from '../api/user.js'
 const router = useRouter()
 // 用户信息数据
 const userInfo = reactive({
   username: '',
   email: '',
   emailVerified: false,
-  phone: '',
+  id: '',
   avatar: '',
   createTime: null,
   lastLogin: null
@@ -309,9 +304,7 @@ const showEditDialog = ref(false)
 const selectedRecord = ref(null)
 const editFormRef = ref(null)
 const editForm = reactive({
-  username: userInfo.username,
-  email: userInfo.email,
-  phone: userInfo.phone
+  username: userInfo.username
 })
 
 // 表单验证规则
@@ -319,13 +312,6 @@ const formRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 2, max: 16, message: '长度在2到16个字符', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-  ],
-  phone: [
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ]
 }
 
@@ -334,31 +320,102 @@ const formatDate = (date) => {
   return new Date(date).toLocaleString()
 }
 
-// 头像上传处理
-const handleAvatarUpload = (file) => {
-  const isImage = file.type.startsWith('image/')
-  if (!isImage) {
-    ElMessage.error('只能上传图片文件')
-    return false
-  }
-  // 实际应调用上传API
-  const reader = new FileReader()
-  reader.readAsDataURL(file)
-  reader.onload = () => {
-    userInfo.avatar = reader.result
-  }
-  return false // 阻止自动上传
+const handleAvatarUpload = async(file) => {
+ const isImage = file.type.startsWith('image/')
+ if (!isImage) {
+  ElMessage.error('只能上传图片文件')
+  return false
+ }
+ const formData = new FormData()
+ formData.append('file', file)
+ const res = await commonController(formData)
+ console.log('res',res)
+ userInfo.avatar = res.data.data
+  const res2 = await updateUserInfo({
+      "userAvatar": userInfo.avatar,
+      "userName": userInfo.name || '',       // Assuming you might want to include the name
+      "userProfile": userInfo.profile || ''  // And profile if available
+    })
+    console.log('res2',res2)
+    console.log('userInfo',{
+      "userAvatar": userInfo.avatar,
+      "userName": userInfo.name || '',       // Assuming you might want to include the name
+      "userProfile": userInfo.profile || ''  // And profile if available
+    })
+ ElMessage.success('上传成功')
+ return true
+
 }
+
+// 头像上传处理
+// const handleAvatarUpload = async (file) => {
+//   const isImage = file.type.startsWith('image/')
+//   if (!isImage) {
+//     ElMessage.error('只能上传图片文件')
+//     return false
+//   }
+
+//   try {
+//     const reader = new FileReader()
+//     reader.readAsDataURL(file)
+
+//     await new Promise((resolve) => {
+//       reader.onload = () => {
+//         userInfo.avatar = reader.result
+//         resolve()
+//       }
+//     })
+
+//     // 构造请求数据
+//     const requestData = {
+//       "userAvatar": userInfo.avatar,
+//       "userName": userInfo.name || '',       // Assuming you might want to include the name
+//       "userProfile": userInfo.profile || ''  // And profile if available
+//     }
+//     console.log('send',requestData)
+//     const response = await updateUserInfo(
+//       {
+//         "userAvatar": "userInfo.avatar",
+//         "userName": "userInfo.name || ''",
+//         "userProfile": "userInfo.profile || ''"
+//       }
+//     )
+//     console.log('Response:', response)
+//     if (response.status === 200 && response.data.code === 0 && response.data.data) {
+//       ElMessage.success('头像更新成功')
+//     } else {
+//       ElMessage.error(response.data.message || '头像更新失败')
+//     }
+//   } catch (err) {
+//     console.error('头像上传请求出错:', err)
+//     ElMessage.error('头像上传请求出错，请检查网络')
+//   }
+
+//   return false // 阻止自动上传
+// }
 
 // 保存修改
 const handleSaveInfo = async () => {
   try {
     await editFormRef.value.validate()
-    Object.assign(userInfo, editForm)
-    showEditDialog.value = false
-    ElMessage.success('信息更新成功')
+    // 构造请求数据
+    const requestData = {
+      userName: editForm.username,
+      userProfile: ''
+    };
+    // 调用接口
+    const response = await updateUserInfo(requestData);
+    if (response.status === 200 && response.data.code === 0 && response.data.data) {
+      // 更新成功，将编辑后的数据同步到 userInfo
+      userInfo.username = editForm.username;
+      showEditDialog.value = false;
+      ElMessage.success('用户名更新成功');
+    } else {
+      ElMessage.error(response.data.message || '用户名更新失败');
+    }
   } catch (err) {
-    console.error('表单验证失败:', err)
+    console.error('表单验证失败或请求出错:', err);
+    ElMessage.error('表单验证失败或请求出错，请检查输入或网络');
   }
 }
 
@@ -482,13 +539,13 @@ onMounted(async () => {
     console.log(response.data)
     if (response.status === 200) {
       const data = response.data.data
-      userInfo.username = data.userName||data.id
+      userInfo.username = data.userName||'青山用户'
       userInfo.email = data.userEmail
       userInfo.emailVerified = false // 这里需要根据接口实际返回字段调整
-      userInfo.phone = data.userPhone
+      userInfo.id = data.id // 假设接口返回字段为userId，实际需调整 // 假设接口返回字段为userId，实际需调整
       userInfo.avatar = data.userAvatar
       userInfo.createTime = data.createTime
-      userInfo.lastLogin = data.updateTime // 这里假设接口不返回最后登录时间，实际需调整
+      userInfo.lastLogin = data.updateTime  //这里假设接口不返回最后登录时间，实际需调整
     } else {
       ElMessage.error('获取用户信息失败')
     }

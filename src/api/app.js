@@ -1,5 +1,5 @@
 import { get, post } from '../utils/request'
-// 增加应用
+// 增加应用-ok
 export const addApp = (data) => {
   return post('/api/app/add', data)
 }
@@ -30,4 +30,8 @@ export const listMyAppVOByPage = (data) => {
 
 export const updateApp = (data) => {
   return post('/api/app/update', data)
+}
+
+export const common = (data) => {
+  return post('/api/common/upload', data)
 }

@@ -7,22 +7,21 @@ export function loginApi(data) {
 }
 // 注册-ok
 export function registerApi(data) {
-
   return post('/api/user/register', data)
 }
 //分页查询用户列表 (管理员权限)
-export function listuserbypage() {
-  return post('/api/user/list/page')
+export function listuserbypage(data) {
+  return post('/api/user/list/page',data)
 }
 //分页查询用户列表 (用户权限)
-export function listUserVOByPage() {
-  return post('/api/user/list/page/vo')
+export function listUserVOByPage(data) {
+  return post('/api/user/list/page/vo',data)
 }
-// 增加用户
+// 增加用户-ok
 export function adduser(data) {
   return post('/api/user/add', data)
 }
-// 删除用户
+// 删除用户-ok
 export function deleteuser(data) {
   return post('/api/user/delete', data)
 }
@@ -42,7 +41,7 @@ export function getLoginUser() {
 export function userLoginByWxOpen(data) {
   return get('/api/user/login/wx_open', data)
 }
-// 用户退出登录
+// 用户退出登录  -ok
 export function userLogout() {
   return post('/api/user/logout')
 }
@@ -50,7 +49,11 @@ export function userLogout() {
 export function updateUser(data) {
   return post('/api/user/update', data)
 }
-//修改个人信息
+//修改个人信息-ok 头像未完成
 export function updateUserInfo(data) {
   return post('/api/user/update/my', data)
+}
+
+export function commonController(data) {
+  return post('/api/common/upload', data)
 }
