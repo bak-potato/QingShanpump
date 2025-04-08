@@ -1,8 +1,8 @@
 <template>
   <div class="lastguide">
     <div class="lastguidein">
-      <div class="topf clickable">&nbsp;&nbsp;&nbsp;关注</div>
-      <div class="topf2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;网站公告 </div>
+      <div class="topf clickable">关注</div>
+      <div class="topf2">帖子 </div>
 
       <div class="lastf">
         <LastRightViewone />

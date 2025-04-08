@@ -7,14 +7,14 @@
     >
       <img class="mouse" width="20px" src="@/icons/yingyongguanli.png">应用管理
     </div>
-    <div
+    <!-- <div
       @click="router.push('/questionmanage'); activeMenu = 'questionmanage'"
       class="leftmenu1 mouse"
       :class="{ active: activeMenu === 'questionmanage' }"
     >
       <img class="mouse" width="20px" src="@/icons/1-5qitazuoye.png">
       题目管理
-    </div>
+    </div> -->
   </div>
 </template>
 

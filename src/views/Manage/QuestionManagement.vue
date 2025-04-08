@@ -40,7 +40,6 @@
                       <div class="option-row">
                         <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
                         <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(oIndex)}`" class="option-input"></el-input>
-                        <el-checkbox v-model="option.isAnswer" class="answer-checkbox">设为答案</el-checkbox>
                         <el-button
                           type="danger"
                           circle
@@ -81,6 +80,12 @@
         <div class="handquestion" v-if="isShow">
           <div class="question-item">
             <el-form :model="newQuestion" label-width="120px">
+              <label class="switch">
+                <el-switch v-model="value3" inline-prompt active-text="评分" inactive-text="测评" />
+            </label>
+            <el-form-item label="应用名">
+                <el-input v-model="newQuestion.appName" placeholder="请输入应用名"></el-input>
+              </el-form-item>
               <el-form-item label="问题">
                 <el-input v-model="newQuestion.text" placeholder="请输入问题"></el-input>
               </el-form-item>
@@ -89,7 +94,8 @@
                   <div class="option-row">
                     <span class="option-label">{{ getOptionLabel(index) }}</span>
                     <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(index)}`" class="option-input"></el-input>
-                    <el-checkbox v-model="option.isAnswer" class="answer-checkbox">设为答案</el-checkbox>
+                    <el-input v-model="option.score"  placeholder="请输入分数" v-if="value3" style="width: 140px;"></el-input>
+                    <el-input v-model="option.result" placeholder="请输入属性" v-if="!value3" style="width: 140px;"></el-input>
                     <el-button
                       type="danger"
                       circle
@@ -118,17 +124,23 @@
 <script setup>
 import { ref } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-
+import {addQuestion} from "@/api/question";
+import { useRouter } from 'vue-router';
+const router = useRouter();
+// 接收路由参数
+const id = router.currentRoute.value.query.id
+console.log(id);
 // 定义题目列表
 const questions = ref([]);
 const isShow = ref(true);
-
+const value3 = ref(true);
 // 定义新题目的数据结构
 const newQuestion = ref({
+  appName:'',
   text: '',
   options: [
-    { text: '', isAnswer: false },
-    { text: '', isAnswer: false }
+    { text: '', score:0,result:'' },
+    { text: '', score:0,result:'' }
   ]
 });
 
@@ -153,17 +165,13 @@ const removeNewOption = (index) => {
 };
 
 // 保存题目
-const saveQuestion = () => {
+const saveQuestion = async() => {
   if (newQuestion.value.text.trim() === '') {
     alert('问题不能为空');
     return;
   }
   if (newQuestion.value.options.some(option => option.text.trim() === '')) {
     alert('选项不能为空');
-    return;
-  }
-  if (!newQuestion.value.options.some(option => option.isAnswer)) {
-    alert('必须至少有一个答案');
     return;
   }
   questions.value.push({
@@ -174,10 +182,33 @@ const saveQuestion = () => {
   newQuestion.value = {
     text: '',
     options: [
-      { text: '', isAnswer: false },
-      { text: '', isAnswer: false }
+      { text: ''},
+      { text: ''}
     ]
   };
+  const newquestion = {
+  appId: id,
+  questionContent: [
+    {
+      options: [
+        {
+          key: "",
+          result: "",
+          score: 0,
+          value: ""
+        }
+      ],
+      title: ""
+    }
+  ]
+  };
+  console.log(newQuestion.value);
+  const {data:{code}} = await addQuestion(newquestion);
+  if(code === 0){
+    alert('添加成功');
+  }else{
+    alert('添加失败');
+  }
 };
 
 // 切换题目展开状态
@@ -315,9 +346,7 @@ const cancelEdit = (index) => {
   color: #7e3e3e;
 }
 
-.answer-checkbox {
-  margin-left: 10px;
-}
+
 
 .answer-tag {
   margin-left: 10px;

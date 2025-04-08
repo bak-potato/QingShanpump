@@ -33,6 +33,7 @@
                     </el-icon>
                   </div>
                   <div class="action-buttons">
+                    <el-button type="text" @click="add(id)">添加题目</el-button>
                     <el-button type="text" @click.stop="toggleEdit(setIndex)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(setIndex)">删除</el-button>
                   </div>
@@ -215,7 +216,25 @@ import { ref } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
 import {addApp, common} from "@/api/app";
-
+import { useRouter } from 'vue-router';
+const router = useRouter();
+// 路由传参
+// 定义一个用于进行路由跳转并传递参数的函数
+const add = (id) => {
+    // 打印传入的 id 参数，方便调试
+    console.log('传递的问题 ID 为:', id);
+    try {
+        // 使用路由实例进行跳转，将 id 作为查询参数传递
+        router.push({
+            path: '/questionmanage',
+            // 使用简洁表示法，当对象属性名和变量名一致时可省略值
+            query: { id }
+        });
+    } catch (error) {
+        // 若跳转过程中出现错误，打印错误信息
+        console.error('路由跳转失败:', error);
+    }
+};
 // 定义是评分还是测评
 const value3 = ref(true)
 // 定义习题集列表
@@ -225,11 +244,11 @@ const isShowa = ref(true);
 // 定义选择类型
 const options = [
   {
-    value: '系统测评',
+    value: 0,
     label: '系统测评',
   },
   {
-    value: 'ai评测',
+    value: 1,
     label: 'ai评测',
   },
 ]
@@ -247,7 +266,7 @@ const getOptionLabel = (index) => {
 };
 
 // 切换创建应用和应用列表
-const handleisshowa = (show) => {
+const handleisshowa = async(show) => {
   isShowa.value = show;
 };
 
@@ -351,20 +370,21 @@ const cancelQuestionEdit = (setIndex, qIndex) => {
 //     questionSets.value[qIndex].questions.splice(qIndex, 1);
 //   }
 // };
-
 // 保存新应用
+const id = ref()
 const saveQuestionSet = async() => {
   const newSet = newQuestionSet.value;
   // 对接接口
   const addApi = {
     appName: newSet.name,
-    appType:1,
+    appType: newSet.value,
     appIcon: newSet.avatar,
     appDesc: newSet.description,
     scoringStrategy:1
   }
   console.log(addApi)
- const {data:{code}} = await addApp(addApi)
+ const {data:{code,data}} = await addApp(addApi)
+ id.value = data
   if(code === 0) {
     ElMessage.success('上传成功');
   } else {
@@ -380,7 +400,6 @@ const saveQuestionSet = async() => {
     ElMessage.error('描述不能为空');
     return;
   }
-
   // 检查每个问题是否为空
   // for (const question of newSet.questions) {
   //   if (question.text.trim() === '') {
