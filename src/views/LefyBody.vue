@@ -17,8 +17,12 @@
           <img class="fclass3" width="20px" src="../icons/shangdian.png" />
           <p>商店</p>
         </div>
+        <div @click="handleview3" :class="['fc3body', { fc3bodyover: view === 3 }]" class="clickable">
+          <img class="fclass3" width="20px" src="../icons/shangdian.png" />
+          <p>社区</p>
+        </div>
 
-       <div class="bodyl">
+        <div class="bodyl">
           <div @click="handleviewmanage" class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />
             <div class="tooltip">后台管理系统</div>
@@ -46,6 +50,7 @@
         <LeftBDiv0 v-if="view === 0" />
         <LeftBDiv2 v-if="view === 2" />
         <LeftBDiv1 v-if="view === 1" />
+        <LeftBDiv3 v-if="view === 3" />
         <LeftBDiv100 v-if="view === 100" />
         <LeftBDiv99 v-if="view === 99" />
 
@@ -59,6 +64,7 @@
 import LeftBDiv0 from './LeftBodyDiv/LeftBDiv0.vue';
 import LeftBDiv1 from './LeftBodyDiv/LeftBDiv1.vue';
 import LeftBDiv2 from './LeftBodyDiv/LeftBDiv2.vue';
+import LeftBDiv3 from './LeftBodyDiv/LeftBDiv3.vue';
 import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
 import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
 import { ref, onMounted } from 'vue';
@@ -150,6 +156,13 @@ const handleviewlast1 = () => {
   router.push('/user');
 
 }
+const handleview3 = () => {
+  sessionStorage.setItem('view', 3);
+  view.value = 3;
+  updateActiveClass(3);
+  router.push('/community');
+}
+
 const rightbody = ref(null);
 
 const handleright = () => {

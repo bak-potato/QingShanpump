@@ -20,6 +20,32 @@ const router = createRouter({
           meta: { requiresAuth: true } // 需要登录
         },
         {
+          path: 'community',
+          name: 'community',
+          component: () => import('../views/RightBody/Community.vue'),
+        },
+        {
+          path: 'createpost',
+          name: 'CreatePost',
+          component: () => import('../views/Post/CreatePost.vue'),
+          meta: { requiresAuth: true } // 需要登录
+        },
+        {
+          path: 'post',
+          name: 'PostMain',
+          component: () => import('../views/Post/PostMain.vue'),
+        },
+        {
+          path: 'postdetail',
+          name: 'PostDetail',
+          component: () => import('../views/Post/PostDetail.vue'),
+        },
+        {
+          path: 'editpost',
+          name: 'EditPost',
+          component: () => import('../views/Post/EditPost.vue'),
+        },
+        {
           path: 'answer',
           name: 'answer',
           component: () => import('../views/RightBody/Answer.vue'),
@@ -87,8 +113,10 @@ const router = createRouter({
 
   ],
 });
+
 router.beforeEach((to, from, next) => {
   const isAuthenticated = checkAuth(); // 检查用户是否登录
+
   if (to.meta.requiresAuth && !isAuthenticated) {
     // 如果路由需要登录且用户未登录，则跳转到登录页面
     next({ name: 'login' });

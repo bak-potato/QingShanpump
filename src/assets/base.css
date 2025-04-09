@@ -58,6 +58,10 @@
   font-weight: normal;
 }
 
+.md-editor svg {
+  box-sizing: content-box !important;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
