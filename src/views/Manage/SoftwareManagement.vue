@@ -24,111 +24,48 @@
             <el-empty v-if="questionSets.length === 0" description="暂无创建应用" />
             <!-- 渲染题目列表 -->
             <div v-else>
-              <div v-for="(questionSet, setIndex) in questionSets" :key="setIndex" class="scrollbar-demo-item">
+              <div v-for="(questionSet) in questionSets" :key="questionSet.id" class="scrollbar-demo-item">
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    <el-avatar :size="40" :src="questionSet.avatar" class="profile-avatar2"/> {{ questionSet.name }}&nbsp;&nbsp;({{questionSet.value}})
-                    <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
+                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType
+}})
+                    <!-- <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
                       <ArrowDown />
-                    </el-icon>
+                    </el-icon> -->
                   </div>
                   <div class="action-buttons">
                     <el-button type="text" @click="add(id)">添加题目</el-button>
-                    <el-button type="text" @click.stop="toggleEdit(setIndex)">更改</el-button>
-                    <el-button type="text" @click.stop="deleteQuestionSet(setIndex)">删除</el-button>
-                  </div>
-                </div>
-                <div v-if="questionSet.expanded">
-                  <div v-for="(question, index) in questionSet.questions" :key="index" class="scrollbar-demo-item">
-                    <div class="question-text">
-                      <template v-if="!question.editing">
-                        {{ question.text }}
-                        <span v-if="isMultipleChoice(question)" class="multiple-choice-tag">（多选题）</span>
-                        <!-- toggleQuestionEdit -->
-                      </template>
-                      <template v-else>
-                        <el-input v-model="question.editText" placeholder="请输入问题"></el-input>
-                        <el-button type="primary" @click="saveQuestionEdit(setIndex, index)">保存</el-button>
-                        <el-button type="text" @click="cancelQuestionEdit(setIndex, index)">取消</el-button>
-                      </template>
-                    </div>
-                    <ul class="options-list">
-                      <li v-for="(option, oIndex) in question.options" :key="oIndex">
-                        <template v-if="!question.editing">
-                          <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
-                          <span class="option-text">{{ option.text }}</span>
-                          <span class="answer-tag" v-if="value3">({{option.score}}分)</span>
-                           <span class="answer-tag" v-if="!value3">({{option.result}}属性)</span>
-                        </template>
-                        <template v-else>
-                          <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
-                          <el-input v-model="option.editText" :placeholder="`选项 ${getOptionLabel(oIndex)}`" class="option-input"></el-input>
-                          <el-checkbox v-model="option.isAnswer">设为答案</el-checkbox>
-                          <el-button
-                            type="danger"
-                            circle
-                            size="small"
-                            @click="removeOption(setIndex, index, oIndex)"
-                            v-if="oIndex > 0"
-                            class="delete-button"
-                          >
-                            <el-icon>
-                              <img width="20px" src="@/icons/delete.png" />
-                            </el-icon>
-                          </el-button>
-                        </template>
-                      </li>
-                      <li v-if="question.editing">
-                        <el-button type="primary" @click="addOption(setIndex, index)">增加选项</el-button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <!-- 更改键弹出 -->
-                <div v-if="questionSet.editing" class="edit-section">
-                  <el-form :model="questionSet" label-width="120px">
-                    <el-form-item label="应用名称">
-                      <el-input v-model="questionSet.editName" placeholder="请输入应用名称"></el-input>
-                    </el-form-item>
-                    <el-form-item label="问题列表">
-                      <div v-for="(question, qIndex) in questionSet.questions" :key="qIndex" class="question-item">
-                        <div class="question-text">
-                          <el-input v-model="question.text" placeholder="请输入问题"></el-input>
-                        </div>
-                        <div class="options-list">
-                          <div v-for="(option, oIndex) in question.options" :key="oIndex" class="option-item">
-                            <div class="option-row">
-                              <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
-                              <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(oIndex)}`" class="option-input"></el-input>
-                              <el-checkbox v-model="option.isAnswer">设为答案</el-checkbox>
-                              <el-button
-                                type="danger"
-                                circle
-                                size="small"
-                                @click="removeOption(setIndex, qIndex, oIndex)"
-                                v-if="oIndex > 0"
-                                class="delete-button"
-                              >
-                                <el-icon>
-                                  <img width="20px" src="@/icons/delete.png" />
-                                </el-icon>
-                              </el-button>
-                            </div>
-                          </div>
-                          <el-button type="primary" @click="addOption(setIndex, qIndex)">增加选项</el-button>
-                      <el-button type="primary" @click="addQuestion(setIndex)">增加问题</el-button>
-
-                            <el-button  type="primary" @click="saveEdit(setIndex)">保存</el-button>
-                    <el-button type="text" @click="cancelEdit(setIndex)">取消</el-button>
-                        </div>
-                      </div>
-                    </el-form-item>
-                  </el-form>
-                  <div class="edit-buttons">
-
+                    <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
+                    <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
                   </div>
                 </div>
               </div>
+               <!-- 更改键弹出 -->
+              <el-dialog v-model="isEditDialogVisible" title="Tips"  width="500" :before-close="handleClose" :modal="null">
+                  <el-form :model="questionSet" label-width="120px">
+                    <el-form-item label="应用名称">
+                      <el-input v-model="questionSet.appName" placeholder="请输入应用名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="应用描述">
+                      <el-input v-model="questionSet.appDesc" placeholder="请输入应用描述"></el-input>
+                    </el-form-item>
+                    <!-- 上传头像 -->
+                    <el-form-item label="上传头像">
+                      <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar" />
+                      <el-upload action="#" :show-file-list="false" :before-upload="tttt" >
+                        <el-button type="Default" size="small" class="mt-2">
+                          更改头像
+                        </el-button>
+                      </el-upload>
+                    </el-form-item>
+                  </el-form>
+                  <template #footer>
+                    <div class="dialog-footer">
+                      <el-button @click="isEditDialogVisible = false">取消</el-button>
+                      <el-button type="primary" @click="baocun()"> 保存 </el-button>
+                    </div>
+                  </template>
+                </el-dialog>
             </div>
           </el-scrollbar>
         </div>
@@ -213,12 +150,21 @@
 
 <script setup>
 import { ref } from 'vue';
-import { ArrowDown } from '@element-plus/icons-vue';
+// import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-import {addApp, common} from "@/api/app";
+import {addApp, common,listAppByPage,editApp} from "@/api/app";
 import { useRouter } from 'vue-router';
-const router = useRouter();
+import { onMounted } from 'vue';
+// 弹窗
+const questionSet = ref({
+  id: null,
+  appName: '',
+  appDesc: '',
+  appIcon: '' // 补充头像字段
+});
+const isEditDialogVisible = ref(false);
 // 路由传参
+const router = useRouter();
 // 定义一个用于进行路由跳转并传递参数的函数
 const add = (id) => {
     // 打印传入的 id 参数，方便调试
@@ -261,9 +207,9 @@ const newQuestionSet = ref({
 });
 
 // 获取选项的标签（A、B、C、D...）
-const getOptionLabel = (index) => {
-  return String.fromCharCode(65 + index); // 65是'A'的ASCII码
-};
+// const getOptionLabel = (index) => {
+//   return String.fromCharCode(65 + index); // 65是'A'的ASCII码
+// };
 
 // 切换创建应用和应用列表
 const handleisshowa = async(show) => {
@@ -274,93 +220,91 @@ const handleisshowa = async(show) => {
 const handleisshow = (show) => {
   isShow.value = show;
 };
-
-
-
 // 保存编辑
-const saveEdit = (index) => {
-  const questionSet = questionSets.value[index];
+// 引入编辑应用的接口（假设接口文件中已定义）
 
-  // 检查应用名称是否为空
-  if (questionSet.editName.trim() === '') {
+const baocun = async () => {
+  // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
+  const currentQuestionSet = questionSet.value;
+
+  // 验证必填字段
+  if (!currentQuestionSet.id) {
+    ElMessage.error('应用数据异常，请重试');
+    return;
+  }
+  if (currentQuestionSet.appName.trim() === '') {
     ElMessage.error('应用名称不能为空');
     return;
   }
-  // 检查类型是否为空
-  if (questionSet.value.trim() === '') {
-    ElMessage.error('类型不能为空');
+  if (currentQuestionSet.appDesc.trim() === '') {
+    ElMessage.error('应用描述不能为空');
     return;
   }
 
-  // 检查每个问题是否为空
-  for (const question of questionSet.questions) {
-    if (question.text.trim() === '') {
-      ElMessage.error('问题不能为空');
-      return;
-    }
+  // 构造请求参数（根据后端接口要求调整字段）
+  const editParams = {
+    id: currentQuestionSet.id,
+    appName: currentQuestionSet.appName.trim(),
+    appDesc: currentQuestionSet.appDesc.trim(),
+    appIcon: currentQuestionSet.appIcon.trim() // 头像字段
+    // 如有其他字段（如头像），需在此补充
+  };
 
-    // 检查每个选项是否为空
-    for (const option of question.options) {
-      if (option.text.trim() === '') {
-        ElMessage.error('选项不能为空');
-        return;
-      }
-    }
-
-    // 检查每个问题是否至少有一个答案
-    if (!question.options.some(option => option.isAnswer)) {
-      ElMessage.error('每个问题必须至少有一个答案');
-      return;
-    }
+  try {
+    // 调用编辑接口
+    const res = await editApp(editParams);
+    isEditDialogVisible.value = false;
+    // 头像渲染
+     questionSets.value.appIcon = currentQuestionSet.appIcon;
+    console.log(res)
+  } catch (error) {
+    console.error('编辑接口调用失败:', error);
+    ElMessage.error('编辑失败，请检查网络或重试');
   }
-
-  // 如果所有验证通过，保存编辑
-  questionSet.name = questionSet.editName;
-  questionSet.editing = false;
 };
 
 // 取消编辑
-const cancelEdit = (index) => {
-  questionSets.value[index].editing = false;
-};
+// const cancelEdit = (index) => {
+//   questionSets.value[index].editing = false;
+// };
 
 // 保存题目编辑
-const saveQuestionEdit = (setIndex, qIndex) => {
-  const question = questionSets.value[setIndex].questions[qIndex];
+// const saveQuestionEdit = (setIndex, qIndex) => {
+//   const question = questionSets.value[setIndex].questions[qIndex];
 
-  // 检查问题是否为空
-  if (question.editText.trim() === '') {
-    ElMessage.error('问题不能为空');
-    return;
-  }
+//   // 检查问题是否为空
+//   if (question.editText.trim() === '') {
+//     ElMessage.error('问题不能为空');
+//     return;
+//   }
 
-  // 检查每个选项是否为空
-  for (const option of question.options) {
-    if (option.editText.trim() === '') {
-      ElMessage.error('选项不能为空');
-      return;
-    }
-  }
+//   // 检查每个选项是否为空
+//   for (const option of question.options) {
+//     if (option.editText.trim() === '') {
+//       ElMessage.error('选项不能为空');
+//       return;
+//     }
+//   }
 
-  // 检查每个问题是否至少有一个答案
-  if (!question.options.some(option => option.isAnswer)) {
-    ElMessage.error('每个问题必须至少有一个答案');
-    return;
-  }
+//   // 检查每个问题是否至少有一个答案
+//   if (!question.options.some(option => option.isAnswer)) {
+//     ElMessage.error('每个问题必须至少有一个答案');
+//     return;
+//   }
 
-  // 如果所有验证通过，保存编辑
-  question.text = question.editText;
-  question.options.forEach(option => {
-    option.text = option.editText;
-  });
-  question.editing = false;
-};
+//   // 如果所有验证通过，保存编辑
+//   question.text = question.editText;
+//   question.options.forEach(option => {
+//     option.text = option.editText;
+//   });
+//   question.editing = false;
+// };
 
 // 取消题目编辑
-const cancelQuestionEdit = (setIndex, qIndex) => {
-  const question = questionSets.value[setIndex].questions[qIndex];
-  question.editing = false;
-};
+// const cancelQuestionEdit = (setIndex, qIndex) => {
+//   const question = questionSets.value[setIndex].questions[qIndex];
+//   question.editing = false;
+// };
 
 // 删除题目
 // const removeQuestion = (qIndex) => {
@@ -387,9 +331,11 @@ const saveQuestionSet = async() => {
  id.value = data
   if(code === 0) {
     ElMessage.success('上传成功');
+
   } else {
     ElMessage.error('上传失败');
   }
+
   // 检查应用名称是否为空
   if (newSet.name.trim() === '') {
     ElMessage.error('应用名称不能为空');
@@ -443,12 +389,6 @@ const saveQuestionSet = async() => {
   // }
 
   // 如果所有验证通过，保存新应用
-  questionSets.value.push({
-    ...newSet,
-    expanded: false,
-    editing: false,
-    editName: ''
-  });
   // 重置新应用表单
   newQuestionSet.value = {
     name: '',
@@ -457,23 +397,40 @@ const saveQuestionSet = async() => {
     value:'',
   };
 };
-
-// 切换习题集的展开状态
-const toggleQuestionSet = (index) => {
-  questionSets.value[index].expanded = !questionSets.value[index].expanded;
+// 应用列表
+const init = async() => {
+    try {
+        const res = await listAppByPage({ page: null});
+        console.log(res)
+        questionSets.value = res.data.data.records
+        console.log(questionSets.value)
+    } catch (error) {
+        console.error('获取应用列表失败:', error);
+    }
 };
+onMounted(() => {
+    init();
+  })
+// 切换习题集的展开状态
+// const toggleQuestionSet = (index) => {
+//   questionSets.value[index].expanded = !questionSets.value[index].expanded;
+// };
 
 // 判断是否为多选题
-const isMultipleChoice = (question) => {
-  return question.options.filter(option => option.isAnswer).length > 1;
-};
-
+// const isMultipleChoice = (question) => {
+//   return question.options.filter(option => option.isAnswer).length > 1;
+// };
 // 切换编辑状态
-const toggleEdit = (index) => {
-  questionSets.value[index].editing = !questionSets.value[index].editing;
-  if (questionSets.value[index].editing) {
-    questionSets.value[index].editName = questionSets.value[index].name;
+const toggleEdit = (id) => {
+  // 从列表中获取当前应用并赋值给 questionSet
+  questionSet.value = questionSets.value.find(set => set.id === id) || {};
+
+  // 防止未找到应用时打开对话框
+  if (!questionSet.value.id) {
+    ElMessage.warning('未找到对应的应用，请刷新后重试');
+    return;
   }
+  isEditDialogVisible.value = true;
 };
 
 // 删除应用
@@ -489,11 +446,26 @@ const handleAvatarUpload = async(file) => {
   }
   const formData = new FormData()
   formData.append('file', file)
+  console.log(11111)
   const res = await common(formData)
   newQuestionSet.value.avatar = res.data.data
   ElMessage.success('上传成功')
   return true
 
+}
+const tttt = async(file) => {
+  const isImage = file.type.startsWith('image/')
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件')
+    return false
+  }
+  const formData = new FormData()
+  formData.append('file', file)
+  console.log(11111)
+  const res = await common(formData)
+  questionSet.value.appIcon = res.data.data
+  ElMessage.success('上传成功')
+  return true
 }
 </script>
 
@@ -594,7 +566,7 @@ position: absolute;
 }
 </style>
 
-<style scoped>
+<style >
 .tou{
   float: left;
   width: 200px;
@@ -674,9 +646,6 @@ h2 {
   margin: 20px auto;
   font-size: 18px;
 }
-
-
-
 
 .switch {
  position: relative;
@@ -885,4 +854,5 @@ h2 {
 .rotate {
   transform: rotate(180deg);
 }
+
 </style>

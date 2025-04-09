@@ -46,26 +46,6 @@
           width="200"
         />
 
-        <!-- <el-table-column
-          prop=""
-          label="角色"
-          width="120"
-        /> -->
-
-        <!-- <el-table-column
-          prop="status"
-          label="状态"
-          width="120"
-        >
-          <template #default="{ row }">
-            <el-tag
-              :type="row.status === '正常' ? 'success' : 'danger'"
-              effect="dark"
-            >
-              {{ row.status }}
-            </el-tag>
-          </template>
-        </el-table-column> -->
 
         <el-table-column
           prop="createTime"
@@ -147,6 +127,13 @@
         <el-form-item label="id" prop="id">
           <el-input v-model="currentUser.id" />
         </el-form-item>
+        <!-- 用户角色 -->
+        <el-form-item label="用户角色" prop="userRole">
+          <el-select v-model="currentUser.userRole">
+            <el-option label="普通用户" value="" />
+            <el-option label="管理员" value="admin" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -163,8 +150,6 @@ import { listuserbypage } from '../../api/user.js'
 import { deleteuser, adduser, updateUser, getuserbyid } from '../../api/user.js'
 
 // 搜索条件
-// const searchPhone = ref('')
-// const searchAccount = ref('')
 const searchId = ref('')
 
 // 分页相关
@@ -182,7 +167,8 @@ const formRef = ref(null)
 const currentUser = reactive({
   userAccount: '',
   userPassword: '',
-  id: ''
+  id: '',
+  userRole: ''
 });
 
 // 计算对话框标题
@@ -200,7 +186,8 @@ const formRules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 50, message: '长度在6到20个字符', trigger: 'blur' }
   ],
-  id: [{ required: true, message: '请输入id', trigger: 'blur' }]
+  id: [{ required: true, message: '请输入id', trigger: 'blur' }],
+  userRole: [{ required: true, message: '请选择用户角色', trigger: 'change' }]
 };
 
 // 选项数据
@@ -212,19 +199,6 @@ const formatDate = (row, column, cellValue) => {
 
 // 用户列表
 const userList = ref([])
-
-// // 过滤后的用户列表
-// const filteredUserList = computed(() => {
-//   if (!userList.value) {
-//     return [];
-//   }
-//   return userList.value.filter(user => {
-//     return (
-//       user.id.toString().includes(searchPhone.value) &&
-//       user.userAccount.includes(searchAccount.value)
-//     )
-//   })
-// })
 
 // 分页后的数据
 const paginatedList = computed(() => {
@@ -240,10 +214,12 @@ const handleSearchById = async () => {
   loading.value = true
   try {
     const response = await getuserbyid({ id: searchId.value })
+    console.log('搜索响应:', response.data)
     if (response.data.code === 0) {
       // 将搜索结果放入数组，以便表格显示
       userList.value = response.data.data ? [response.data.data] : []
-      totalCount.value = userList.value.length
+      // 确保totalCount是整数
+      totalCount.value = response.data.data.total
       currentPage.value = 1 // 重置到第一页
     } else {
       userList.value = []
@@ -257,7 +233,6 @@ const handleSearchById = async () => {
     loading.value = false
   }
 }
-
 
 // 搜索处理
 const handleSearch = async () => {
@@ -276,10 +251,12 @@ const handleSearch = async () => {
       userRole: ""
     }
     const response = await listuserbypage(requestData)
-    console.log('获取用户列表响应:', response)
     if (response.data.code === 0) {
       userList.value = response.data.data.records
       totalCount.value = response.data.data.total
+      if (typeof totalCount.value === 'string') {
+        totalCount.value = Number(totalCount.value);
+      }
     } else {
       ElMessage.error(response.message || '获取用户列表失败')
     }
@@ -290,7 +267,6 @@ const handleSearch = async () => {
     loading.value = false
   }
 }
-
 
 // 分页处理
 const handleSizeChange = (newSize) => {
@@ -320,7 +296,6 @@ const toggleStatus = async (user) => {
 // 新增用户
 const handleAdd = () => {
   isAdd.value = true
-
   Object.assign(currentUser, {
     userAccount: '',
     userPassword: '',
@@ -328,7 +303,6 @@ const handleAdd = () => {
     userRole: ''
   })
   dialogVisible.value = true
-
   nextTick(() => {
     if (formRef.value) {
       formRef.value.clearValidate()
@@ -338,91 +312,85 @@ const handleAdd = () => {
 
 // 编辑用户
 const handleEdit = async (user) => {
-  isAdd.value = false;
-  loading.value = true;
+  isAdd.value = false
+  loading.value = true
   try {
-    const response = await getuserbyid({ id: user.id });
+    const response = await getuserbyid({ id: user.id })
     if (response.data.code === 0) {
-      Object.assign(currentUser, response.data.data);
-      dialogVisible.value = true;
+      Object.assign(currentUser, response.data.data)
+      dialogVisible.value = true
     } else {
-      ElMessage.error(response.data.message || '获取用户信息失败');
+      ElMessage.error(response.data.message || '获取用户信息失败')
     }
   } catch (error) {
-    console.error('请求出错:', error);
-    ElMessage.error('请求出错，请检查网络或联系管理员');
+    console.error('请求出错:', error)
+    ElMessage.error('请求出错，请检查网络或联系管理员')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 删除用户
 const handleDelete = async (user) => {
-  loading.value = true;
+  loading.value = true
   try {
-    console.log('发送删除', user.id);
-
-    // 将 user.id 包装成 { id: user.id } 格式
-    const requestData = { id: user.id };
-    const response = await deleteuser(requestData);
-
-    console.log('删除用户响应:', response);
+    const requestData = { id: user.id }
+    const response = await deleteuser(requestData)
+    console.log('删除用户响应:', response)
     if (response.data && response.data.code === 0) {
-      userList.value = userList.value.filter(u => u.id !== user.id);
-      ElMessage.success('用户删除成功');
+      userList.value = userList.value.filter(u => u.id!== user.id)
+      ElMessage.success('用户删除成功')
       // 如果当前页没有数据了，且不是第一页，则返回上一页
       if (paginatedList.value.length === 0 && currentPage.value > 1) {
-        currentPage.value -= 1;
-        handleSearch();
+        currentPage.value -= 1
+        handleSearch()
       }
     } else {
-      ElMessage.error(response.data && response.data.message || '删除用户失败');
+      ElMessage.error(response.data && response.data.message || '删除用户失败')
     }
   } catch (error) {
-    // console.error('删除用户请求出错:', error);
-    console.log('删除用户请求出错:', error.response);
-    // ElMessage.error('删除用户请求出错，请检查网络或联系管理员');
+    console.log('删除用户请求出错:', error.response)
+    ElMessage.error('删除用户请求出错，请检查网络或联系管理员')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 保存用户
 const saveUser = async () => {
   // 表单验证
   try {
-    await formRef.value.validate();
+    await formRef.value.validate()
   } catch (error) {
-    console.error('表单验证失败', error);
-    ElMessage.warning('请填写完整且正确的表单信息');
-    return;
+    console.error('表单验证失败', error)
+    ElMessage.warning('请填写完整且正确的表单信息')
+    return
   }
 
-  loading.value = true;
+  loading.value = true
   try {
     if (isAdd.value) {
-      // 新增用户逻辑保持不变
       // 检查账号是否已存在
       if (userList.value.some((u) => u.userAccount === currentUser.userAccount)) {
-        ElMessage.error('该用户账号已存在');
-        return;
+        ElMessage.error('该用户账号已存在')
+        return
       }
       // 新增用户
       const response = await adduser({
         userAccount: currentUser.userAccount,
         userAvatar: "",
         userName: "",
-        userRole: ""
-      });
+        userRole: currentUser.userRole
+      })
       if (response.data && response.data.code === 0) {
         const newUser = {
           ...currentUser,
-          createTime: new Date().toLocaleString(),
-        };
-        userList.value.push(newUser);
-        ElMessage.success('用户添加成功');
+          createTime: new Date().toLocaleString()
+        }
+        userList.value.push(newUser)
+        ElMessage.success('用户添加成功')
       } else {
-        ElMessage.error(response.data && response.data.message || '用户添加失败');
+        ElMessage.error(response.data && response.data.message || '用户添加失败')
       }
     } else {
       // 编辑用户 - 使用updateuser API
@@ -431,38 +399,37 @@ const saveUser = async () => {
         userAvatar: currentUser.userAvatar || "",
         userName: currentUser.userName || "",
         userProfile: currentUser.userProfile || "",
-        userRole: currentUser.userRole || ""
-      });
+        userRole: currentUser.userRole
+      })
       console.log('更新用户响应:', {
         id: currentUser.id,
         userAvatar: currentUser.userAvatar || "",
         userName: currentUser.userName || "",
         userProfile: currentUser.userProfile || "",
-        userRole: currentUser.userRole || ""
-      });
+        userRole: currentUser.userRole
+      })
       if (response.data && response.data.code === 0) {
         // 更新本地数据
-        const index = userList.value.findIndex((u) => u.id === currentUser.id);
+        const index = userList.value.findIndex((u) => u.id === currentUser.id)
         if (index!== -1) {
           userList.value[index] = {
             ...userList.value[index],
             ...currentUser
-          };
+          }
         }
-        ElMessage.success('用户信息更新成功');
+        ElMessage.success('用户信息更新成功')
       } else {
-        ElMessage.error(response.data && response.data.message || '用户更新失败');
+        ElMessage.error(response.data && response.data.message || '用户更新失败')
       }
     }
-
-    dialogVisible.value = false;
+    dialogVisible.value = false
   } catch (error) {
-    console.error('保存用户请求出错:', error);
-    ElMessage.error('保存用户请求出错，请检查网络或联系管理员');
+    console.error('保存用户请求出错:', error)
+    ElMessage.error('保存用户请求出错，请检查网络或联系管理员')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 初始加载数据
 handleSearch()

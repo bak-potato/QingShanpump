@@ -11,18 +11,21 @@
         <!-- 搜索栏和操作按钮 -->
         <el-row :gutter="20" style="margin-bottom: 20px;">
           <el-col :span="5">
-            <el-input v-model="searchParams.userId" placeholder="按用户ID搜索" clearable></el-input>
+            <el-input v-model="searchParams.id" placeholder="按应用ID搜索" clearable></el-input>
           </el-col>
           <el-col :span="5">
-            <el-select v-model="searchParams.appType" placeholder="按应用类型筛选" clearable>
+            <el-select
+              v-model="searchParams.appType"
+              placeholder="按应用类型筛选"
+              clearable
+              @change="handleAppTypeChange"
+            >
               <el-option label="全部" value=""></el-option>
-              <el-option label="系统测评" value="0"></el-option>
-              <el-option label="AI测评" value="1"></el-option>
+              <el-option label="系统测评" :value="0"></el-option>
+              <el-option label="AI测评" :value="1"></el-option>
             </el-select>
           </el-col>
-          <el-col :span="5">
-            <el-input v-model="searchParams.appName" placeholder="按应用名称搜索" clearable></el-input>
-          </el-col>
+
           <el-col :span="4">
             <el-button type="primary" @click="handleSearch">搜索</el-button>
             <el-button @click="resetSearch">重置</el-button>
@@ -36,7 +39,7 @@
         <el-table
           v-loading="loading"
           stripe
-          :data="paginatedApplications"
+          :data="tableData"
           style="width: 100%"
           border
           :default-sort="{ prop: 'id', order: 'descending' }"
@@ -198,16 +201,18 @@
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { listAppByPage, addApp,deleteApp } from '../../api/app.js';
+import { listAppByPage, addApp, deleteApp } from '../../api/app.js';
 import { commonController } from '../../api/user.js';
 
-// 应用数据
-const applications = ref([]);
+// 表格数据
+const tableData = ref([]);
 const totalCount = ref(0);
+
 // 搜索参数
 const searchParams = ref({
+  id: '',
   userId: '',
-  appType: '',
+  appType: null,
   appName: '',
 });
 
@@ -228,7 +233,7 @@ const currentApp = reactive({
   appDesc: '',
   appIcon: '',
   appType: '',
-  scoringStrategy: 0, // 新增评判标准字段
+  scoringStrategy: 0,
 });
 
 // 表单验证规则
@@ -252,6 +257,11 @@ const formRules = {
   ]
 };
 
+const handleAppTypeChange = (value) => {
+  searchParams.value.appType = value === '' ? null : parseInt(value, 10);
+  handleSearch();
+};
+
 // 获取应用类型名称
 const getAppTypeName = (type) => {
   const types = {
@@ -266,46 +276,18 @@ const dialogTitle = computed(() => {
   return isAdd.value ? '新增应用' : `编辑应用 - ${currentApp.appName}`;
 });
 
-// 过滤后的应用列表
-const filteredApplications = computed(() => {
-  const result = applications.value.filter((app) => {
-    const matchesUserId = searchParams.value.userId
-      ? app.userId.toString().includes(searchParams.value.userId)
-      : true;
-    const matchesAppType = searchParams.value.appType
-      ? app.appType.toString() === searchParams.value.appType
-      : true;
-    const matchesAppName = searchParams.value.appName
-      ? app.appName.toLowerCase().includes(searchParams.value.appName.toLowerCase())
-      : true;
-    return matchesUserId && matchesAppType && matchesAppName;
-  });
-  console.log('filteredApplications', result);
-  return result;
-});
-
-// 分页后的应用列表
-const paginatedApplications = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  const result = filteredApplications.value.slice(start, end);
-  console.log('paginatedApplications', result);
-  return result;
-});
-
 // 搜索
 const handleSearch = async () => {
-  loading.value = true;
-  currentPage.value = 1;
+  currentPage.value = 1; // 搜索时重置到第一页
   await loadApplications();
-  loading.value = false;
 };
 
 // 重置搜索
 const resetSearch = () => {
   searchParams.value = {
+    id: '',
     userId: '',
-    appType: '',
+    appType: null,
     appName: '',
   };
   currentPage.value = 1;
@@ -315,7 +297,7 @@ const resetSearch = () => {
 // 分页处理
 const handleSizeChange = (newSize) => {
   pageSize.value = newSize;
-  currentPage.value = 1;
+  currentPage.value = 1; // 改变每页大小时重置到第一页
   loadApplications();
 };
 
@@ -355,17 +337,16 @@ const handleEdit = (row) => {
 const handleDelete = async (row) => {
   loading.value = true;
   try {
-    // 调用deleteApp接口删除应用
     const response = await deleteApp({ id: row.id });
     console.log('删除应用响应:', response);
 
     if (response && response.data.code === 0) {
       ElMessage.success('应用删除成功');
-      // 重新加载应用列表
+      // 重新加载当前页数据
       await loadApplications();
 
       // 如果当前页没有数据了，且不是第一页，则返回上一页
-      if (paginatedApplications.value.length === 0 && currentPage.value > 1) {
+      if (tableData.value.length === 0 && currentPage.value > 1) {
         currentPage.value -= 1;
         await loadApplications();
       }
@@ -382,7 +363,6 @@ const handleDelete = async (row) => {
 
 // 保存应用
 const saveApp = async () => {
-  // 表单验证
   if (!formRef.value) {
     ElMessage.warning('表单引用不存在');
     return;
@@ -398,7 +378,6 @@ const saveApp = async () => {
   loading.value = true;
   try {
     if (isAdd.value) {
-      // 调用addApp接口新增应用
       const response = await addApp({
         appDesc: currentApp.appDesc,
         appIcon: currentApp.appIcon,
@@ -406,26 +385,20 @@ const saveApp = async () => {
         appType: currentApp.appType,
         scoringStrategy: currentApp.scoringStrategy
       });
-      console.log('添加应用响应:', response);
-      console.log('send', {
-        appDesc: currentApp.appDesc,
-        appIcon: currentApp.appIcon,
-        appName: currentApp.appName,
-        appType: currentApp.appType,
-        scoringStrategy: currentApp.scoringStrategy
-      });
+
       if (response && response.data.code === 0) {
         ElMessage.success('应用添加成功');
-        // 重新加载应用列表
+        // 重新加载数据，回到第一页
+        currentPage.value = 1;
         await loadApplications();
       } else {
         ElMessage.error(response ? response.message || '添加应用失败' : '添加应用失败');
       }
     } else {
       // 编辑应用逻辑保持不变
-      const index = applications.value.findIndex(app => app.id === currentApp.id);
+      const index = tableData.value.findIndex(app => app.id === currentApp.id);
       if (index !== -1) {
-        applications.value[index] = { ...currentApp };
+        tableData.value[index] = { ...currentApp };
         ElMessage.success('应用信息更新成功');
       }
     }
@@ -439,39 +412,28 @@ const saveApp = async () => {
 };
 
 // 加载应用列表
-// 加载应用列表
 const loadApplications = async () => {
   try {
     loading.value = true;
     const params = {
-      current: currentPage.value - 1,
+      current: currentPage.value,
       pageSize: pageSize.value,
       ...searchParams.value
     };
+
+    // 明确处理appType，null时不传递
+    if (params.appType === null) {
+      delete params.appType;
+    }
+
+    console.log('请求参数:', params);
+
     const res = await listAppByPage(params);
     console.log('获取应用列表响应:', res.data.data);
+
     if (res && res.data && res.data.data) {
-      let newTotal = res.data.data.total;
-      // 处理total为字符串的情况
-      if (typeof newTotal ==='string') {
-        // 使用Number函数进行转换，它比parseInt更通用，能处理小数等情况
-        newTotal = Number(newTotal);
-        // 判断转换后是否为有效数字
-        if (isNaN(newTotal)) {
-          console.error('total字段值无法转换为有效数字:', newTotal);
-          ElMessage.error('获取应用列表失败: total字段值无效');
-          return;
-        }
-      }
-      if (typeof newTotal === 'number' && newTotal >= 0) {
-        console.log('赋值前 totalCount:', totalCount.value);
-        applications.value = res.data.data.records;
-        totalCount.value = newTotal;
-        console.log('赋值后 totalCount:', totalCount.value);
-      } else {
-        console.error('total 字段值无效:', newTotal);
-        ElMessage.error('获取应用列表失败: total 字段值无效');
-      }
+      tableData.value = res.data.data.records;
+      totalCount.value =  parseInt(res.data.data.total) ;
     } else {
       console.error('响应数据结构不符合预期:', res);
       ElMessage.error('获取应用列表失败: 响应数据结构不符合预期');

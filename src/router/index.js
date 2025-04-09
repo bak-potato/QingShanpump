@@ -87,10 +87,8 @@ const router = createRouter({
 
   ],
 });
-
 router.beforeEach((to, from, next) => {
   const isAuthenticated = checkAuth(); // 检查用户是否登录
-
   if (to.meta.requiresAuth && !isAuthenticated) {
     // 如果路由需要登录且用户未登录，则跳转到登录页面
     next({ name: 'login' });

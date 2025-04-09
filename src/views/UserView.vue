@@ -96,61 +96,67 @@
 
 
       <!-- 我的应用 -->
-     <el-card class="user-record mt-4">
-        <div class="record-container">
-          <h3 class="record-title">我的应用</h3>
-          <!-- 应用列表 -->
-          <el-row :gutter="20">
-            <el-col
-              v-for="(app, index) in myApps"
-              :key="index"
-              :xs="24" :sm="12" :md="8" :lg="6"
-              class="mb-4"
-            >
-              <el-card
-  class="app-card"
-  shadow="hover"
-  @click="handleAppClick(app)"
->
-  <div class="app-content">
-    <el-avatar
-      :size="60"
-      :src="app.icon"
-      class="app-icon"
-    />
-    <div class="app-info">
-      <h4 class="app-title">{{ app.name }}</h4>
-      <p class="app-desc">{{ app.description }}</p>
-    </div>
-    <div class="app-actions">
-      <el-button
-        type="primary"
-        size="small"
-        @click.stop="handleManage(app)"
+ <!-- 我的应用 -->
+<el-card class="user-record mt-4">
+  <div class="record-container">
+    <h3 class="record-title">我的应用</h3>
+    <!-- 应用列表 -->
+    <el-row :gutter="20">
+      <el-col
+        v-for="(app, index) in myApps"
+        :key="app.id"
+        :xs="24" :sm="12" :md="8" :lg="6"
+        class="mb-4"
       >
-        管理
-      </el-button>
-      <el-popconfirm
-        title="确定要删除该应用吗？"
-        @confirm="handleDeleteApp(index)"
-      >
-        <template #reference>
-          <el-button
-            size="small"
-            type="danger"
-            @click.stop
-          >
-            删除
-          </el-button>
-        </template>
-      </el-popconfirm>
+        <el-card
+          class="app-card"
+          shadow="hover"
+          @click="handleAppClick(app)"
+        >
+          <div class="app-content">
+            <el-avatar
+              :size="60"
+              :src="app.appIcon || 'https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png'"
+              class="app-icon"
+            />
+            <div class="app-info">
+              <h4 class="app-title">{{ app.appName }}</h4>
+              <p class="app-desc">{{ app.appDesc || '暂无描述' }}</p>
+            </div>
+            <div class="app-actions">
+              <el-button
+                type="primary"
+                size="small"
+                @click.stop="handleManage(app)"
+              >
+                管理
+              </el-button>
+              <el-popconfirm
+                title="确定要删除该应用吗？"
+                @confirm="handleDeleteApp(index)"
+              >
+                <template #reference>
+                  <el-button
+                    size="small"
+                    type="danger"
+                    @click.stop
+                  >
+                    删除
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 无应用时的提示 -->
+    <div v-if="myApps.length === 0" class="empty-tip">
+      <el-empty description="暂无应用，快去创建一个吧！" />
     </div>
   </div>
-              </el-card>
-            </el-col>
-          </el-row>
-        </div>
-      </el-card>
+</el-card>
 
 
 
@@ -236,15 +242,7 @@
           <el-form-item label="题目名称:">
             {{ selectedRecord.questionName }}
           </el-form-item>
-          <!-- <el-form-item label="题目描述">
-            {{ selectedRecord.description }}
-          </el-form-item> -->
-          <!-- <el-form-item label="题目类型">
-            {{ selectedRecord.type }}
-          </el-form-item> -->
-          <!-- <el-form-item label="题目难度">
-            {{ selectedRecord.difficulty }}
-          </el-form-item> -->
+
           <el-form-item label="题目选项:">
             <el-radio-group v-model="selectedRecord.selectedOption">
               <el-radio v-for="(option, index) in selectedRecord.options" :key="index" :label="index">
@@ -287,6 +285,9 @@ import UserE from './UserBody/UserE.vue'
 import { getLoginUser } from '../api/user.js'
 import { updateUserInfo } from '../api/user.js'
 import { userLogout,commonController } from '../api/user.js'
+import {listMyAppVOByPage} from '../api/app.js'
+import {deleteApp} from '../api/app.js'
+
 const router = useRouter()
 // 用户信息数据
 const userInfo = reactive({
@@ -347,52 +348,7 @@ const handleAvatarUpload = async(file) => {
 
 }
 
-// 头像上传处理
-// const handleAvatarUpload = async (file) => {
-//   const isImage = file.type.startsWith('image/')
-//   if (!isImage) {
-//     ElMessage.error('只能上传图片文件')
-//     return false
-//   }
 
-//   try {
-//     const reader = new FileReader()
-//     reader.readAsDataURL(file)
-
-//     await new Promise((resolve) => {
-//       reader.onload = () => {
-//         userInfo.avatar = reader.result
-//         resolve()
-//       }
-//     })
-
-//     // 构造请求数据
-//     const requestData = {
-//       "userAvatar": userInfo.avatar,
-//       "userName": userInfo.name || '',       // Assuming you might want to include the name
-//       "userProfile": userInfo.profile || ''  // And profile if available
-//     }
-//     console.log('send',requestData)
-//     const response = await updateUserInfo(
-//       {
-//         "userAvatar": "userInfo.avatar",
-//         "userName": "userInfo.name || ''",
-//         "userProfile": "userInfo.profile || ''"
-//       }
-//     )
-//     console.log('Response:', response)
-//     if (response.status === 200 && response.data.code === 0 && response.data.data) {
-//       ElMessage.success('头像更新成功')
-//     } else {
-//       ElMessage.error(response.data.message || '头像更新失败')
-//     }
-//   } catch (err) {
-//     console.error('头像上传请求出错:', err)
-//     ElMessage.error('头像上传请求出错，请检查网络')
-//   }
-
-//   return false // 阻止自动上传
-// }
 
 // 保存修改
 const handleSaveInfo = async () => {
@@ -503,24 +459,7 @@ const handleDelete = (index) => {
   ElMessage.success('记录已删除')
 }
 
-// 我的应用数据
-const myApps = ref([
-  {
-    name: '智能问答系统',
-    description: '基于AI的智能问答平台',
-    icon: 'https://example.com/ai-icon.png',
-    link: '/qa-system',
-    manageLink: '/admin/qa'
-  },
-  {
-    name: '数据看板',
-    description: '可视化数据分析平台',
-    icon: 'https://example.com/dashboard-icon.png',
-    link: '/dashboard',
-    manageLink: '/admin/dashboard'
-  },
-  // 其他应用数据...
-])
+
 
 // 应用点击处理
 const handleAppClick = (app) => {
@@ -532,22 +471,29 @@ const handleManage = (app) => {
   console.log(`管理应用: ${app.name}`)
 }
 
+// 我的应用数据
+const myApps = ref([])
 // 在组件挂载时调用接口获取用户信息
+
 onMounted(async () => {
   try {
-    const response = await getLoginUser()
-    console.log(response.data)
-    if (response.status === 200) {
-      const data = response.data.data
-      userInfo.username = data.userName||'青山用户'
+    // 获取用户信息
+    const userRes = await getLoginUser()
+    if (userRes.status === 200) {
+      const data = userRes.data.data
+      userInfo.username = data.userName || '青山用户'
       userInfo.email = data.userEmail
-      userInfo.emailVerified = false // 这里需要根据接口实际返回字段调整
-      userInfo.id = data.id // 假设接口返回字段为userId，实际需调整 // 假设接口返回字段为userId，实际需调整
+      userInfo.emailVerified = false
+      userInfo.id = data.id
       userInfo.avatar = data.userAvatar
       userInfo.createTime = data.createTime
-      userInfo.lastLogin = data.updateTime  //这里假设接口不返回最后登录时间，实际需调整
-    } else {
-      ElMessage.error('获取用户信息失败')
+      userInfo.lastLogin = data.updateTime
+    }
+
+    // 获取我的应用列表
+    const appRes = await listMyAppVOByPage({ page: null })
+    if (appRes.data.code === 0) {
+      myApps.value = appRes.data.data.records || []
     }
   } catch (error) {
     console.error('请求出错:', error)
@@ -555,10 +501,26 @@ onMounted(async () => {
   }
 })
 // 删除应用
-const handleDeleteApp = (index) => {
-  myApps.value.splice(index, 1)
-  ElMessage.success('应用已删除')
-}
+// 删除记录
+// 删除应用
+const handleDeleteApp = async (index) => {
+  try {
+    const appId = myApps.value[index].id; // 获取要删除的应用的ID
+    const response = await deleteApp({ id: appId }); // 调用删除应用的接口
+    if (response.status === 200 && response.data.code === 0 && response.data.data) {
+      // 删除成功
+      myApps.value.splice(index, 1);
+      ElMessage.success('应用已删除');
+    } else {
+      // 删除失败
+      ElMessage.error(response.data.message || '应用删除失败');
+    }
+  } catch (error) {
+    // 处理请求出错的情况
+    console.error('删除应用请求出错:', error);
+    ElMessage.error('删除应用请求出错，请检查网络或联系管理员');
+  }
+};
 </script>
 
 
