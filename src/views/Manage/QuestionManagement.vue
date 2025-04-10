@@ -132,14 +132,14 @@
 </template>
 
 <script setup>
-import { ref,onMounted} from 'vue';
+import { ref, onMounted } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-import {addQuestion,listQuestionVOByPage,editQuestion,deleteQuestion} from "@/api/question";
+import { addQuestion, listQuestionVOByPage, editQuestion, deleteQuestion } from "@/api/question";
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 // 新建
 const nnn = ref({
-   id: 0,
+  id: 0,
   questionContent: [
     {
       options: [
@@ -165,9 +165,9 @@ const value3 = ref(true);
 const newQuestion = ref({
   text: '',
   options: [
-    { text: '', score: '', result: '' }, // 初始化 isAnswer 为 false
-    { text: '', score: '', result: '' }
-  ]
+    { text: '', score: '', result: '',isAnswer:false }, // 初始化 isAnswer 为 false
+    { text: '', score: '', result: '',isAnswer:false}
+  ],
 });
 
 // 获取选项的标签（A、B、C、D...）
@@ -182,7 +182,7 @@ const handleisshow = (show) => {
 
 // 增加选项（新题目）
 const addNewOption = () => {
- newQuestion.value.options.push({
+  newQuestion.value.options.push({
     text: '',
     score: '',
     result: '',
@@ -196,7 +196,7 @@ const removeNewOption = (index) => {
 };
 
 // 保存题目
-const saveQuestion = async(id) => {
+const saveQuestion = async (id) => {
   if (newQuestion.value.text.trim() === '') {
     alert('问题不能为空');
     return;
@@ -205,41 +205,44 @@ const saveQuestion = async(id) => {
     alert('选项不能为空');
     return;
   }
-  // questions.value.push({
-  //   ...newQuestion.value,
-  //   expanded: false,
-  //   editing: false
-  // });
-    const newquestion = {
-  appId: id,
-  questionContent: [
-    {
+  // 构建选项数据，根据是否为多选添加 isMultiple 字段
+  console.log(newQuestion.value.isMultiple);
+  const optionsData = newQuestion.value.options.map((option, index) => ({
+    key: String.fromCharCode(65 + index), // 生成 A,B,C...
+    value: option.text,
+    score: value3.value? Number(option.score) || 0 : 0,
+    result:!value3.value? option.result || '' : '',
+    isAnswer: newQuestion.value.isAnswer
+  }));
+
+  const newquestion = {
+    appId: id,
+    questionContent: [
+      {
         title: newQuestion.value.text,
-        options: newQuestion.value.options.map((option, index) => ({
-          key: String.fromCharCode(65 + index), // 生成 A,B,C...
-          value: option.text,
-          score: value3.value ? Number(option.score) || 0 : 0,
-          result: !value3.value ? option.result || '' : '',
-        }))
-    }
-  ]
+        options: optionsData
+      }
+    ]
   };
+  // console.log(newquestion);
+  const { data: { code, data } } = await addQuestion(newquestion);
   console.log(newquestion);
-  const {data:{code,data}} = await addQuestion(newquestion);
-  if(code === 0){
+
+  if (code === 0) {
     alert('添加成功');
     console.log(data);
 
-  }else{
+  } else {
     alert('添加失败');
   }
   // 清空表单数据
   newQuestion.value = {
     text: '',
     options: [
-      { text: '', score: '', result: '' },
-      { text: '', score: '', result: '' }
-    ]
+      { text: '', score: '', result: '' ,isAnswer:false},
+      { text: '', score: '', result: '' ,isAnswer:false}
+    ],
+    isMultiple: false
   };
 };
 // 删除题目
@@ -250,20 +253,21 @@ const DeleteQuestion = async (id) => {
   // 出现弹窗询问是否删除
   const confirmDelete = window.confirm('确定要删除该题目吗？');
   if (!confirmDelete) return;
-  else{
-  const   res  = await deleteQuestion({id:question.id});
-  if(res){
-    ElMessage.success('删除成功');
-  }
-  await renderQuestions();
-  console.log(res);
+  else {
+    const res = await deleteQuestion({ id: question.id });
+    if (res) {
+      ElMessage.success('删除成功');
+    }
+    await renderQuestions();
+    console.log(res);
   }
 
 }
 
 // 渲染题目列表
-const renderQuestions = async() => {
+const renderQuestions = async () => {
   const res = await listQuestionVOByPage({ appId: id });
+  console.log(res.data.data.records);
   const records = res.data.data.records || [];
   questions.value = records.flatMap((record) =>
     record.questionContent.map((content) => ({
@@ -272,7 +276,14 @@ const renderQuestions = async() => {
       text: content.title, // 假设题目标题为 title
       id: `${record.id}`, // 生成唯一标识
       expanded: false,
-      editing: false
+      editing: false,
+      options: content.options.map((option) => ({
+        ...option,
+        isAnswer: option.isAnswer || false,
+        score: value3.value? Number(option.score) || 0 : 0,
+        result:!value3.value? option.result || '' : '',
+      }))
+
     }))
   );
   console.log(questions.value);
@@ -288,7 +299,7 @@ const toggleQuestion = (questionId) => {
   }
 };
 // 切换编辑状态
-const toggleEdit = async(questionId) => {
+const toggleEdit = async (questionId) => {
   const question = questions.value.find(q => q.id === questionId);
   console.log(question.id);
   if (question) {
@@ -300,6 +311,7 @@ const toggleEdit = async(questionId) => {
         ...option,
         score: value3.value? Number(option.score) || 0 : 0,
         result:!value3.value? option.result || '' : '',
+        isAnswer: option.isAnswer || false
       }))
     }
     // if (!question.editing) {
@@ -307,8 +319,8 @@ const toggleEdit = async(questionId) => {
     //     ...question,
     //     options: question.options.map(option => ({
     //       ...option,
-    //       score: value3.value ? Number(option.score) || 0 : 0,
-    //       result: !value3.value ? option.result || '' : ''
+    //       score: value3.value? Number(option.score) || 0 : 0,
+    //       result:!value3.value? option.result || '' : ''
     //     }))
     //   };
     //    console.log(updatedQuestion);
@@ -335,21 +347,24 @@ const removeOption = (qIndex, oIndex) => {
 
 // 保存编辑
 const saveEdit = async (questionId) => {
-   // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
+  // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
   const question = nnn.value;
   // 构造API参数
-    const params = {
-      id: question.id.split('-')[0], // 提取原始ID
-      questionContent: [{
-        title: question.text,
-        options: question.options.map((opt, index) => ({
-          key: String.fromCharCode(65 + index),
-          value: opt.value,
-          score: value3.value ? Number(opt.score) || 0 : 0,
-          result: !value3.value ? opt.result || '' : ''
-        }))
-      }]
-    };
+  const optionsData = question.options.map((opt, index) => ({
+    key: String.fromCharCode(65 + index),
+    value: opt.value,
+    score: value3.value? Number(opt.score) || 0 : 0,
+    result:!value3.value? opt.result || '' : '',
+    isMultiple: question.isMultiple
+  }));
+console.log(optionsData);
+  const params = {
+    id: question.id.split('-')[0], // 提取原始ID
+    questionContent: [{
+      title: question.text,
+      options: optionsData
+    }]
+  };
   try {
     const question = questions.value.find(q => q.id === questionId);
     console.log(question);
@@ -384,7 +399,7 @@ const saveEdit = async (questionId) => {
 // 取消编辑
 const cancelEdit = (questionId) => {
   const question = questions.value.find(q => q.id === questionId);
-  if (question ) {
+  if (question) {
     question.editing = false;
   }
 };

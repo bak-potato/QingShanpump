@@ -121,24 +121,26 @@ const router = createRouter({
       name: 'PhoneVue',
       component: () => import('../components/PhoneVue.vue'),
     }
-    // ,
-    // {
-    //   path: '/403',
-    //   name: 'Forbidden',
-    //   component: () => import('../views/errors/403.vue'),
-    // }
+    ,
+    {
+      path: '/403',
+      name: 'Forbidden',
+      component: () => import('../views/errors/403Vue.vue'),
+    }, {
+      path: '/:pathMatch(.*)*', // 匹配所有未定义的路由
+      name: 'NotFound',
+      component: () => import('../views/errors/404Vue.vue'),
+    }
   ],
 });
 
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = checkAuth();
   const userRole = localStorage.getItem('userRole') || '';
-
   // 需要登录但未登录
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next({ name: 'login', query: { redirect: to.fullPath } });
   }
-
   // 需要管理员权限但不是管理员
   if (to.meta.requiresAdmin && userRole !== 'admin') {
     return next({ name: 'Forbidden' });

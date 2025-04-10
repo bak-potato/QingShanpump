@@ -133,20 +133,16 @@ const submitQuiz = async () => {
   const answers = userAnswers.value.map((answer, index) => {
     const question = questions.value[index];
     if (question.isMultiple) {
-      return {
-        answer: answer? answer.map(i => optionLabels[i]).join(',') : ''
-      };
+      return answer ? answer.map(i => optionLabels[i]).join(',') : '';
     }
-    return {
-      answer: answer!== null? optionLabels[answer] : ''
-    };
+    return answer !== null ? optionLabels[answer] : '';
   });
-  console.log(answers);
+
   const data = {
     appId: id,
     choices: answers
   };
-  console.log(data);
+
   try {
     const res = await addUserAnswer(data);
     console.log(res);

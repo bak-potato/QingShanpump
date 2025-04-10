@@ -67,7 +67,7 @@
 
 </div>
 <div class="dshoptitleta">
- <el-card shadow="hover" v-for="item in listData" :key="item.id"  style="max-width: 500px; width: 440px;">
+ <el-card shadow="hover" v-for="item in listData" :key="item.id"  style="max-width: 400px;margin-left: 10px; width: 440px;">
   <div class="dshoptitleta2"></div>
   <div class="dshoptitleta3">
      <div class="head">
@@ -168,7 +168,7 @@ const answer = (id) => {
   display: flex;
   flex-wrap: wrap;
 display: flex;
-  justify-content: space-between;
+  justify-content:flex-start;
   margin: 0 auto;
   margin-top: 30px;
   width: 100%;
@@ -205,7 +205,6 @@ display: flex;
   color: #333;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* 限制两行显示 */
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin: 0;
@@ -216,7 +215,6 @@ display: flex;
   color: #666;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* 限制三行显示 */
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin: 0;

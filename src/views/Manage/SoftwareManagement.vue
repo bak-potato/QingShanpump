@@ -178,7 +178,7 @@
 import { ref } from 'vue';
 // import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-import {addApp, common,listAppByPage,editApp,deleteApp} from "@/api/app";
+import {addApp, common,listMyAppVOByPage,editApp,deleteApp} from "@/api/app";
 import {addScoringResult} from "@/api/scoring";
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
@@ -484,7 +484,7 @@ const saveQuestionSet = async() => {
 // 应用列表
 const init = async() => {
     try {
-        const res = await listAppByPage({ page: null});
+        const res = await listMyAppVOByPage({ page: null});
 
         questionSets.value = res.data.data.records
 

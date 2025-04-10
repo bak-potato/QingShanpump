@@ -131,16 +131,17 @@ const currentPosts = computed(() => {
   const end = start + pageSize.value;
   return posts.value.slice(start, end);
 });
+
 const goToPostDetail = (postId) => {
   router.push({
     path: '/post',
     query: { id: postId }
   });
 };
+
 const handleSearch = () => {
   if (!keyword.value.trim()) return;
   console.log('搜索帖子:', keyword.value);
-  // 这里可以添加搜索逻辑，调用接口并传入搜索关键字
   fetchPosts();
 };
 
@@ -175,29 +176,30 @@ const fetchPosts = async () => {
       if (!post.userId) {
         console.warn('帖子对象缺少userId属性，跳过获取用户信息');
         post.userName = '未知用户';
+        post.avatar = 'https://picsum.photos/40/40';
         continue;
       }
       try {
         console.log("正在查询用户ID:", post.userId);
-        // 尝试不同的参数传递方式
         const userResponse = await listuserbypage({
-          id: post.userId.toString() // 保持为字符串
+          id: post.userId.toString()
         });
-        // 处理可能的响应结构，先判断records是否存在且是数组
+
         if (Array.isArray(userResponse.data.data.records) && userResponse.data.data.records.length > 0) {
-          const userName = userResponse.data.data.records[0].userName;
-          post.userName = userName || '未知用户';
+          const user = userResponse.data.data.records[0];
+          post.userName = user.userName || '未知用户';
+          // 设置用户头像，如果不存在则使用默认头像
+          post.avatar = user.userAvatar || 'https://picsum.photos/40/40';
         } else {
           post.userName = '未知用户';
+          post.avatar = 'https://picsum.photos/40/40';
         }
-        console.log('获取用户信息响应:', post.userName);
-        console.log('帖子作者:', post.userName);
       } catch (error) {
         console.error('获取用户信息失败:', error);
         post.userName = '未知用户';
+        post.avatar = 'https://picsum.photos/40/40';
       }
     }
-    console.log('33最终帖子数据:', posts.value);
   } catch (error) {
     console.error('获取帖子数据失败:', error);
   }
