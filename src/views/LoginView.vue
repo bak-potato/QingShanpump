@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { loginApi } from '../api/user.js';
+import { loginApi, getLoginUser } from '../api/user.js'; // 引入 getLoginUser 接口
 import { ElMessage } from 'element-plus';
 import router from '@/router';
 
@@ -99,11 +99,19 @@ const handleLogin = async () => {
     const res = await loginApi(loginForm);
     if (res.status === 200) {
       ElMessage.success('登录成功');
-      // 存储登录状态到本地存储
       localStorage.setItem('isLoggedIn', 'true');
       if (rememberMe.value) {
         localStorage.setItem('userAccount', loginForm.userAccount);
       }
+
+      // 调用 getLoginUser 接口获取用户信息
+      const userRes = await getLoginUser();
+      if (userRes.status === 200) {
+        localStorage.setItem('userRole', userRes.data.data.userRole); // 保存 userRole 到本地存储
+      } else {
+        ElMessage.error('获取用户信息失败');
+      }
+
       router.push('/');
       // 刷新页面
     } else {

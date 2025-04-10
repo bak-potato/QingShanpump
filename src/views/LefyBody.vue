@@ -23,7 +23,7 @@
         </div>
 
         <div class="bodyl">
-          <div @click="handleviewmanage" class="last1 clickable tooltip-container">
+          <div @click="handleviewmanage" v-if="userRole === 'admin'" class="last1 clickable tooltip-container">
             <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />
             <div class="tooltip">后台管理系统</div>
           </div>
@@ -69,20 +69,27 @@ import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
 import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
+import {getLoginUser} from '@/api/user.js';
 const router = useRouter();
 
 // 从 sessionStorage 中读取 view 的值，如果没有则默认为 0
 const view = ref(parseInt(sessionStorage.getItem('view')) || 0);
-
+const userRole = ref('');
 // 页面加载时读取 sessionStorage 中的 view 值
 onMounted(() => {
+  handleuser()
   const savedView = sessionStorage.getItem('view');
   if (savedView !== null) {
     view.value = parseInt(savedView);
     updateActiveClass(view.value);
   }
 });
+
+const handleuser = async () => {
+      const res = await getLoginUser()
+userRole.value = res.data.data.userRole;
+    console.log(userRole.value);
+}
 
 // 更新激活的菜单项样式
 const updateActiveClass = (index) => {

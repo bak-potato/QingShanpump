@@ -15,6 +15,14 @@
       <img width="20px" src="@/icons/a-yingyongguanli1.png">
       应用管理
     </div>
+     <div
+      @click="router.push('/ForumManView'); activeMenu = 'ForumManView'"
+      class="leftmenu1"
+      :class="{ active: activeMenu === 'ForumManView' }"
+    >
+      <img width="20px" src="@/icons/wodetiezi.png">
+      论坛管理
+    </div>
     <div
       @click="router.push('/VueDataAnalyticsPanel'); activeMenu = 'VueDataAnalyticsPanel'"
       class="leftmenu1"
@@ -47,6 +55,8 @@ onMounted(() => {
   else if (path.includes('ApplicationManagement')) activeMenu.value = 'ApplicationManagement'
   else if (path.includes('VueDataAnalyticsPanel')) activeMenu.value = 'VueDataAnalyticsPanel'
   else if (path.includes('ApplicationReview')) activeMenu.value = 'ApplicationReview'
+  else if (path.includes('ForumManView')) activeMenu.value = 'ForumManView'
+
 })
 </script>
 

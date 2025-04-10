@@ -19,7 +19,7 @@
       <div v-if="!isShowa">
         <h2 class="h2a">已创建应用</h2>
         <div class="elscbody">
-          <el-scrollbar height="700px">
+          <el-scrollbar>
             <!-- 根据是否有内容来决定是否显示el-empty -->
             <el-empty v-if="questionSets.length === 0" description="暂无创建应用" />
             <!-- 渲染题目列表 -->
@@ -27,14 +27,14 @@
               <div v-for="(questionSet) in questionSets" :key="questionSet.id" class="scrollbar-demo-item">
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType
-}})
+                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType}})
                     <!-- <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
                       <ArrowDown />
                     </el-icon> -->
                   </div>
                   <div class="action-buttons">
                     <el-button type="text" @click="add(questionSet.id)">添加题目</el-button>
+
                     <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
                   </div>
@@ -83,7 +83,6 @@
           <div class="AIquestion" v-if="!isShow"></div>
           <div class="handquestion" v-if="isShow">
             <label class="switch">
-                <el-switch v-model="value3" inline-prompt active-text="评分" inactive-text="测评" />
             </label>
              <div class="tou">
               <el-avatar :size="40" :src="newQuestionSet.avatar" class="profile-avatar" />
@@ -141,6 +140,33 @@
             <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
 
           </div>
+          <div class="policy">
+            <h2>评分策略设置</h2>
+            <el-form :model="policy" label-width="150px" style="margin-top: 20px;">
+            <el-form-item label="评分类型">
+              <el-radio-group v-model="policy.type">
+                <el-radio label="0" >得分类应用</el-radio>
+                <el-radio label="1" >测评类应用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="分数" v-if="policy.type === '0'">
+              <el-input  v-model="policy.resultScoreRange" placeholder="要大于或等于该分数" />
+            </el-form-item>
+            <el-form-item label="属性" v-if="policy.type === '1'">
+               <el-select v-model="policy.resultProp" placeholder="请选择属性" style="width: 100px;size: 100px;" v-if="policy.type === '1'">
+                <el-option v-for="item in resultProp" :key="item" :label="item.label" :value="item"/>
+               </el-select>
+            </el-form-item>
+
+             <el-form-item label="结果名称">
+              <el-input v-model="policy.resultName" placeholder="输入评分结果的名称"/>
+            </el-form-item>
+            <el-form-item label="结果描述">
+              <el-input v-model="policy.resultDesc" placeholder="输入评分结果的描述"/>
+            </el-form-item>
+            </el-form>
+            <el-button type="primary" @click="savePolicy(id)" style="margin-left: 150px;">保存策略</el-button>
+          </div>
         </div>
 
       </div>
@@ -153,8 +179,66 @@ import { ref } from 'vue';
 // import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
 import {addApp, common,listAppByPage,editApp,deleteApp} from "@/api/app";
+import {addScoringResult} from "@/api/scoring";
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+// 评分策略设置
+  const policy = ref({
+    type: '0', // 评分类型
+    appId: 0, // 应用ID
+    resultScoreRange: '', // 分数
+    resultName: '', // 结果名称
+    resultProp:[], // 结果属性
+    resultDesc: '' // 结果描述
+  });
+  // 定义属性
+  const resultProp = ref([
+    { label: 'I', value: 'I' },
+    { label: 'S', value: 'S' },
+    { label:'T', value: 'T' },
+    { label: 'J', value: 'J' }
+  ]);
+  // 接口设置
+  const savePolicy = async (id) => {
+    console.log(id);
+    if (!policy.value.resultName.trim()) {
+    ElMessage.error('结果名称不能为空');
+    return;
+  }
+  if (!policy.value.resultDesc.trim()) {
+    ElMessage.error('结果描述不能为空');
+    return;
+  }
+  // if(policy.value.type === '0')
+  // {
+  //   if (!policy.value.resultScoreRange.trim()) {
+  //   ElMessage.error('分数不能为空');
+  //   return;
+  //   }
+  // }else {
+  //   if (!policy.value.resultProp.trim()) {
+  //   ElMessage.error('属性不能为空');
+  //   return;
+  //   }
+  // }
+  const params = {
+    type: policy.value.type,
+    appId: id,
+    resultScoreRange: policy.value.resultScoreRange,
+    resultName: policy.value.resultName,
+    resultProp: policy.value.resultProp,
+    resultDesc: policy.value.resultDesc
+  }
+  console.log(params);
+  try {
+    const res = await addScoringResult(params);
+    console.log(res);
+    ElMessage.success('保存成功');
+  }catch (error) {
+    ElMessage.error('保存失败');
+    console.log(error);
+  }
+}
 // 弹窗
 const nquestionSet = ref({
   id: null,
@@ -182,7 +266,7 @@ const add = (id) => {
     }
 };
 // 定义是评分还是测评
-const value3 = ref(true)
+// const value3 = ref(true)
 // 定义习题集列表
 const questionSets = ref([]);
 const isShow = ref(true);
@@ -401,9 +485,9 @@ const saveQuestionSet = async() => {
 const init = async() => {
     try {
         const res = await listAppByPage({ page: null});
-        console.log(res)
+
         questionSets.value = res.data.data.records
-        console.log(questionSets.value)
+
     } catch (error) {
         console.error('获取应用列表失败:', error);
     }
@@ -582,6 +666,39 @@ position: absolute;
 </style>
 
 <style >
+.handquestion {
+    width: 200px;
+    background-color: lightgray;
+    border: 1px solid #ccc;
+
+    /* 借助不同方向的阴影营造立体效果 */
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3), -1px -1px 3px rgba(255, 255, 255, 0.8);
+    transition: box-shadow 0.3s ease;
+}
+
+.handquestion:hover {
+    /* 鼠标悬停时调整阴影，增强交互效果 */
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4), -2px -2px 4px rgba(255, 255, 255, 0.9);
+}
+.policy{
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    /* 借助不同方向的阴影营造立体效果 */
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3), -1px -1px 3px rgba(255, 255, 255, 0.8);
+    transition: box-shadow 0.3s ease;
+    h2 {
+      margin-left: 70px;
+      margin-top: 10px;
+    }
+}
+.policy:hover {
+    /* 鼠标悬停时调整阴影，增强交互效果 */
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4), -2px -2px 4px rgba(255, 255, 255, 0.9);
+}
 .tou{
   float: left;
   width: 200px;

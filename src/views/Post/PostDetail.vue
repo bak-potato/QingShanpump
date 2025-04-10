@@ -141,7 +141,7 @@ import { useRouter } from 'vue-router'
 import { usePagination } from '@/hooks/usePagination'
 import { listUserPostApi, deletePostApi } from '@/api/post'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { getuserbyid } from '@/api/user'
+// import { getuserbyid } from '@/api/user'
 import dayjs from 'dayjs'
 
 const router = useRouter()

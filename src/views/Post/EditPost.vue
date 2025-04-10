@@ -96,6 +96,7 @@ const popularTags = ref([
 // 提交状态
 const submitting = ref(false)
 
+console.log('当前路由参数:', router.currentRoute.value.query)
 // 提交表单
 const postid = router.currentRoute.value.query.id
 const submitForm = async () => {
@@ -111,6 +112,7 @@ const submitForm = async () => {
     }
     // router.push('/community')
   } catch (error) {
+    console.log(error)
     ElMessage.error('请完善必填内容')
   } finally {
     submitting.value = false

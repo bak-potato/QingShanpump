@@ -479,6 +479,7 @@ onMounted(async () => {
   try {
     // 获取用户信息
     const userRes = await getLoginUser()
+    console.log(userRes.data.data)
     if (userRes.status === 200) {
       const data = userRes.data.data
       userInfo.username = data.userName || '青山用户'

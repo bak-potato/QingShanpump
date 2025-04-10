@@ -11,13 +11,13 @@ const router = createRouter({
           path: '',
           name: 'home',
           component: () => import('../views/MainContent.vue'),
-          meta: { requiresAuth: true } // 需要登录
+          meta: { requiresAuth: true }
         },
         {
           path: 'store',
           name: 'store',
           component: () => import('../views/RightBody/DShop.vue'),
-          meta: { requiresAuth: true } // 需要登录
+          meta: { requiresAuth: true }
         },
         {
           path: 'community',
@@ -28,7 +28,7 @@ const router = createRouter({
           path: 'createpost',
           name: 'CreatePost',
           component: () => import('../views/Post/CreatePost.vue'),
-          meta: { requiresAuth: true } // 需要登录
+          meta: { requiresAuth: true }
         },
         {
           path: 'post',
@@ -54,44 +54,56 @@ const router = createRouter({
           path: 'questionmanage',
           name: 'questionmanage',
           component: () => import('../views/Manage/QuestionManagement.vue'),
-          meta: { requiresAuth: true } // 需要登录
+          meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
           path: 'SoftwareManagement',
           name: 'SoftwareManagement',
           component: () => import('../views/Manage/SoftwareManagement.vue'),
-          meta: { requiresAuth: true } // 需要登录
+          meta: { requiresAuth: true }
         },
         {
           path: 'user',
           name: 'user',
           component: () => import('../views/UserView.vue'),
-          meta: { requiresAuth: true } // 需要登录
-        }, {
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'usermanage',
           name: 'usermanage',
           component: () => import('../views/AdminManage/UserManageView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
           path: 'usermanage1',
           name: 'usermanage1',
           component: () => import('../views/AdminManage/USEMAN.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
           path: 'ApplicationManagement',
           name: 'ApplicationManagement',
           component: () => import('../views/AdminManage/ApplicationManagement.vue'),
-        }, {
+          meta: { requiresAuth: true, requiresAdmin: true }
+        },
+        {
           path: 'VueDataAnalyticsPanel',
           name: 'VueDataAnalyticsPanel',
           component: () => import('../views/AdminManage/VueDataAnalyticsPanel.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
           path: 'ApplicationReview',
           name: 'ApplicationReview',
           component: () => import('../views/AdminManage/ApplicationReview.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
+        },
+        {
+          path: 'ForumManView',
+          name: 'ForumManView',
+          component: () => import('../views/AdminManage/ForumManView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         }
-
       ],
     },
     {
@@ -104,32 +116,39 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
-
     {
       path: '/PhoneVue',
       name: 'PhoneVue',
       component: () => import('../components/PhoneVue.vue'),
     }
-
+    // ,
+    // {
+    //   path: '/403',
+    //   name: 'Forbidden',
+    //   component: () => import('../views/errors/403.vue'),
+    // }
   ],
 });
 
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = checkAuth(); // 检查用户是否登录
+router.beforeEach(async (to, from, next) => {
+  const isAuthenticated = checkAuth();
+  const userRole = localStorage.getItem('userRole') || '';
 
+  // 需要登录但未登录
   if (to.meta.requiresAuth && !isAuthenticated) {
-    // 如果路由需要登录且用户未登录，则跳转到登录页面
-    next({ name: 'login' });
-  } else {
-    // 否则继续导航
-    next();
+    return next({ name: 'login', query: { redirect: to.fullPath } });
   }
+
+  // 需要管理员权限但不是管理员
+  if (to.meta.requiresAdmin && userRole !== 'admin') {
+    return next({ name: 'Forbidden' });
+  }
+
+  // 其他情况正常放行
+  next();
 });
 
-// 模拟检查用户是否登录的函数
 function checkAuth() {
-  // 这里可以根据实际情况判断用户是否登录
-  // 例如检查 localStorage 或 Vuex 中的登录状态
   return localStorage.getItem('isLoggedIn') === 'true';
 }
 
