@@ -24,7 +24,7 @@
         <div class="dsimg1">
           <el-row>
             <el-col :span="6">
-              <el-statistic title="总帖子数" :value="1268500" />
+              <el-statistic title="总帖子数" :value="totalPosts" />
             </el-col>
             <el-col :span="6">
               <el-statistic :value="2358">
@@ -56,53 +56,64 @@
     </div>
 
     <div class="dshoptitleta">
-      <el-card shadow="hover" v-for="(post, index) in posts" :key="index" style="width: 440px; margin: 20px;">
-        <div class="post-card">
-          <div class="post-header">
-            <el-avatar :size="40" :src="post.avatar" />
-            <div class="user-info">
-              <h4>{{ post.author }}</h4>
-              <span class="post-time">{{ post.time }}</span>
-            </div>
-          </div>
+      <el-row :gutter="24">
+        <el-col :span="8" v-for="(post, index) in currentPosts" :key="index">
+          <el-card shadow="hover" style="width: 100%; margin-bottom: 10px;" @click="goToPostDetail(post.id)">
+            <div class="post-card">
+              <div class="post-header">
+                <el-avatar :size="40" :src="post.avatar || 'https://picsum.photos/40/40'" />
+                <div class="user-info">
+                  <h4>{{ post.userName || '未知作者' }}</h4>
+                  <span class="post-time">{{ post.createTime ? formatTime(post.createTime) : '未知时间' }}</span>
+                </div>
+              </div>
 
-          <div class="post-content">
-            <h3 class="post-title">{{ post.title }}</h3>
-            <p class="post-desc">{{ post.content }}</p>
-          </div>
+              <div class="post-content">
+                <h3 class="post-title">{{ post.title }}</h3>
+                <p class="post-desc">{{ post.content }}</p>
+              </div>
 
-          <div class="post-stats">
-            <div class="stat-item">
-              <el-icon>
-                <Star />
-              </el-icon>
-              <span>{{ post.likes }}</span>
+              <div class="post-stats">
+                <div class="stat-item">
+                  <el-icon>
+                    <Star />
+                  </el-icon>
+                  <span>{{ post.thumbNum || 0 }}</span>
+                </div>
+                <div class="stat-item">
+                  <el-icon>
+                    <ChatDotRound />
+                  </el-icon>
+                  <span>{{ post.comments || 0 }}</span>
+                </div>
+                <div class="stat-item">
+                  <el-icon>
+                    <Share />
+                  </el-icon>
+                  <span>{{ post.shares || 0 }}</span>
+                </div>
+              </div>
             </div>
-            <div class="stat-item">
-              <el-icon>
-                <ChatDotRound />
-              </el-icon>
-              <span>{{ post.comments }}</span>
-            </div>
-            <div class="stat-item">
-              <el-icon>
-                <Share />
-              </el-icon>
-              <span>{{ post.shares }}</span>
-            </div>
-          </div>
-        </div>
-      </el-card>
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
+    <el-pagination style="margin-left: 700px;" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+      :current-page="currentPage" :page-sizes="[9, 18, 27]" :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper" :total="totalPosts">
+    </el-pagination>
+
   </div>
-  <router-view/>
+  <router-view />
 </template>
 
 <script setup>
-import { ref } from 'vue';
-// import { User, Fire, Star, ChatDotRound, Share } from '@element-plus/icons-vue';
+import { ref, computed, onMounted } from 'vue';
 import { useTransition } from '@vueuse/core';
 import { useRouter } from 'vue-router';
+import { format } from 'date-fns';
+import { listPostByPage } from '../../api/postController';
+import { listuserbypage } from '../../api/user';
 
 const router = useRouter();
 const keyword = ref('');
@@ -110,34 +121,100 @@ const source = ref(0);
 const outputValue = useTransition(source, { duration: 1500 });
 source.value = 872;
 
-const posts = ref([
-  {
-    avatar: 'https://example.com/avatar1.jpg',
-    author: 'AI开发者',
-    time: '2小时前',
-    title: '大模型训练中的分布式优化实践',
-    content: '分享我们在千卡集群上的训练经验...',
-    likes: 245,
-    comments: 89,
-    shares: 34
-  },
-  // 更多帖子数据...
-]);
+const totalPosts = ref(0);
+const pageSize = ref(9);
+const currentPage = ref(1);
+const posts = ref([]);
 
+const currentPosts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return posts.value.slice(start, end);
+});
+const goToPostDetail = (postId) => {
+  router.push({
+    path: '/post',
+    query: { id: postId }
+  });
+};
 const handleSearch = () => {
   if (!keyword.value.trim()) return;
   console.log('搜索帖子:', keyword.value);
+  // 这里可以添加搜索逻辑，调用接口并传入搜索关键字
+  fetchPosts();
 };
 
 const handleNewPost = () => {
   router.push('/createpost');
 };
+
+const handleSizeChange = (newSize) => {
+  pageSize.value = newSize;
+  fetchPosts();
+};
+
+const handleCurrentChange = (newPage) => {
+  currentPage.value = newPage;
+  fetchPosts();
+};
+
+const formatTime = (time) => {
+  return format(new Date(time), 'yyyy-MM-dd HH:mm:ss');
+};
+
+const fetchPosts = async () => {
+  try {
+    const response = await listPostByPage({
+      current: currentPage.value,
+      pageSize: pageSize.value
+    });
+    posts.value = response.data.data.records;
+    totalPosts.value = parseInt(response.data.data.total);
+
+    for (let post of posts.value) {
+      if (!post.userId) {
+        console.warn('帖子对象缺少userId属性，跳过获取用户信息');
+        post.userName = '未知用户';
+        continue;
+      }
+      try {
+        console.log("正在查询用户ID:", post.userId);
+        // 尝试不同的参数传递方式
+        const userResponse = await listuserbypage({
+          id: post.userId.toString() // 保持为字符串
+        });
+        // 处理可能的响应结构，先判断records是否存在且是数组
+        if (Array.isArray(userResponse.data.data.records) && userResponse.data.data.records.length > 0) {
+          const userName = userResponse.data.data.records[0].userName;
+          post.userName = userName || '未知用户';
+        } else {
+          post.userName = '未知用户';
+        }
+        console.log('获取用户信息响应:', post.userName);
+        console.log('帖子作者:', post.userName);
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+        post.userName = '未知用户';
+      }
+    }
+    console.log('33最终帖子数据:', posts.value);
+  } catch (error) {
+    console.error('获取帖子数据失败:', error);
+  }
+};
+
+onMounted(() => {
+  fetchPosts();
+});
 </script>
+
+
 
 <style scoped>
 /* 基础布局优化 */
 .dshop {
   width: 100%;
+  max-width: 1200px;
   /* margin: 0 auto; */
   padding: 0 20px;
 }
@@ -180,8 +257,8 @@ const handleNewPost = () => {
 .dshoptitlet {
   background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
   border-radius: 20px;
-  padding: 40px;
-  margin: 30px 0;
+  padding: 30px;
+  margin: 10px 0;
   position: relative;
   overflow: hidden;
 }
@@ -217,9 +294,6 @@ const handleNewPost = () => {
 
 /* 帖子卡片增强 */
 .dshoptitleta {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 24px;
   padding: 20px 0;
 }
 
@@ -281,6 +355,8 @@ const handleNewPost = () => {
   color: #666;
   margin: 0 0 16px;
   display: -webkit-box;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -329,13 +405,8 @@ const handleNewPost = () => {
     font-size: 24px;
   }
 
-  .dshoptitleta {
-    grid-template-columns: 1fr;
-  }
-
-  .el-card {
-    width: auto !important;
-    margin: 0 !important;
+  .el-col {
+    width: 100%;
   }
 }
 </style>

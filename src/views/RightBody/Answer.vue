@@ -1,30 +1,30 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="quiz-container">
-    <!-- 题目区域 -->
-    <div class="question-container">
-      <h2 class="question-title">{{ currentQuestion.title }}</h2>
-      <p class="question-content">{{ currentQuestion.content }}</p>
-
+    <!-- 题目区域，添加 v-if 确保有数据时才渲染 -->
+    <div v-if="questions.length > 0" class="question-container">
+      <h2 class="question-title">题目:{{ currentQuestion.title }}</h2>
       <!-- 选项列表 -->
       <ul class="options-list">
         <li
           v-for="(option, index) in currentQuestion.options"
           :key="index"
           :class="{ 'selected': isOptionSelected(index) }"
-          @click="toggleOption(index)"
+          @click="toggleOption( index)"
         >
           <span class="option-index">{{ optionLabels[index] }}</span>
-          <div class="option-content">{{ option }}</div>
+          <div class="option-content">{{ option.value }}</div>
         </li>
       </ul>
     </div>
+    <!-- 数据加载中提示 -->
+    <div v-else class="loading">数据加载中...</div>
 
-    <!-- 控制按钮 -->
+    <!-- 控制按钮，根据数据加载情况禁用 -->
     <div class="control-buttons">
       <el-button
         type="primary"
-        :disabled="currentQuestionIndex === 0"
+        :disabled="currentQuestionIndex === 0 || questions.length === 0"
         @click="prevQuestion"
       >
         上一题
@@ -32,7 +32,7 @@
 
       <el-button
         type="primary"
-        v-if="currentQuestionIndex < questions.length - 1"
+        v-if="currentQuestionIndex < questions.length - 1 && questions.length > 0"
         @click="nextQuestion"
       >
         下一题
@@ -40,7 +40,7 @@
 
       <el-button
         type="success"
-        v-else
+        v-else-if="questions.length > 0"
         @click="submitQuiz"
       >
         提交答卷
@@ -50,140 +50,122 @@
 </template>
 
 <script setup>
-import { ref, computed,watch  } from 'vue';
-import { useQuestionStore } from "../../store/qusetion.js"
-import { storeToRefs } from 'pinia'
-
-const store = useQuestionStore()
-const { selectedQuestionId } = storeToRefs(store)
-watch(selectedQuestionId, (newId) => {
-    if (!newId) return
-
-    // 在题目列表中查找匹配的索引
-    const targetIndex = questions.value.findIndex(q => q.id === newId)
-
-    if (targetIndex !== -1) {
-        currentQuestionIndex.value = targetIndex
-        selectedAnswer.value = userAnswers.value[targetIndex]
-        console.log('已定位到题目:', currentQuestionIndex.value)
-    } else {
-        console.warn('未找到对应题目，ID:', newId)
-    }
-})
-// 题目数据示例，添加 isMultiple 字段区分单选和多选
-const questions = ref([
-  {
-    id: 1,
-    title: '题目1：Vue基础知识',
-    content: '下列关于Vue的说法正确的是？',
-    options: [
-      'Vue是一个基于JavaScript的框架',
-      'Vue使用单向数据流',
-      'Vue由Facebook团队维护',
-      'Vue不支持TypeScript'
-    ],
-    correct: 0,
-    isMultiple: false
-  },
-  {
-    id: 2,
-    title: '题目2：Vue基础知识（多选）',
-    content: '以下哪些是Vue的特性？',
-    options: [
-      '响应式',
-      '组件化',
-      '虚拟DOM',
-      '双向数据绑定'
-    ],
-    correct: [0, 1, 2],
-    isMultiple: true
-  }
-]);
-
-// 当前题目索引
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { listQuestionVOByPage ,addUserAnswer} from '@/api/answer';
+const router = useRouter();
+const questions = ref([]);
 const currentQuestionIndex = ref(0);
-// 用户选择的答案数组，单选存储单个索引，多选存储索引数组
-const userAnswers = ref(new Array(questions.value.length).fill(null));
-// 当前选中的答案
-const selectedAnswer = ref(null);
-
+const userAnswers = ref([]);
 // 计算当前题目
 const currentQuestion = computed(() => questions.value[currentQuestionIndex.value]);
-const optionLabels = ['A', 'B', 'C', 'D'];
+console.log(currentQuestion);
+const getOptionLabel = (index) => {
+  if (index < 26) {
+    return String.fromCharCode(65 + index); // 65 是 'A' 的 ASCII 码
+  }
+  return String.fromCharCode(65 + (index % 26)) + Math.floor(index / 26); // 处理超过 Z 的情况
+};
+const optionLabels = Array.from({ length: 100 }, (_, i) => getOptionLabel(i))
+// 获取题目列表
+const listQuestions = async () => {
+  const id = router.currentRoute.value.query.id;
+  try {
+    const res = await listQuestionVOByPage({ appId: id });
+    if (res.data && res.data.data.records) {
+      const processedQuestions = res.data.data.records.flatMap((record) => {
+        return record.questionContent.map((content) => ({
+          title: content.title || '默认标题', // 设置默认值防止 title 为 undefined
+          content: content.content || '', // 题目内容根据接口实际字段调整
+          options: content.options || [] // 选项数组根据接口实际字段调整
+        }));
+      });
+      questions.value = processedQuestions;
+      console.log(questions.value);
+      currentQuestionIndex.value = 0; // 初始化显示第一题
+    }
+  } catch (error) {
+    console.error('获取题目列表失败:', error);
+  }
+};
+onMounted(() => {
+  listQuestions();
+});
 
-// 判断选项是否被选中
+// 简化的交互逻辑，实际需根据需求完善
 const isOptionSelected = (index) => {
-  if (currentQuestion.value.isMultiple) {
-    return userAnswers.value[currentQuestionIndex.value]?.includes(index);
+  const currentQuestion = questions.value[currentQuestionIndex.value];
+  if (currentQuestion.isMultiple) {
+    return userAnswers.value[currentQuestionIndex.value]?.includes(index) || false;
   }
   return userAnswers.value[currentQuestionIndex.value] === index;
 };
 
-// 切换选项选择状态
+// 切换选项的选中状态
 const toggleOption = (index) => {
-  if (currentQuestion.value.isMultiple) {
-    const currentAnswers = userAnswers.value[currentQuestionIndex.value] || [];
-    const newAnswers = currentAnswers.includes(index)
-     ? currentAnswers.filter((i) => i!== index)
-      : [...currentAnswers, index];
+  const currentQuestion = questions.value[currentQuestionIndex.value];
+  if (currentQuestion.isMultiple) {
+    // 处理多选题的选中状态切换
+    userAnswers.value[currentQuestionIndex.value] = userAnswers.value[currentQuestionIndex.value] || [];
+    const newAnswers = userAnswers.value[currentQuestionIndex.value].includes(index)
+     ? userAnswers.value[currentQuestionIndex.value].filter(i => i!== index)
+      : [...userAnswers.value[currentQuestionIndex.value], index];
     userAnswers.value[currentQuestionIndex.value] = newAnswers;
   } else {
+    // 处理单选题的选中状态切换
     userAnswers.value[currentQuestionIndex.value] = index;
+  console.log(userAnswers.value);
   }
-};
 
-const nextQuestion = () => {
-  if (currentQuestionIndex.value < questions.value.length - 1) {
-    currentQuestionIndex.value++;
-    selectedAnswer.value = userAnswers.value[currentQuestionIndex.value];
-  }
 };
-
 const prevQuestion = () => {
-  if (currentQuestionIndex.value > 0) {
+  if (currentQuestionIndex.value > 0 && questions.value.length > 0) {
     currentQuestionIndex.value--;
-    selectedAnswer.value = userAnswers.value[currentQuestionIndex.value];
   }
 };
-
-// 提交答卷
-const submitQuiz = () => {
-  // 收集所有答案并转换为选项内容
-  const selectedOptions = userAnswers.value.map((answer, i) => {
-    if (answer === null) {
-      return '未回答';
-    }
-    if (questions.value[i].isMultiple) {
-      return answer.map((index) => questions.value[i].options[index]).join(', ');
-    }
-    return questions.value[i].options[answer];
-  });
-
-  // 验证答案并计算得分
-  const score = userAnswers.value.reduce((acc, answer, index) => {
+const nextQuestion = () => {
+  if (currentQuestionIndex.value < questions.value.length - 1 && questions.value.length > 0) {
+    currentQuestionIndex.value++;
+  }
+};
+const submitQuiz = async () => {
+  const id = router.currentRoute.value.query.id;
+  const answers = userAnswers.value.map((answer, index) => {
     const question = questions.value[index];
     if (question.isMultiple) {
-      if (
-        answer &&
-        answer.length === question.correct.length &&
-        answer.every((i) => question.correct.includes(i))
-      ) {
-        return acc + 1;
-      }
-    } else {
-      if (answer === question.correct) {
-        return acc + 1;
-      }
+      return {
+        answer: answer? answer.map(i => optionLabels[i]).join(',') : ''
+      };
     }
-    return acc;
-  }, 0);
-
-  console.log('提交的选项内容:', selectedOptions);
-  console.log('你的得分是:', score, '/', questions.value.length);
+    return {
+      answer: answer!== null? optionLabels[answer] : ''
+    };
+  });
+  console.log(answers);
+  const data = {
+    appId: id,
+    choices: answers
+  };
+  console.log(data);
+  try {
+    const res = await addUserAnswer(data);
+    console.log(res);
+  } catch (error) {
+    console.error('提交答卷失败:', error);
+  }
 };
 </script>
 
 <style scoped>
+/* 新增加载状态样式 */
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  padding: 20px;
+}
+
+/* 原有样式保持不变 */
 .quiz-container {
   max-width: 1350px;
   width: 1350px;

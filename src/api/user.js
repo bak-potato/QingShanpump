@@ -29,6 +29,7 @@ export function deleteuser(data) {
 export function getuserbyid(data) {
   return get('/api/user/get', data)
 }
+
 //通过id查询用户（vo）
 export function getUserVOById(data) {
   return get('/api/user/get/vo', data)

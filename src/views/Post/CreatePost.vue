@@ -43,8 +43,10 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addPostApi } from '@/api/post'
+import { useRouter }  from 'vue-router'
 import MdEditor from '@/components/MdEditor.vue'
 
+const router = useRouter()
 // 表单数据
 const form = ref({
   title: '',
@@ -90,9 +92,11 @@ const submitForm = async () => {
       ElMessage.error('发布失败，请稍后重试')
     } else {
       ElMessage.success('发布成功！')
+      router.push('/community')
+
     }
-    // router.push('/community')
   } catch (error) {
+    console.log(error)
     ElMessage.error('请完善必填内容')
   } finally {
     submitting.value = false

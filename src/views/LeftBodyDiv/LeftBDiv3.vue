@@ -4,9 +4,29 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const handleNodeClick = (data) => {
-  console.log(data);
-};
+  switch (data.label) {
+    case '我的帖子':
+      router.push('/postdetail')
+      break
+    case '创建帖子':
+      // 可以添加其他路由跳转
+      router.push('/createpost')
+      break
+    case '随机推荐':
+      // router.push('/random')
+      break
+    case '主页':
+      router.push('/community')
+      break
+    default:
+      console.log(data)
+  }
+}
 
 const data = [
   {
@@ -16,7 +36,6 @@ const data = [
     label: '帖子操作',
     children: [
       {
-
         label: '我的帖子',
       },
       {
@@ -27,12 +46,12 @@ const data = [
       }
     ],
   },
-];
+]
 
 const defaultProps = {
   children: 'children',
   label: 'label',
-};
+}
 </script>
 
 <style>

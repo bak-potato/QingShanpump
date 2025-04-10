@@ -34,7 +34,7 @@
                     </el-icon> -->
                   </div>
                   <div class="action-buttons">
-                    <el-button type="text" @click="add(id)">添加题目</el-button>
+                    <el-button type="text" @click="add(questionSet.id)">添加题目</el-button>
                     <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
                   </div>
@@ -42,16 +42,16 @@
               </div>
                <!-- 更改键弹出 -->
               <el-dialog v-model="isEditDialogVisible" title="Tips"  width="500" :before-close="handleClose" :modal="null">
-                  <el-form :model="questionSet" label-width="120px">
+                  <el-form :model="nquestionSet" label-width="120px">
                     <el-form-item label="应用名称">
-                      <el-input v-model="questionSet.appName" placeholder="请输入应用名称"></el-input>
+                      <el-input v-model="nquestionSet.appName" placeholder="请输入应用名称"></el-input>
                     </el-form-item>
                     <el-form-item label="应用描述">
-                      <el-input v-model="questionSet.appDesc" placeholder="请输入应用描述"></el-input>
+                      <el-input v-model="nquestionSet.appDesc" placeholder="请输入应用描述"></el-input>
                     </el-form-item>
                     <!-- 上传头像 -->
                     <el-form-item label="上传头像">
-                      <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar" />
+                      <el-avatar :size="40" :src="nquestionSet.appIcon" class="profile-avatar" />
                       <el-upload action="#" :show-file-list="false" :before-upload="tttt" >
                         <el-button type="Default" size="small" class="mt-2">
                           更改头像
@@ -152,11 +152,11 @@
 import { ref } from 'vue';
 // import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-import {addApp, common,listAppByPage,editApp} from "@/api/app";
+import {addApp, common,listAppByPage,editApp,deleteApp} from "@/api/app";
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 // 弹窗
-const questionSet = ref({
+const nquestionSet = ref({
   id: null,
   appName: '',
   appDesc: '',
@@ -225,7 +225,7 @@ const handleisshow = (show) => {
 
 const baocun = async () => {
   // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
-  const currentQuestionSet = questionSet.value;
+  const currentQuestionSet = nquestionSet.value;
 
   // 验证必填字段
   if (!currentQuestionSet.id) {
@@ -254,9 +254,9 @@ const baocun = async () => {
     // 调用编辑接口
     const res = await editApp(editParams);
     isEditDialogVisible.value = false;
-    // 头像渲染
-     questionSets.value.appIcon = currentQuestionSet.appIcon;
-    console.log(res)
+    console.log(res);
+    // 重新获取应用列表数据
+    await init();
   } catch (error) {
     console.error('编辑接口调用失败:', error);
     ElMessage.error('编辑失败，请检查网络或重试');
@@ -422,20 +422,35 @@ onMounted(() => {
 // };
 // 切换编辑状态
 const toggleEdit = (id) => {
-  // 从列表中获取当前应用并赋值给 questionSet
-  questionSet.value = questionSets.value.find(set => set.id === id) || {};
-
-  // 防止未找到应用时打开对话框
-  if (!questionSet.value.id) {
+  const targetSet = questionSets.value.find(set => set.id === id);
+  if (!targetSet) {
     ElMessage.warning('未找到对应的应用，请刷新后重试');
     return;
   }
+  // 创建一个新的对象副本
+  nquestionSet.value = {...targetSet };
   isEditDialogVisible.value = true;
 };
 
 // 删除应用
-const deleteQuestionSet = (index) => {
-  questionSets.value.splice(index, 1);
+const deleteQuestionSet = async (appId) => {
+    // 确认删除
+    const confirmDelete = window.confirm('确定要删除该应用吗？');
+    if (!confirmDelete) {
+      return;
+    }else {
+      try {
+
+        const res = await deleteApp({id:appId})
+        if(res) {
+          ElMessage.success('删除成功')
+          await init();
+        }
+      }catch (error) {
+        console.error('删除应用失败:', error);
+        ElMessage.error('删除应用失败，请重试');
+      }
+    }
 };
 // 上传头像
 const handleAvatarUpload = async(file) => {
@@ -463,7 +478,7 @@ const tttt = async(file) => {
   formData.append('file', file)
   console.log(11111)
   const res = await common(formData)
-  questionSet.value.appIcon = res.data.data
+  nquestionSet.value.appIcon = res.data.data
   ElMessage.success('上传成功')
   return true
 }

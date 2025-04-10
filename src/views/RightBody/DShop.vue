@@ -67,15 +67,16 @@
 
 </div>
 <div class="dshoptitleta">
- <el-card shadow="hover" v-for="item in 21" :key="item"  style="max-width: 500px; width: 440px;">
+ <el-card shadow="hover" v-for="item in listData" :key="item.id"  style="max-width: 500px; width: 440px;">
   <div class="dshoptitleta2"></div>
   <div class="dshoptitleta3">
      <div class="head">
+      <img :src=item.appIcon alt="" class="imgg">
      </div>
      <div class="content">
-     <h3 class="title">题目名称题目名称题名称题名称称题</h3>
-   <p class="description">题目介绍</p>
-   <el-button type="primary" class="view-btn" @click="answer">查看</el-button>
+     <h3 class="title">{{ item.appName }}</h3>
+   <p class="description">{{item.appDesc}}</p>
+   <el-button type="primary" class="view-btn" @click="answer(item.id)">查看</el-button>
      </div>
   </div>
   <div class="hrt1"></div>
@@ -92,7 +93,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
+import {listAppVOByPage,} from "@/api/app";
+// 应用列表数据
+const listData = ref([]);
+// 渲染应用列表
+const renderAppList = async() => {
+  const res = await listAppVOByPage({page:null});
+  console.log(res);
+  // 赋值给应用列表数据
+  // 遍历res.data.data中的reviewMessage
+  listData.value = res.data.data.records.filter(item => item.reviewMessage !== null);
+  console.log(listData.value);
+}
+onMounted(() => {
+  renderAppList();
+});
+
 
 const keyword = ref('');
 
@@ -115,10 +132,15 @@ const outputValue = useTransition(source, {
 });
 source.value = 172000;
 
-const answer = () => {
+const answer = (id) => {
 
    sessionStorage.setItem('view', 99);
-     router.push('/answer');
+      router.push({
+      path: '/answer',
+      query: {
+        id: id
+      }
+     })
   // updateActiveClass(99);
   //延迟刷新
   setTimeout(() => {
@@ -162,7 +184,10 @@ display: flex;
       width: 130px;
        background-size: 100% 100%;
        border-radius: 10px;
-      background-image: url("@/icons/img1.png");
+      .imgg {
+        width: 100px;
+        height: 100px;
+      }
     }
    .content {
   position: relative;

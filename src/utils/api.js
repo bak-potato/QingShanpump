@@ -1,6 +1,6 @@
 // src/api/api.js
 import axios from 'axios'
-
+import qs from 'qs'
 // 创建axios实例
 const api = axios.create({
   baseURL: '/api', // 后端API基础地址
@@ -18,6 +18,11 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    if (config.url.includes('/user/get')) {
+      config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      console.log(222)
+      config.data = qs.stringify(config.data)
     }
     return config
   },

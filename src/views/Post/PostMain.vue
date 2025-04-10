@@ -120,7 +120,7 @@ const postData = ref({
 const getPostData = async () => {
   const id = router.currentRoute.value.query.id
   try {
-    const res = await getPostByIdApi({id:id})
+    const res = await getPostByIdApi({ id: id })
     content.value = res.data.data.content
     userData.value = res.data.data.user
     console.log('帖子详情', res.data.data)

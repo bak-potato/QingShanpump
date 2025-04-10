@@ -22,7 +22,7 @@ const router = createRouter({
         {
           path: 'community',
           name: 'community',
-          component: () => import('../views/RightBody/Community.vue'),
+          component: () => import('../views/RightBody/CommunityView.vue'),
         },
         {
           path: 'createpost',
