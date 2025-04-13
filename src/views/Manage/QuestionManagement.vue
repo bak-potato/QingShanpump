@@ -5,14 +5,14 @@
       <h2>题目列表</h2>
       <div class="elscbody">
         <el-scrollbar height="300px">
-          <!-- 根据是否有内容来决定是否显示 el-empty -->
+
           <el-empty v-if="questions.length === 0" description="暂无创建题目" />
-          <!-- 渲染题目列表 -->
+
           <div v-else>
             <div v-for="question in questions" :key="question.id" class="scrollbar-demo-item">
               <div class="question-header">
-                <div class="question-text" @click="toggleQuestion(question.id)">
-                  {{ question.text }} <!-- 显示题目标题 -->
+                <div class="question-text" @click="toggleQuestion(question.contentId)">
+                  {{ question.title }}
                   <el-icon :class="['arrow-icon', { 'rotate': question.expanded }]">
                     <ArrowDown />
                   </el-icon>
@@ -20,23 +20,19 @@
                 <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.id)">修改</el-button>
                 <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.id)">删除</el-button>
               </div>
-              <!-- 展开后显示选项和答案 -->
-              <div v-if="question.expanded && !question.editing" class="question-details">
-                <ul class="options-list">
-                  <li v-for="(option, oIndex) in question.options" :key="oIndex">
-                    <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
-                    <span class="option-text">{{ option.value }}</span>
-                    <span v-if="option.isAnswer" class="answer-tag">(答案)</span>
-                    <span v-if="value3" class="answer-tag">({{option.score }})</span>
-                     <span v-if="!value3" class="answer-tag">({{option.result }})</span>
-                  <span v-if="!option.isAnswer">
-                    正确答案：{{ question.options.filter(option => option.isAnswer).map(option => getOptionLabel(question.options.indexOf(option))).join('、') }}
-                  </span>
+
+              <div v-if="question.expanded" class="question-details">
+                <ul class="option-list">
+                  <li v-for="(option, index) in question.options" :key="index">
+                    <span class="option-label">{{ option.key }}</span>
+                    <span class="option-value">{{ option.value }}</span>
+                    <span v-if="option.isAnswer" class="answer-mark">✔ 答案</span>
+                    <span v-if="value3" class="score-info">评分：{{ option.score }}</span>
+                    <span v-if="!value3" class="result-info">属性：{{ option.result }}</span>
                   </li>
                 </ul>
-
               </div>
-              <!-- 编辑模式 -->
+
               <div v-if="question.editing" class="edit-section">
                 <el-form :model="nnn" label-width="120px">
                   <el-form-item label="问题">
@@ -75,6 +71,12 @@
           </div>
         </el-scrollbar>
       </div>
+
+
+
+
+
+
       <h2>创建题目</h2>
       <div class="lastf1">
         <div @click="handleisshow(true)" :class="['l2a', { l21: isShow }]">
@@ -86,45 +88,82 @@
       </div>
       <div>
         <div class="AIquestion" v-if="!isShow"></div>
-        <div class="handquestion" v-if="isShow">
+        <div class="handquestion" v-if="isShow" >
           <div class="question-item">
-            <el-form style="position: relative;" :model="newQuestion" label-width="120px">
-              <label class="switch">
-                <el-switch v-model="value3" inline-prompt active-text="评分" inactive-text="测评" />
-              </label>
-               <label class="switch" style="margin-left: 50px;">
-                <el-switch v-model=" newQuestion.isMultiple" inline-prompt active-text="多选" inactive-text="单选" />
-              </label>
+              <el-form style="position: relative;" :model="newQuestion" label-width="120px">
+  <label class="switch">
+    <el-switch v-model="value3" inline-prompt active-text="评分" inactive-text="测评" />
+  </label>
 
-              <el-form-item label="问题">
-                <el-input v-model="newQuestion.text" placeholder="请输入问题"></el-input>
-              </el-form-item>
-              <el-form-item label="选项">
-                <div v-for="(option, index) in newQuestion.options" :key="index" class="option-item">
-                  <div class="option-row">
-                    <span class="option-label">{{ getOptionLabel(index) }}</span>
-                    <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(index)}`" class="option-input"></el-input>
-                    <el-input v-model="option.score"  placeholder="请输入分数" v-if="value3" style="width: 140px;"></el-input>
-                    <el-input v-model="option.result" placeholder="请输入属性" v-if="!value3" style="width: 140px;"></el-input>
-                    <el-button
-                      type="danger"
-                      circle
-                      size="small"
-                      @click="removeNewOption(index)"
-                      v-if="index > 1"
-                      class="delete-button"
-                    >
-                      <el-icon>
-                        <img width="20px" src="@/icons/delete.png" style="position: relative;left: -50px;">
-                      </el-icon>
-                    </el-button>
-                  </div>
-                </div>
-                <el-button class="cjxx1" type="primary" @click="addNewOption">增加选项</el-button>
-              </el-form-item>
+  <!-- 循环渲染每个问题 -->
+  <div v-for="(question, qIndex) in newQuestion.questions" :key="qIndex" class="question-item">
+    <el-form-item label="问题标题">
+      <el-input
+        v-model="question.title"
+        placeholder="请输入问题标题（如：下列哪个是正确选项？）"
+      ></el-input>
+    </el-form-item>
+
+    <el-form-item label="选项">
+      <div v-for="(option, oIndex) in question.options" :key="oIndex" class="option-item">
+        <div class="option-row">
+          <span class="option-label">{{ getOptionLabel(oIndex) }}</span>
+          <el-input
+            v-model="option.text"
+            :placeholder="`选项 ${getOptionLabel(oIndex)}`"
+            class="option-input"
+          ></el-input>
+          <!-- 评分/测评模式输入 -->
+          <el-input
+            v-model="option.score"
+            placeholder="请输入分数"
+            v-if="value3"
+            style="width: 140px;"
+          ></el-input>
+          <el-input
+            v-model="option.result"
+            placeholder="请输入属性"
+            v-if="!value3"
+            style="width: 140px;"
+          ></el-input>
+          <!-- 删除选项按钮（保留至少2个选项） -->
+          <el-button
+            type="danger"
+            circle
+            size="small"
+            @click="removeNewOption(qIndex, oIndex)"
+            v-if="question.options.length > 2 && oIndex > 1"
+            class="delete-button"
+          >
+            <el-icon style="margin-left: 200px;"><img width="20px" src="@/icons/delete.png"></el-icon>
+          </el-button>
+        </div>
+      </div>
+      <el-button
+        class="cjxx1"
+        type="primary"
+        @click="addNewOption(qIndex)"
+        style="margin-left: 46px; "
+      >增加选项
+    </el-button>
+      <el-button
+          type="danger"
+          @click="deleteq(qIndex)"
+          v-if="newQuestion.questions.length > 1"
+          class="delete-question-btn"
+          style="margin-bottom: 10px; "
+        >
+          删除问题
+        </el-button>
+    </el-form-item>
+  </div>
+
+           <!-- 增加新问题按钮 -->
+          <el-button class="cjxx1" type="primary"  @click="addNewq()" style="margin-top: 20px; margin-left: 80px;">增加问题 </el-button>
             </el-form>
           </div>
-          <el-button type="primary" @click="saveQuestion(id)">保存题目</el-button>
+
+          <el-button type="primary" @click="saveQuestion(id)" style="position: relative;left: 200px;top: -32px;">上传题目</el-button>
         </div>
       </div>
     </div>
@@ -132,281 +171,170 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref,onMounted} from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-import { addQuestion, listQuestionVOByPage, editQuestion, deleteQuestion } from "@/api/question";
+import { addQuestion,listMyQuestionVOByPage} from "@/api/question";
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-// 新建
-const nnn = ref({
-  id: 0,
-  questionContent: [
-    {
-      options: [
-        {
-          key: "",
-          result: "",
-          score: 0,
-          value: ""
-        }
-      ],
-      title: ""
-    }
-  ]
-})
 const router = useRouter();
 // 接收路由参数
 const id = router.currentRoute.value.query.id
-// 定义题目列表
-const questions = ref({});
 const isShow = ref(true);
 const value3 = ref(true);
-// 定义新题目的数据结构
+// 定义新题目的数据结构（支持多个问题）
 const newQuestion = ref({
-  text: '',
-  options: [
-    { text: '', score: '', result: '',isAnswer:false }, // 初始化 isAnswer 为 false
-    { text: '', score: '', result: '',isAnswer:false}
+  questions: [ // 问题数组，每个元素是一个独立问题
+    {
+      title: '', // 问题标题
+      options: [ // 问题选项（至少2个初始选项）
+        { text: '', score: '', result: '' }, // 选项A
+        { text: '', score: '', result: '' }, // 选项B
+      ],
+    }
   ],
+  isMultiple: false, // 是否多选
 });
-
 // 获取选项的标签（A、B、C、D...）
 const getOptionLabel = (index) => {
   return String.fromCharCode(65 + index); // 65 是 'A' 的 ASCII 码
 };
-
 // 切换 AI 出题和手动出题
 const handleisshow = (show) => {
   isShow.value = show;
 };
-
-// 增加选项（新题目）
-const addNewOption = () => {
-  newQuestion.value.options.push({
+// 增加选项
+const addNewOption = (qIndex) => {
+  newQuestion.value.questions[qIndex].options.push({
     text: '',
     score: '',
     result: '',
-    isAnswer: false // 初始化答案状态为 false
   });
 };
-
-// 删除选项（新题目）
-const removeNewOption = (index) => {
-  newQuestion.value.options.splice(index, 1);
+// 增加新问题（每个问题默认包含2个选项）
+const addNewq = () => {
+  newQuestion.value.questions.push({
+    title: '',
+    options: [
+      { text: '', score: '', result: '' }, // 选项A
+      { text: '', score: '', result: '' }, // 选项B
+    ],
+  });
 };
-
+// 删除选项
+const removeNewOption = (qIndex, oIndex) => {
+  newQuestion.value.questions[qIndex].options.splice(oIndex, 1);
+};
+// 删除问题
+const deleteq = (qIndex) => {
+  // 防止删除最后一个问题
+  if (newQuestion.value.questions.length === 1) {
+    alert('至少保留1个问题');
+    return;
+  }
+  newQuestion.value.questions.splice(qIndex, 1);
+};
 // 保存题目
 const saveQuestion = async (id) => {
-  if (newQuestion.value.text.trim() === '') {
-    alert('问题不能为空');
+  // 校验每个问题的标题和选项是否为空
+  const hasEmptyTitle = newQuestion.value.questions.some(question =>
+    question.title.trim() === ''
+  );
+  const hasEmptyOption = newQuestion.value.questions.some(question =>
+    question.options.some(option => option.text.trim() === '')
+  );
+  if (hasEmptyTitle) {
+    alert('问题标题不能为空');
     return;
   }
-  if (newQuestion.value.options.some(option => option.text.trim() === '')) {
-    alert('选项不能为空');
+  if (hasEmptyOption) {
+    alert('选项内容不能为空');
     return;
   }
-  // 构建选项数据，根据是否为多选添加 isMultiple 字段
-  console.log(newQuestion.value.isMultiple);
-  const optionsData = newQuestion.value.options.map((option, index) => ({
-    key: String.fromCharCode(65 + index), // 生成 A,B,C...
-    value: option.text,
-    score: value3.value? Number(option.score) || 0 : 0,
-    result:!value3.value? option.result || '' : '',
-    isAnswer: newQuestion.value.isAnswer
+
+  // 格式化数据：将每个问题的选项转换为API所需格式
+  const questionContent = newQuestion.value.questions.map((question) => ({
+    title: question.title,
+    options: question.options.map((option, oIndex) => ({
+      key: getOptionLabel(oIndex), // 生成A/B/C/D...
+      value: option.text,
+      score: value3.value ? Number(option.score) || 0 : null, // 评分模式
+      result: !value3.value ? option.result || null : null, // 测评模式
+    })),
   }));
 
-  const newquestion = {
-    appId: id,
-    questionContent: [
-      {
-        title: newQuestion.value.text,
-        options: optionsData
-      }
-    ]
+  // 构造API参数（假设appId从路由获取）
+  const params = {
+    appId: id, // 应用ID（从路由参数获取）
+    questionContent, // 直接传递问题数组
   };
-  // console.log(newquestion);
-  const { data: { code, data } } = await addQuestion(newquestion);
-  console.log(newquestion);
 
+  // 调用添加接口
+  const { data: { code, message } } = await addQuestion(params);
   if (code === 0) {
-    alert('添加成功');
-    console.log(data);
-
+    alert('题目添加成功');
+    // 清空表单（保留1个初始问题，方便继续创建）
+    newQuestion.value = {
+      questions: [
+        {
+          title: '',
+          options: [
+            { text: '', score: '', result: '' },
+            { text: '', score: '', result: '' },
+          ],
+        }
+      ],
+      isMultiple: false,
+    };
   } else {
-    alert('添加失败');
+    alert('添加失败：' + message);
   }
-  // 清空表单数据
-  newQuestion.value = {
-    text: '',
-    options: [
-      { text: '', score: '', result: '' ,isAnswer:false},
-      { text: '', score: '', result: '' ,isAnswer:false}
-    ],
-    isMultiple: false
-  };
 };
-// 删除题目
-const DeleteQuestion = async (id) => {
-  const question = questions.value.find(q => q.id === id);
-  console.log(question);
-  if (!question) return;
-  // 出现弹窗询问是否删除
-  const confirmDelete = window.confirm('确定要删除该题目吗？');
-  if (!confirmDelete) return;
-  else {
-    const res = await deleteQuestion({ id: question.id });
-    if (res) {
-      ElMessage.success('删除成功');
-    }
-    await renderQuestions();
-    console.log(res);
-  }
 
-}
-
-// 渲染题目列表
-const renderQuestions = async () => {
-  const res = await listQuestionVOByPage({ appId: id });
-  console.log(res.data.data.records);
-  const records = res.data.data.records || [];
-  questions.value = records.flatMap((record) =>
-    record.questionContent.map((content) => ({
-      ...record,
-      ...content,
-      text: content.title, // 假设题目标题为 title
-      id: `${record.id}`, // 生成唯一标识
-      expanded: false,
-      editing: false,
-      options: content.options.map((option) => ({
-        ...option,
-        isAnswer: option.isAnswer || false,
-        score: value3.value? Number(option.score) || 0 : 0,
-        result:!value3.value? option.result || '' : '',
-      }))
-
-    }))
-  );
-  console.log(questions.value);
-};
-onMounted(() => {
-  renderQuestions();
+// 编辑
+const questions = ref([]);
+const nnn = ref({
+  id: 0,
+  title: '',
+  options: [],
+  expanded: false,
+  editing: false
 });
-// 切换题目展开状态
-const toggleQuestion = (questionId) => {
-  const question = questions.value.find(q => q.id === questionId);
+// 获取题目列表
+const renderQuestions = async () => {
+  try {
+    const { data } = await listMyQuestionVOByPage({ appId: id });
+    const rawQuestions = data.data.records || [];
+
+    // 确保每个题目有唯一 id 和正确的状态字段
+    const processedQuestions = rawQuestions.flatMap(record => {
+      return record.questionContent.map(content => ({
+        id: record.id, // 题目唯一标识
+        contentId: `${Date.now()}`, // 新增唯一内容ID
+        title: content.title,
+        options: content.options.map(option => ({ ...option })),
+        expanded: false, // 展开状态
+        editing: false, // 编辑状态
+      }));
+    });
+
+    questions.value = processedQuestions; // 赋值给数组
+  } catch (error) {
+    ElMessage.error('加载题目失败',error);
+  }
+};
+// 展开/收起
+const toggleQuestion = (contentId) => {
+  const question = questions.value.find(q => q.contentId === contentId);
+  console.log(question);
   if (question) {
     question.expanded = !question.expanded;
   }
-};
-// 切换编辑状态
-const toggleEdit = async (questionId) => {
-  const question = questions.value.find(q => q.id === questionId);
-  console.log(question.id);
-  if (question) {
-    question.editing = !question.editing;
-    // 创建一个新的对象副本
-    nnn.value = {
-      ...question,
-      options: question.options.map(option => ({
-        ...option,
-        score: value3.value? Number(option.score) || 0 : 0,
-        result:!value3.value? option.result || '' : '',
-        isAnswer: option.isAnswer || false
-      }))
-    }
-    // if (!question.editing) {
-    //   const updatedQuestion = {
-    //     ...question,
-    //     options: question.options.map(option => ({
-    //       ...option,
-    //       score: value3.value? Number(option.score) || 0 : 0,
-    //       result:!value3.value? option.result || '' : ''
-    //     }))
-    //   };
-    //    console.log(updatedQuestion);
-    // }
-
-  }
-};
-
-// 增加选项（编辑模式）
-const addOption = (questionId) => {
-  const question = questions.value.find(q => q.id === questionId);
-  console.log(question);
-  nnn.value.options.push({
-    value: '',
-    score: '',
-    result: '',
-  });
-};
-
-// 删除选项（编辑模式）
-const removeOption = (qIndex, oIndex) => {
-  questions.value[qIndex].options.splice(oIndex, 1);
-};
-
-// 保存编辑
-const saveEdit = async (questionId) => {
-  // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
-  const question = nnn.value;
-  // 构造API参数
-  const optionsData = question.options.map((opt, index) => ({
-    key: String.fromCharCode(65 + index),
-    value: opt.value,
-    score: value3.value? Number(opt.score) || 0 : 0,
-    result:!value3.value? opt.result || '' : '',
-    isMultiple: question.isMultiple
-  }));
-console.log(optionsData);
-  const params = {
-    id: question.id.split('-')[0], // 提取原始ID
-    questionContent: [{
-      title: question.text,
-      options: optionsData
-    }]
-  };
-  try {
-    const question = questions.value.find(q => q.id === questionId);
-    console.log(question);
-    if (!question) return;
-
-    // 验证必填字段
-    if (question.text.trim() === '') {
-      ElMessage.error('问题内容不能为空');
-      return;
-    }
-
-    if (question.options.some(option => option.value.trim() === '')) {
-      ElMessage.error('选项内容不能为空');
-      return;
-    }
-
-    // 调用编辑接口
-    const { data } = await editQuestion(params);
-    if (data.code === 0) {
-      ElMessage.success('修改成功');
-      question.editing = false;
-      await renderQuestions();
-    } else {
-      ElMessage.error(data.message || '保存失败');
-    }
-  } catch (error) {
-    console.error('保存失败:', error);
-    ElMessage.error('保存失败，请检查网络连接');
-  }
-};
-
-// 取消编辑
-const cancelEdit = (questionId) => {
-  const question = questions.value.find(q => q.id === questionId);
-  if (question) {
-    question.editing = false;
-  }
-};
+}
+// 组件挂载时加载数据
+onMounted(() => {
+  renderQuestions();
+});
 </script>
-
-
-
 <style scoped>
 .question-item{
 margin-top: 40px;
@@ -450,7 +378,7 @@ left: 500px;
   border-radius: 25px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
+  position: relative;
   padding: 20px;
 }
 

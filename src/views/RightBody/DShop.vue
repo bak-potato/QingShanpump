@@ -94,12 +94,12 @@
 
 <script setup>
 import { ref,onMounted } from 'vue';
-import {listAppVOByPage,} from "@/api/app";
+import {listMyAppVOByPage,} from "@/api/app";
 // 应用列表数据
 const listData = ref([]);
 // 渲染应用列表
 const renderAppList = async() => {
-  const res = await listAppVOByPage({page:null});
+  const res = await listMyAppVOByPage({page:null});
   console.log(res);
   // 赋值给应用列表数据
   // 遍历res.data.data中的reviewMessage

@@ -52,7 +52,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { listQuestionVOByPage ,addUserAnswer} from '@/api/answer';
+import { listQuestionVOByPage ,addUserAnswer,getUserAnswerVOById} from '@/api/answer';
+import { ElMessage } from 'element-plus';
 const router = useRouter();
 const questions = ref([]);
 const currentQuestionIndex = ref(0);
@@ -88,9 +89,6 @@ const listQuestions = async () => {
     console.error('获取题目列表失败:', error);
   }
 };
-onMounted(() => {
-  listQuestions();
-});
 
 // 简化的交互逻辑，实际需根据需求完善
 const isOptionSelected = (index) => {
@@ -128,6 +126,7 @@ const nextQuestion = () => {
     currentQuestionIndex.value++;
   }
 };
+
 const submitQuiz = async () => {
   const id = router.currentRoute.value.query.id;
   const answers = userAnswers.value.map((answer, index) => {
@@ -142,14 +141,34 @@ const submitQuiz = async () => {
     appId: id,
     choices: answers
   };
-
+console.log(data);
   try {
     const res = await addUserAnswer(data);
     console.log(res);
+    goToResult(res.data.data)
+    if (res.data.code === 0) {
+      // 跳出提示框
+      ElMessage({
+        message: '提交成功',
+        type: 'success',
+        duration: 2000
+      })
+    }
   } catch (error) {
     console.error('提交答卷失败:', error);
   }
+
 };
+// 返回评测结果
+const goToResult = async(id) => {
+  const res = await getUserAnswerVOById({id:id});
+  console.log(res);
+}
+onMounted(() => {
+  listQuestions();
+  goToResult()
+});
+
 </script>
 
 <style scoped>

@@ -33,14 +33,14 @@
                     </el-icon> -->
                   </div>
                   <div class="action-buttons">
-                    <el-button type="text" @click="add(questionSet.id)">添加题目</el-button>
-
+                    <el-button type="text" @click="addscoring(questionSet.id)">编辑/查看策略</el-button>
+                    <el-button type="text" @click="add(questionSet.id)">添加/查看题目</el-button>
                     <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
                   </div>
                 </div>
               </div>
-               <!-- 更改键弹出 -->
+               <!-- 应用更改键弹出 -->
               <el-dialog v-model="isEditDialogVisible" title="Tips"  width="500" :before-close="handleClose" :modal="null">
                   <el-form :model="nquestionSet" label-width="120px">
                     <el-form-item label="应用名称">
@@ -65,7 +65,39 @@
                       <el-button type="primary" @click="baocun()"> 保存 </el-button>
                     </div>
                   </template>
-                </el-dialog>
+              </el-dialog>
+
+              <!-- 策略更改键弹出 -->
+            <el-dialog v-model="isScoringDialogVisible" title="策略设置"  width="800" :before-close="handleClose" :modal="null">
+            <div class="policypp" style="position: relative;">
+            <el-form label-width="150px" style="margin-top: 20px; position: relative;">
+            <el-form-item label="评分类型">
+              <el-radio-group >
+                <el-radio label="0" >得分类应用</el-radio>
+                <el-radio label="1" >测评类应用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="分数" >
+              <el-input placeholder="要大于或等于该分数" />
+            </el-form-item>
+            <el-form-item label="属性">
+               <el-select  placeholder="请选择属性" style="width: 100px;size: 100px;" >
+                <el-option />
+               </el-select>
+            </el-form-item>
+             <el-form-item label="结果名称">
+              <el-input  placeholder="输入评分结果的名称"/>
+            </el-form-item>
+            <el-form-item label="结果描述">
+              <el-input  placeholder="输入评分结果的描述"/>
+            </el-form-item>
+             <el-button type="primary" @click="nremovePolicy()" style="position: absolute; left:220px;">删除策略</el-button>
+            </el-form>
+            <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button>
+            <el-button type="primary" @click="nsavePolicy" style="margin-left: 330px;">保存编辑</el-button>
+            <el-button type="primary" style="margin-left: 20px;" @click="isScoringDialogVisible = false">取消</el-button>
+            </div>
+              </el-dialog>
             </div>
           </el-scrollbar>
         </div>
@@ -86,8 +118,8 @@
             </label>
              <div class="tou">
               <el-avatar :size="40" :src="newQuestionSet.avatar" class="profile-avatar" />
-               <el-upload action="#" :show-file-list="false"  :before-upload="handleAvatarUpload" >
-                  <el-button type="Default" size="small" class="mt-2">
+               <el-upload action="/api/common/upload" :show-file-list="false"  :before-upload="handleAvatarUpload" >
+                <el-button type="Default" size="small" class="mt-2">
                 上传照片
               </el-button>
                </el-upload>
@@ -105,44 +137,13 @@
                     <el-input  v-model="newQuestionSet.description" type="textarea"  :rows="3"  placeholder="请输入应用描述（最多200字）" maxlength="200" show-word-limit style="width: 500px;">               </el-input>
                 </el-form-item>
             </div>
-            <!-- <div v-for="(question, qIndex) in newQuestionSet.questions" :key="qIndex" class="question-item">
-              <el-form :model="question" label-width="120px">
-                <el-form-item :label="`问题 ${qIndex + 1}`">
-                  <el-input v-model="question.text" placeholder="请输入问题"></el-input>
-                </el-form-item>
-                <el-form-item label="选项">
-                  <div v-for="(option, index) in question.options" :key="index" class="option-item">
-                    <div class="option-row">
-                      <span class="option-label">{{ getOptionLabel(index) }}</span>
-                      <el-input v-model="option.text" :placeholder="`选项 ${getOptionLabel(index)}`" class="option-input"></el-input>
-                      <el-input v-model="option.score" class="option-input2" placeholder="请输入分数" v-if="value3"></el-input>
-                       <el-input v-model="option.result" class="option-input2" placeholder="请输入属性" v-if="!value3"></el-input>
-                      <el-button
-                        type="danger"
-                        circle
-                        size="small"
-                        @click="removeOption(-1, qIndex, index)"
-                        v-if="index > 0"
-                        class="delete-button"
-                      >
-                        <el-icon>
-                          <img width="20px" src="@/icons/delete.png" style="position: relative;left: 100px;">
-                        </el-icon>
-                      </el-button>
-                    </div>
-                  </div>
-                  <el-button class="cjxx" type="primary" @click="addOption(-1, qIndex)">增加选项</el-button>
-                </el-form-item>
-              </el-form>
-            </div> -->
-            <!-- <el-button type="primary" @click="addQuestion(-1)">增加题目</el-button>
-            <el-button type="primary" @click="removeQuestion(-1)">删除题目</el-button> -->
             <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
 
           </div>
-          <div class="policy">
-            <h2>评分策略设置</h2>
-            <el-form :model="policy" label-width="150px" style="margin-top: 20px;">
+          <div v-if="isShow" class="policy" style="position: relative;">
+            <h2 style="position: absolute;top: 10px;">评分策略设置</h2>
+            <el-form v-for="(policy, pIndex) in policies" :key="pIndex" :model="policy" label-width="150px" style="margin-top: 20px; position: relative;">
+            <h3 style="margin-left:50px;margin-top:60px;">策略 {{ pIndex + 1 }}:</h3>
             <el-form-item label="评分类型">
               <el-radio-group v-model="policy.type">
                 <el-radio label="0" >得分类应用</el-radio>
@@ -157,15 +158,16 @@
                 <el-option v-for="item in resultProp" :key="item" :label="item.label" :value="item"/>
                </el-select>
             </el-form-item>
-
              <el-form-item label="结果名称">
               <el-input v-model="policy.resultName" placeholder="输入评分结果的名称"/>
             </el-form-item>
             <el-form-item label="结果描述">
               <el-input v-model="policy.resultDesc" placeholder="输入评分结果的描述"/>
             </el-form-item>
+             <el-button type="primary" @click="removePolicy(pIndex)" style="position: absolute; left:220px;">删除策略</el-button>
             </el-form>
-            <el-button type="primary" @click="savePolicy(id)" style="margin-left: 150px;">保存策略</el-button>
+            <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button>
+            <el-button type="primary" @click="savePolicy" style="margin-left: 350px;">保存策略</el-button>
           </div>
         </div>
 
@@ -179,18 +181,21 @@ import { ref } from 'vue';
 // import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
 import {addApp, common,listMyAppVOByPage,editApp,deleteApp} from "@/api/app";
+import {listMyScoringResultVOByPage,editScoringResult,deleteScoringResult} from "@/api/scoring";
 import {addScoringResult} from "@/api/scoring";
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 // 评分策略设置
-  const policy = ref({
-    type: '0', // 评分类型
-    appId: 0, // 应用ID
-    resultScoreRange: '', // 分数
-    resultName: '', // 结果名称
-    resultProp:[], // 结果属性
-    resultDesc: '' // 结果描述
-  });
+ const policies = ref([
+  {
+    type: '0',
+    appId: 0,
+    resultScoreRange: null,
+    resultName: '',
+    resultProp: [],
+    resultDesc: ''
+  }
+]);
   // 定义属性
   const resultProp = ref([
     { label: 'I', value: 'I' },
@@ -198,46 +203,78 @@ import { onMounted } from 'vue';
     { label:'T', value: 'T' },
     { label: 'J', value: 'J' }
   ]);
-  // 接口设置
-  const savePolicy = async (id) => {
-    console.log(id);
-    if (!policy.value.resultName.trim()) {
-    ElMessage.error('结果名称不能为空');
-    return;
+  // 添加按钮
+  const addPolicy = () => {
+  // 获取最后一个策略的类型，如果没有则用默认值
+  const lastType = policies.value.length > 0
+    ? policies.value[policies.value.length - 1].type
+    : '0';
+
+  policies.value.push({
+    type: lastType, // 使用最后一个策略的类型
+    appId: id.value,
+    resultScoreRange: '',
+    resultName: '',
+    resultProp: [],
+    resultDesc: ''
+  });
+};
+// 删除按钮
+const removePolicy = (index) => {
+  if (policies.value.length > 1) {
+    policies.value.splice(index, 1);
+  } else {
+    ElMessage.warning('至少保留一个策略');
   }
-  if (!policy.value.resultDesc.trim()) {
-    ElMessage.error('结果描述不能为空');
-    return;
+};
+// 编辑删除
+const nremovePolicy = async() => {
+  const res = await deleteScoringResult()
+  console.log(res);
+}
+  // 提交策略接口设置
+  const savePolicy = async () => {
+  for (const policy of policies.value) {
+    if (!policy.resultName) {
+      ElMessage.error('请填写结果名称和描述');
+      return;
+    }
   }
-  // if(policy.value.type === '0')
-  // {
-  //   if (!policy.value.resultScoreRange.trim()) {
-  //   ElMessage.error('分数不能为空');
-  //   return;
-  //   }
-  // }else {
-  //   if (!policy.value.resultProp.trim()) {
-  //   ElMessage.error('属性不能为空');
-  //   return;
-  //   }
-  // }
-  const params = {
-    type: policy.value.type,
-    appId: id,
-    resultScoreRange: policy.value.resultScoreRange,
-    resultName: policy.value.resultName,
-    resultProp: policy.value.resultProp,
-    resultDesc: policy.value.resultDesc
-  }
-  console.log(params);
+ const requests = policies.value.map(policy =>
+      ({
+        appId: id.value,
+        type: policy.type,
+        resultScoreRange: policy.resultScoreRange,
+        resultName: policy.resultName,
+        resultProp: policy.resultProp,
+        resultDesc: policy.resultDesc
+      })
+    );
+    console.log(requests);
   try {
-    const res = await addScoringResult(params);
+    const res = await addScoringResult(requests);
     console.log(res);
     ElMessage.success('保存成功');
   }catch (error) {
     ElMessage.error('保存失败');
     console.log(error);
   }
+  // 清空
+  policies.value = [
+    {
+      type: '0',
+      appId: 0,
+      resultScoreRange: null,
+      resultName: '',
+      resultProp: [],
+      resultDesc: ''
+    }
+  ]
+}
+//  保存策略编辑
+const nsavePolicy = async () => {
+ const res = await editScoringResult();
+ console.log(res);
 }
 // 弹窗
 const nquestionSet = ref({
@@ -247,6 +284,7 @@ const nquestionSet = ref({
   appIcon: '' // 补充头像字段
 });
 const isEditDialogVisible = ref(false);
+const isScoringDialogVisible = ref(false);
 // 路由传参
 const router = useRouter();
 // 定义一个用于进行路由跳转并传递参数的函数
@@ -265,6 +303,13 @@ const add = (id) => {
         console.error('路由跳转失败:', error);
     }
 };
+// 定义一个用于进行路由跳转并传递参数的函数
+const addscoring = async(id) => {
+    // 打印传入的 id 参数，方便调试
+    isScoringDialogVisible.value = true;
+    const res = await listMyScoringResultVOByPage(id)
+    console.log(res)
+}
 // 定义是评分还是测评
 // const value3 = ref(true)
 // 定义习题集列表
@@ -289,11 +334,6 @@ const newQuestionSet = ref({
   avatar: '',
   description: '' // 新增描述字段
 });
-
-// 获取选项的标签（A、B、C、D...）
-// const getOptionLabel = (index) => {
-//   return String.fromCharCode(65 + index); // 65是'A'的ASCII码
-// };
 
 // 切换创建应用和应用列表
 const handleisshowa = async(show) => {
@@ -347,59 +387,7 @@ const baocun = async () => {
   }
 };
 
-// 取消编辑
-// const cancelEdit = (index) => {
-//   questionSets.value[index].editing = false;
-// };
-
-// 保存题目编辑
-// const saveQuestionEdit = (setIndex, qIndex) => {
-//   const question = questionSets.value[setIndex].questions[qIndex];
-
-//   // 检查问题是否为空
-//   if (question.editText.trim() === '') {
-//     ElMessage.error('问题不能为空');
-//     return;
-//   }
-
-//   // 检查每个选项是否为空
-//   for (const option of question.options) {
-//     if (option.editText.trim() === '') {
-//       ElMessage.error('选项不能为空');
-//       return;
-//     }
-//   }
-
-//   // 检查每个问题是否至少有一个答案
-//   if (!question.options.some(option => option.isAnswer)) {
-//     ElMessage.error('每个问题必须至少有一个答案');
-//     return;
-//   }
-
-//   // 如果所有验证通过，保存编辑
-//   question.text = question.editText;
-//   question.options.forEach(option => {
-//     option.text = option.editText;
-//   });
-//   question.editing = false;
-// };
-
-// 取消题目编辑
-// const cancelQuestionEdit = (setIndex, qIndex) => {
-//   const question = questionSets.value[setIndex].questions[qIndex];
-//   question.editing = false;
-// };
-
-// 删除题目
-// const removeQuestion = (qIndex) => {
-//   if (qIndex === -1) {
-//     newQuestionSet.value.questions.pop();
-//   } else {
-//     questionSets.value[qIndex].questions.splice(qIndex, 1);
-//   }
-// };
 // 保存新应用
-const id = ref()
 const saveQuestionSet = async() => {
   const newSet = newQuestionSet.value;
   // 对接接口
@@ -408,11 +396,12 @@ const saveQuestionSet = async() => {
     appType: newSet.value,
     appIcon: newSet.avatar,
     appDesc: newSet.description,
-    scoringStrategy:1
+    scoringStrategy:0
   }
   console.log(addApi)
  const {data:{code,data}} = await addApp(addApi)
  id.value = data
+ console.log(id.value)
   if(code === 0) {
     ElMessage.success('上传成功');
 
@@ -430,47 +419,6 @@ const saveQuestionSet = async() => {
     ElMessage.error('描述不能为空');
     return;
   }
-  // 检查每个问题是否为空
-  // for (const question of newSet.questions) {
-  //   if (question.text.trim() === '') {
-  //     ElMessage.error('问题不能为空');
-  //     return;
-  //   }
-
-  //   // 检查每个选项是否为空
-  //   for (const option of question.options) {
-  //     if (option.text.trim() === '') {
-  //       ElMessage.error('选项不能为空');
-  //       return;
-  //     }
-  //   }
-  //   // 检查分数是否为空
-  //   for (const option of question.options) {
-  //     if(value3.value) {
-  //       if (option.score.trim() === '') {
-  //         ElMessage.error('分数不能为空');
-  //         return;
-  //       }
-  //     }
-  //     if(!value3.value) {
-  //       if (option.result.trim() === '') {
-  //         ElMessage.error('属性不能为空');
-  //         return;
-  //       }
-  //     }
-  //   }
-
-  //   // 检查每个问题是否至少有一个答案
-  //   if (newSet.value.trim() === '') {
-  //     ElMessage.error('类型不能为空');
-  //     return;
-  //   }
-  //   if (newSet.avatar.trim() === '') {
-  //     ElMessage.error('头像不能为空');
-  //     return;
-  //   }
-
-  // }
 
   // 如果所有验证通过，保存新应用
   // 重置新应用表单
@@ -481,6 +429,7 @@ const saveQuestionSet = async() => {
     value:'',
   };
 };
+const id = ref()
 // 应用列表
 const init = async() => {
     try {
@@ -537,39 +486,77 @@ const deleteQuestionSet = async (appId) => {
     }
 };
 // 上传头像
-const handleAvatarUpload = async(file) => {
-  const isImage = file.type.startsWith('image/')
+const handleAvatarUpload = async (file) => {
+  const isImage = file.type.startsWith('image/');
   if (!isImage) {
-    ElMessage.error('只能上传图片文件')
-    return false
+    ElMessage.error('只能上传图片文件');
+    return false;
   }
-  const formData = new FormData()
-  formData.append('file', file)
-  console.log(11111)
-  const res = await common(formData)
-  newQuestionSet.value.avatar = res.data.data
-  ElMessage.success('上传成功')
-  return true
-
-}
-const tttt = async(file) => {
-  const isImage = file.type.startsWith('image/')
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await common(formData); // 确保 common 内部 URL 正确
+  newQuestionSet.value.avatar = res.data.data;
+  ElMessage.success('上传成功');
+  return true;
+};
+const tttt = async (file) => {
+  const isImage = file.type.startsWith('image/');
   if (!isImage) {
-    ElMessage.error('只能上传图片文件')
-    return false
+    ElMessage.error('只能上传图片文件');
+    return false;
   }
-  const formData = new FormData()
-  formData.append('file', file)
-  console.log(11111)
-  const res = await common(formData)
-  nquestionSet.value.appIcon = res.data.data
-  ElMessage.success('上传成功')
-  return true
-}
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await common(formData); // 确保 common 内部 URL 正确
+  nquestionSet.value.appIcon = res.data.data;
+  ElMessage.success('上传成功');
+  return true;
+};
 </script>
 
-<style scoped>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style scoped>
+.policy-form {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  position: relative;
+
+  h3 {
+    position: absolute;
+    top: -18px;
+    left: 20px;
+    background: white;
+    padding: 0 10px;
+    color: #409eff;
+  }
+}
 .bccas1 {
 position: absolute;
 }
@@ -682,7 +669,6 @@ position: absolute;
 }
 .policy{
     width: 100%;
-    height: 300px;
     margin-top: 20px;
     background-color: rgb(255, 255, 255);
     border: 1px solid #ccc;
@@ -698,6 +684,12 @@ position: absolute;
 .policy:hover {
     /* 鼠标悬停时调整阴影，增强交互效果 */
     box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4), -2px -2px 4px rgba(255, 255, 255, 0.9);
+}
+.policypp {
+   width: 100%;
+    margin-top: 20px;
+    background-color: rgb(255, 255, 255);
+    border: 0px solid #ccc;
 }
 .tou{
   float: left;

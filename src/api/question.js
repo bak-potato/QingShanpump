@@ -5,8 +5,8 @@ export const addQuestion = (data) => {
 export const getQuestionVOById = (data) => {
   return get('/api/question/get/vo', data)
 }
-export const listQuestionVOByPage = (data) => {
-  return post('/api/question/list/page/vo', data)
+export const listMyQuestionVOByPage = (data) => {
+  return post('/api/question/my/list/page/vo', data)
 }
 export const editQuestion = (data) => {
   return post('/api/question/edit', data)
