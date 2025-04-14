@@ -28,9 +28,6 @@
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
                     <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType}})
-                    <!-- <el-icon :class="['arrow-icon', { 'rotate': questionSet.expanded }]">
-                      <ArrowDown />
-                    </el-icon> -->
                   </div>
                   <div class="action-buttons">
                     <el-button type="text" @click="addscoring(questionSet.id)">编辑/查看策略</el-button>
@@ -68,36 +65,92 @@
               </el-dialog>
 
               <!-- 策略更改键弹出 -->
-            <el-dialog v-model="isScoringDialogVisible" title="策略设置"  width="800" :before-close="handleClose" :modal="null">
-            <div class="policypp" style="position: relative;">
-            <el-form label-width="150px" style="margin-top: 20px; position: relative;">
-            <el-form-item label="评分类型">
-              <el-radio-group >
-                <el-radio label="0" >得分类应用</el-radio>
-                <el-radio label="1" >测评类应用</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="分数" >
-              <el-input placeholder="要大于或等于该分数" />
-            </el-form-item>
-            <el-form-item label="属性">
-               <el-select  placeholder="请选择属性" style="width: 100px;size: 100px;" >
-                <el-option />
-               </el-select>
-            </el-form-item>
-             <el-form-item label="结果名称">
-              <el-input  placeholder="输入评分结果的名称"/>
-            </el-form-item>
-            <el-form-item label="结果描述">
-              <el-input  placeholder="输入评分结果的描述"/>
-            </el-form-item>
-             <el-button type="primary" @click="nremovePolicy()" style="position: absolute; left:220px;">删除策略</el-button>
-            </el-form>
-            <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button>
-            <el-button type="primary" @click="nsavePolicy" style="margin-left: 330px;">保存编辑</el-button>
-            <el-button type="primary" style="margin-left: 20px;" @click="isScoringDialogVisible = false">取消</el-button>
-            </div>
-              </el-dialog>
+             <!-- 策略更改键弹出 -->
+<el-dialog v-model="isScoringDialogVisible" title="策略设置" width="800" :before-close="handleClose" :modal="null">
+  <div class="policypp" style="position: relative;">
+    <!-- 遍历编辑中的策略数据 -->
+    <el-form
+      v-for="(policy, pIndex) in editPolicies"
+      :key="pIndex"
+      :model="policy"
+      label-width="150px"
+      style="margin-top: 20px; position: relative;"
+    >
+      <h3 style="margin-left:50px;margin-top:60px;">策略 {{ pIndex + 1 }}:</h3>
+      <el-form-item label="评分类型">
+        <el-radio-group v-model="policy.type">
+          <el-radio label="0">得分类应用</el-radio>
+          <el-radio label="1">测评类应用</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="分数" v-if="policy.type === '0'">
+        <el-input
+          v-model="policy.resultScoreRange"
+          placeholder="要大于或等于该分数"
+        />
+      </el-form-item>
+      <el-form-item label="属性" v-if="policy.type === '1'">
+        <el-select
+          v-model="policy.resultProp"
+          placeholder="请选择属性"
+          style="width: 100px"
+          multiple
+        >
+          <!-- 假设 resultProp 是选项数组，如 [{ label: 'I', value: 'I' }] -->
+          <el-option
+            v-for="item in resultProp"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="结果名称">
+        <el-input
+          v-model="policy.resultName"
+          placeholder="输入评分结果的名称"
+        />
+      </el-form-item>
+      <el-form-item label="结果描述">
+        <el-input
+          v-model="policy.resultDesc"
+          placeholder="输入评分结果的描述"
+          type="textarea"
+          :rows="3"
+        />
+      </el-form-item>
+      <el-button
+        type="primary"
+        @click="nremovePolicy(pIndex)"
+        style="position: relative; top:52px; left: 310px;"
+      >
+        删除策略
+      </el-button>
+    </el-form>
+    <!-- 添加策略按钮（保持在表单外） -->
+    <el-button
+      type="primary"
+      @click="addPolicy()"
+      style="position: relative; top:10px;left:200px;"
+    >
+      添加策略
+    </el-button>
+    <el-button
+      type="primary"
+      @click="nsavePolicy()"
+      style="margin-left: 330px; margin-top: 20px;"
+    >
+      保存编辑
+    </el-button>
+    <el-button
+      type="primary"
+      style="margin-left: 20px; margin-top: 20px;"
+      @click="isScoringDialogVisible = false"
+    >
+      取消
+    </el-button>
+  </div>
+</el-dialog>
             </div>
           </el-scrollbar>
         </div>
@@ -232,45 +285,52 @@ const nremovePolicy = async() => {
   const res = await deleteScoringResult()
   console.log(res);
 }
-  // 提交策略接口设置
-  const savePolicy = async () => {
-  for (const policy of policies.value) {
-    if (!policy.resultName) {
-      ElMessage.error('请填写结果名称和描述');
-      return;
+// 存储编辑中的策略数据（从接口获取）
+const editPolicies = ref([]);
+// 提交策略接口设置
+const savePolicy = async () => {
+    for (const policy of policies.value) {
+        if (!policy.resultName) {
+            ElMessage.error('请填写结果名称和描述');
+            return;
+        }
     }
-  }
- const requests = policies.value.map(policy =>
-      ({
-        appId: id.value,
-        type: policy.type,
-        resultScoreRange: policy.resultScoreRange,
-        resultName: policy.resultName,
-        resultProp: policy.resultProp,
-        resultDesc: policy.resultDesc
-      })
-    );
+    const requests = policies.value.map(policy => {
+        let resultPropValue = [];
+        if (policy.type === '1' && Array.isArray(policy.resultProp)) {
+            // 确保 resultProp 以 ["I"] 这种格式输出
+            resultPropValue = policy.resultProp.map(item => item.value || item);
+        }
+        return {
+            appId: id.value,
+            type: policy.type,
+            resultScoreRange: policy.resultScoreRange,
+            resultName: policy.resultName,
+            resultProp: resultPropValue,
+            resultDesc: policy.resultDesc
+        };
+    });
     console.log(requests);
-  try {
-    const res = await addScoringResult(requests);
-    console.log(res);
-    ElMessage.success('保存成功');
-  }catch (error) {
-    ElMessage.error('保存失败');
-    console.log(error);
-  }
-  // 清空
-  policies.value = [
-    {
-      type: '0',
-      appId: 0,
-      resultScoreRange: null,
-      resultName: '',
-      resultProp: [],
-      resultDesc: ''
+    try {
+        const res = await addScoringResult(requests);
+        console.log(res);
+        ElMessage.success('保存成功');
+    } catch (error) {
+        ElMessage.error('保存失败');
+        console.log(error);
     }
-  ]
-}
+    // 清空
+    policies.value = [
+        {
+            type: '0',
+            appId: 0,
+            resultScoreRange: null,
+            resultName: '',
+            resultProp: [],
+            resultDesc: ''
+        }
+    ];
+};
 //  保存策略编辑
 const nsavePolicy = async () => {
  const res = await editScoringResult();
@@ -304,12 +364,29 @@ const add = (id) => {
     }
 };
 // 定义一个用于进行路由跳转并传递参数的函数
-const addscoring = async(id) => {
-    // 打印传入的 id 参数，方便调试
-    isScoringDialogVisible.value = true;
-    const res = await listMyScoringResultVOByPage(id)
-    console.log(res)
-}
+const addscoring = async (id) => {
+  console.log('传递的问题 ID 为:', id);
+  isScoringDialogVisible.value = true;
+  try {
+    const res = await listMyScoringResultVOByPage({ appId: id });
+    const records = res.data.data.records;
+    console.log(records);
+    if (records.length > 0) {
+      // 假设 records 是一个包含策略数据的数组
+      editPolicies.value = records.map(record => ({
+        appId: record.appId,
+        resultScoreRange: record.resultScoreRange,
+        resultName: record.resultName,
+        resultProp: record.resultProp,
+        resultDesc: record.resultDesc
+      }))
+      console.log(editPolicies.value);
+    }
+  } catch (error) {
+    console.error('获取策略数据失败:', error);
+    ElMessage.error('获取策略数据失败，请重试');
+  }
+};
 // 定义是评分还是测评
 // const value3 = ref(true)
 // 定义习题集列表

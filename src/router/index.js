@@ -103,6 +103,11 @@ const router = createRouter({
           name: 'ForumManView',
           component: () => import('../views/AdminManage/ForumManView.vue'),
           meta: { requiresAuth: true, requiresAdmin: true }
+        },
+        {
+          path: 'AnswerIns',
+          name: 'AnswerIns',
+          component: () => import('../views/RightBody/AnswerIns.vue'),
         }
       ],
     },

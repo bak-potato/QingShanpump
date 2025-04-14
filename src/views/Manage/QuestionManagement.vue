@@ -11,7 +11,7 @@
           <div v-else>
             <div v-for="question in questions" :key="question.id" class="scrollbar-demo-item">
               <div class="question-header">
-                <div class="question-text" @click="toggleQuestion(question.contentId)">
+                <div class="question-text" @click="toggleQuestion(question.title)">
                   {{ question.title }}
                   <el-icon :class="['arrow-icon', { 'rotate': question.expanded }]">
                     <ArrowDown />
@@ -20,7 +20,7 @@
                 <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.id)">修改</el-button>
                 <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.id)">删除</el-button>
               </div>
-
+              <!-- 展开状态 -->
               <div v-if="question.expanded" class="question-details">
                 <ul class="option-list">
                   <li v-for="(option, index) in question.options" :key="index">
@@ -32,7 +32,7 @@
                   </li>
                 </ul>
               </div>
-
+             <!-- 修改题目 -->
               <div v-if="question.editing" class="edit-section">
                 <el-form :model="nnn" label-width="120px">
                   <el-form-item label="问题">
@@ -71,11 +71,6 @@
           </div>
         </el-scrollbar>
       </div>
-
-
-
-
-
 
       <h2>创建题目</h2>
       <div class="lastf1">
@@ -308,8 +303,8 @@ const renderQuestions = async () => {
     // 确保每个题目有唯一 id 和正确的状态字段
     const processedQuestions = rawQuestions.flatMap(record => {
       return record.questionContent.map(content => ({
-        id: record.id, // 题目唯一标识
-        contentId: `${Date.now()}`, // 新增唯一内容ID
+        id: record.id, // 总的ID
+        // 新增每个题目唯一id
         title: content.title,
         options: content.options.map(option => ({ ...option })),
         expanded: false, // 展开状态
@@ -323,8 +318,8 @@ const renderQuestions = async () => {
   }
 };
 // 展开/收起
-const toggleQuestion = (contentId) => {
-  const question = questions.value.find(q => q.contentId === contentId);
+const toggleQuestion = (title) => {
+  const question = questions.value.find(q => q.title === title);
   console.log(question);
   if (question) {
     question.expanded = !question.expanded;

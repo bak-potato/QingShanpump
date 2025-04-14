@@ -162,11 +162,63 @@ console.log(data);
 // 返回评测结果
 const goToResult = async(id) => {
   const res = await getUserAnswerVOById({id:id});
-  console.log(res);
+    router.push({
+      path: '/AnswerIns',
+      query: {
+        resultDesc:res.data.data.resultDesc,
+        resultName:res.data.data.resultName
+      }
+    });
+  console.log(res.data.data);
+  console.log(res.data.data.resultName);
+
 }
+// const submitQuiz = async () => {
+
+//   const id = router.currentRoute.value.query.id;
+//   const answers = userAnswers.value.map((answer, index) => {
+//     const question = questions.value[index];
+//     if (question.isMultiple) {
+//       return answer ? answer.map(i => optionLabels[i]).join(',') : '';
+//     }
+//     return answer !== null ? optionLabels[answer] : '';
+//   });
+
+//   const data = {
+//     appId: id,
+//     choices: answers
+//   };
+//   console.log(data);
+//   try {
+//     const res = await addUserAnswer(data);
+//     console.log(res);
+//     // 路由跳转并传递参数
+//     router.push({
+//       path: '/AnswerIns',
+//       query: {
+//         result:res.data.data
+//       }
+//     });
+
+//     if (res.data.code === 0) {
+//       ElMessage({
+//         message: '提交成功',
+//         type: 'success',
+//         duration: 2000
+//       });
+//     }
+//   } catch (error) {
+//     console.error('提交答卷失败:', error);
+//     ElMessage({
+//       message: '提交失败',
+//       type: 'error',
+//       duration: 2000
+//     });
+//   }
+// };
+
 onMounted(() => {
   listQuestions();
-  goToResult()
 });
 
 </script>
