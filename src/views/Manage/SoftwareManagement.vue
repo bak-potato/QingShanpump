@@ -287,7 +287,7 @@ const nremovePolicy = async() => {
 }
 // 存储编辑中的策略数据（从接口获取）
 const editPolicies = ref([]);
-// 提交策略接口设置
+// 保存策略
 const savePolicy = async () => {
     for (const policy of policies.value) {
         if (!policy.resultName) {
@@ -297,27 +297,32 @@ const savePolicy = async () => {
     }
     const requests = policies.value.map(policy => {
         let resultPropValue = [];
-        if (policy.type === '1' && Array.isArray(policy.resultProp)) {
-            // 确保 resultProp 以 ["I"] 这种格式输出
-            resultPropValue = policy.resultProp.map(item => item.value || item);
+        console.log('Before transformation, policy.resultProp:', policy.resultProp);
+        if (policy.type === '1') {
+            if (Array.isArray(policy.resultProp)) {
+                resultPropValue = policy.resultProp.map(item => item.value || item);
+            } else if (typeof policy.resultProp === 'object' && policy.resultProp!== null) {
+                // 如果是对象，将其值添加到数组中
+                resultPropValue = [policy.resultProp.value || policy.resultProp];
+            }
         }
         return {
             appId: id.value,
             type: policy.type,
-            resultScoreRange: policy.resultScoreRange,
+            resultScoreRange: policy.resultScoreRange || 0,
             resultName: policy.resultName,
             resultProp: resultPropValue,
             resultDesc: policy.resultDesc
         };
     });
-    console.log(requests);
+    console.log('savePolicy requests:', requests);
     try {
         const res = await addScoringResult(requests);
         console.log(res);
         ElMessage.success('保存成功');
     } catch (error) {
         ElMessage.error('保存失败');
-        console.log(error);
+        console.error('savePolicy error:', error);
     }
     // 清空
     policies.value = [

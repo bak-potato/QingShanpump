@@ -531,11 +531,9 @@ h2 {
   margin: 0px auto;
   margin-top: 1vh;
 }
-
 .arrow-icon {
   transition: transform 0.3s;
 }
-
 .rotate {
   transform: rotate(180deg);
 }

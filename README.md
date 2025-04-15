@@ -1,35 +1,78 @@
-# qingshanrobot
+# 1.项目概述
 
-This template should help get you started developing with Vue 3 in Vite.
+## 1.1 项目简介
 
-## Recommended IDE Setup
+​	**青山之行平台** 是一个集题目创作、答题练习与知识分享于一体的综合性学习社区，旨在为用户提供高效、互动的学习体验。
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+**核心功能**：
 
-## Customize configuration
+**1.智能题库系统**
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+   - **自由创作**：用户可灵活创建/编辑题目集合(支持多种题型)，同时也可以使用项目内提供的AI出题功能，构建个性化知识库。
+   - **答题训练**：提供模拟测试，错题回顾等功能，强化学习效果。
 
-## Project Setup
+**2.开放共享平台**
 
-```sh
-pnpm install
-```
+- 支持用户上传/分享题目资源，促进知识协作与传播。
 
-### Compile and Hot-Reload for Development
+**3.互动学习社区**
 
-```sh
-pnpm dev
-```
+- 论坛板块支持发帖讨论、经验分享，打造学习者互助生态。
 
-### Compile and Minify for Production
+## 1.2 前端技术栈
 
-```sh
-pnpm build
-```
+### 1.2.1 核心框架
+- **Vue.js 3** (^3.5.13) - 渐进式 JavaScript 框架，采用响应式数据绑定和组件化开发模式
+- **Vue Router 4** (^4.5.0) - 官方路由管理库，实现 SPA 的无刷新路由跳转
+- **Pinia** (^3.0.1) - 新一代 Vue 状态管理库，提供类型安全且简洁的 API
 
-### Lint with [ESLint](https://eslint.org/)
+### 1.2.2 UI 组件库
+- **Element Plus** (^2.9.6) - 基于 Vue 3 的企业级桌面端组件库
+- **Element Plus Icons** (^2.3.1) - 配套图标集合
 
-```sh
-pnpm lint
-```
+### 1.2.3 数据可视化
+- **ECharts** (^5.6.0) - 百度开源的高性能图表库
+
+### 1.2.4 富文本编辑
+- **md-editor-v3** (^5.4.5) - Markdown 编辑器组件
+
+### 1.2.4 工具库
+- **HTTP 客户端**: axios (^1.8.4)
+- **日期处理**: 
+  - date-fns (^4.1.0) - 模块化日期工具
+  - dayjs (^1.11.13) - 轻量日期库
+- **URL 处理**: qs (^6.14.0)
+- **工具函数**: @vueuse/core (^13.0.0) - Vue 组合式 API 工具集
+
+### 1.2.5 构建工具
+- **Vite** (^6.2.1) - 下一代前端构建工具
+  - @vitejs/plugin-vue (^5.2.1) - Vue 官方插件
+  - vite-plugin-vue-devtools (^7.7.2) - 开发调试工具
+
+### 1.2.6 代码质量
+- **代码检查**: 
+  - ESLint (^9.21.0) + @eslint/js + eslint-plugin-vue
+- **代码格式化**: Prettier node
+
+### 1.2.7 样式预处理
+- **Less** (^4.2.2) - CSS 预处理器
+
+## 1.3 开发环境
+
+### 1.3.1 运行环境与包管理器
+
+- **node.js(22.12.0)** ：是 JavaScript 在服务器端的运行环境，提供了一系列工具和库。很多前端构建工具、包管理器都依赖它。可到 Node.js 官网下载安装包进行安装 ，安装后自带包管理器 npm。若需管理多个 Node.js 版本，可使用 nvm（Windows 系统用 nvm - windows ，macOS 和 Linux 可参考 GitHub 安装）。
+- **包管理器**：
+  - **pnpm **：占用磁盘空间少，安装速度快，在管理项目依赖时更高效 ，适合大型项目或对依赖管理要求高的场景。
+
+### 1.3.2 代码编辑工具
+
+- **Visual Studio Code**(VS Code)：最受欢迎的开源代码编辑器之一。插件丰富，能满足前端开发各类需求；内置终端方便运行命令；具备智能感知，可代码补全、语法高亮、提示错误。(主推编辑器)
+  - 必备插件
+    - Vue Language Features(Volar)
+    - ESlint
+    - Prettier
+    - Element Plus snippets
+- 其他可选：**WebStorm**、**HBuilderX**等。
+
+### 1.3.3 浏览器调试工具

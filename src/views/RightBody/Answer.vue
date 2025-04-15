@@ -143,6 +143,7 @@ const submitQuiz = async () => {
   };
 console.log(data);
   try {
+    console.log('data',data)
     const res = await addUserAnswer(data);
     console.log(res);
     goToResult(res.data.data)

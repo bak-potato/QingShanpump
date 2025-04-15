@@ -9,9 +9,7 @@
     </div>
 
     <div class="result-card" :class="resultClass">
-      <div class="result-icon">
-        <i :class="iconClass"></i>
-      </div>
+
       <div class="result-content">
         <h2>{{ resultTitle }}</h2>
         <p class="result-desc">{{ resultDescription || resultDesc }}</p>
@@ -30,8 +28,8 @@
           <div class="question-info">
             <span class="question-number">第{{ index + 1 }}题</span>
             <span class="question-status">
-              <i :class="answer.isCorrect ? 'el-icon-success' : 'el-icon-error'"></i>
-              {{ answer.isCorrect ? '正确' : '错误' }}
+              <i :class="answer.isCorrect? 'el-icon-check' : 'el-icon-close'" style="color: #00bfa5;"></i>
+              {{ answer.isCorrect? '正确' : '错误' }}
             </span>
           </div>
           <div class="question-detail" v-if="answer.explanation">
@@ -99,21 +97,9 @@ const resultTitle = computed(() => {
     return '继续努力！'
   }
 })
-
-const iconClass = computed(() => {
-  if (scorePercentage.value >= 80) {
-    return 'el-icon-trophy'
-  } else if (scorePercentage.value >= 60) {
-    return 'el-icon-star-on'
-  } else {
-    return 'el-icon-warning-outline'
-  }
-})
-
 const handleRetry = () => {
   emit('retry')
 }
-
 const handleShare = () => {
   // 分享逻辑
   console.log('分享功能已触发')
@@ -126,40 +112,45 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 保持原有的样式不变 */
+/* 浅蓝色风格美化 */
 .result-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  animation: fadeIn 0.5s ease-in-out;
+  width: 1400px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #e6f7ff 0%, #ffffff 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2.5rem;
 }
 
 .header h1 {
-  color: #333;
-  font-size: 28px;
-  margin-bottom: 20px;
+  color: #1f497d;
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .progress-container {
-  height: 30px;
-  background-color: #f5f5f5;
-  border-radius: 15px;
+  height: 48px;
+  background: #d9eefc;
+  border-radius: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .progress-bar {
   height: 100%;
-  border-radius: 15px;
-  background: linear-gradient(90deg, #4CAF50, #8BC34A);
-  transition: width 1s ease-in-out;
+  border-radius: 24px;
+  background: linear-gradient(90deg, #0099ff 0%, #00c2ff 100%);
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
   position: relative;
 }
 
@@ -168,176 +159,223 @@ onMounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #333;
-  font-weight: bold;
+  color: #1f497d;
+  font-weight: 600;
+  font-size: 1.1rem;
   z-index: 1;
 }
 
 .result-card {
   display: flex;
   align-items: center;
-  padding: 25px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
+  padding: 2rem;
+  border-radius: 14px;
+  margin-bottom: 2.5rem;
+  background: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
 }
 
 .result-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .result-card.excellent {
-  background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-  border-left: 5px solid #00bcd4;
+  background: linear-gradient(135deg, #e6f7ff 0%, #d0f0ff 100%);
+  border-left: 6px solid #0099ff;
 }
 
 .result-card.good {
-  background: linear-gradient(135deg, #fff8e1, #ffecb3);
-  border-left: 5px solid #ffc107;
+  background: linear-gradient(135deg, #e0f5ff 0%, #c7e8ff 100%);
+  border-left: 6px solid #00bfff;
 }
 
 .result-card.poor {
-  background: linear-gradient(135deg, #ffebee, #ffcdd2);
-  border-left: 5px solid #f44336;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+  border-left: 6px solid #8db6e3;
 }
 
 .result-icon {
-  margin-right: 20px;
+  margin-right: 1.8rem;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .result-icon i {
-  font-size: 50px;
+  font-size: 2.5rem;
 }
 
-.result-card.excellent .result-icon i {
-  color: #00bcd4;
+.result-card.excellent .result-icon {
+  background: linear-gradient(135deg, #c6e2ff 0%, #a0d4ff 100%);
+  color: #007aff;
 }
 
-.result-card.good .result-icon i {
-  color: #ffc107;
+.result-card.good .result-icon {
+  background: linear-gradient(135deg, #b9e8ff 0%, #88d0ff 100%);
+  color: #0099ff;
 }
 
-.result-card.poor .result-icon i {
-  color: #f44336;
+.result-card.poor .result-icon {
+  background: linear-gradient(135deg, #d6e8ff 0%, #b3d2ff 100%);
+  color: #8db6e3;
 }
 
 .result-content h2 {
-  margin: 0 0 10px 0;
-  color: #333;
+  margin: 0 0 0.8rem 0;
+  color: #1f497d;
+  font-size: 1.6rem;
+  font-weight: 600;
 }
 
 .result-desc {
   margin: 0;
-  color: #666;
+  color: #6c757d;
   line-height: 1.6;
+  font-size: 1rem;
 }
 
 .detail-section {
-  margin-bottom: 30px;
+  margin-bottom: 2.5rem;
 }
 
 .detail-section h3 {
-  color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+  color: #1f497d;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 500;
 }
 
 .answer-list {
   display: grid;
-  grid-gap: 15px;
+  grid-gap: 1rem;
 }
 
 .answer-item {
-  padding: 15px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: white;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid transparent;
 }
 
 .answer-item:hover {
-  transform: translateX(5px);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
 .answer-item.correct {
-  border-left: 4px solid #4CAF50;
+  border-left-color: #00bfff;
+  background: rgba(0, 191, 255, 0.03);
 }
 
 .answer-item.incorrect {
-  border-left: 4px solid #f44336;
+  border-left-color: #ff3b30;
+  background: rgba(255, 59, 48, 0.03);
 }
 
 .question-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-weight: bold;
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+  color: #495057;
 }
 
 .question-number {
-  color: #333;
+  color: #495057;
 }
 
 .question-status {
   display: flex;
   align-items: center;
+  font-size: 0.95rem;
 }
 
 .question-status i {
-  margin-right: 5px;
+  margin-right: 0.5rem;
 }
 
-.el-icon-success {
-  color: #4CAF50;
+.el-icon-check {
+  color: #00bfff;
 }
 
-.el-icon-error {
-  color: #f44336;
+.el-icon-close {
+  color: #ff3b30;
 }
 
 .question-detail {
-  color: #666;
+  color: #6c757d;
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
 button {
-  padding: 12px 25px;
+  padding: 0.8rem 2rem;
   border: none;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+button:focus:not(:active)::after {
+  animation: ripple 0.6s ease-out;
 }
 
 .retry-btn {
-  background-color: #2196F3;
+  background: linear-gradient(135deg, #0099ff 0%, #00c2ff 100%);
   color: white;
 }
 
 .retry-btn:hover {
-  background-color: #0d8bf2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 153, 255, 0.3);
 }
 
 .share-btn {
-  background-color: #FF9800;
+  background: linear-gradient(135deg, #a1c4ff 0%, #c2e9ff 100%);
   color: white;
 }
 
 .share-btn:hover {
-  background-color: #f57c00;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(161, 196, 255, 0.3);
 }
 
 @keyframes fadeIn {
@@ -351,20 +389,45 @@ button {
   }
 }
 
-@media (max-width: 600px) {
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+@media (max-width: 768px) {
+  .result-container {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
   .result-card {
     flex-direction: column;
     text-align: center;
+    padding: 1.5rem;
   }
 
   .result-icon {
     margin-right: 0;
-    margin-bottom: 15px;
+    margin-bottom: 1.2rem;
   }
 
   .action-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: 1rem;
   }
 
   button {
