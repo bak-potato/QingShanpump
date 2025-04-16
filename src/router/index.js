@@ -5,12 +5,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('../views/HomeView.vue'),
+      component: () => import('../layout/HomeView.vue'),
       children: [
         {
           path: '',
           name: 'home',
-          component: () => import('../views/MainContent.vue'),
+          component: () => import('../layout/MainContent.vue'),
           meta: { requiresAuth: true }
         },
         {
@@ -65,7 +65,7 @@ const router = createRouter({
         {
           path: 'user',
           name: 'user',
-          component: () => import('../views/UserView.vue'),
+          component: () => import('../views/UserBody/userContent/UserView.vue'),
           meta: { requiresAuth: true }
         },
         {
@@ -114,17 +114,17 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      component: () => import('../views/UserBody/userLogin/LoginView.vue'),
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/RegisterView.vue'),
+      component: () => import('../views/UserBody/userRegister/RegisterView.vue'),
     },
     {
       path: '/PhoneVue',
       name: 'PhoneVue',
-      component: () => import('../components/PhoneVue.vue'),
+      component: () => import('../views/PhoneVue/PhoneVue.vue'),
     }
     ,
     {

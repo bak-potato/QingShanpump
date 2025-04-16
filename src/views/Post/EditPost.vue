@@ -44,7 +44,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getPostByIdApi, editPostApi } from '@/api/post';
 import { useRouter } from 'vue-router';
-import MdEditor from '@/components/MdEditor.vue'
+import MdEditor from '@/components/editor/MdEditor.vue'
 
 const router = useRouter()
 // 表单数据

@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/block-lang -->
 <script setup>
-import { ref, defineProps } from 'vue';
+import {  defineProps } from 'vue';
 import { MdPreview, MdCatalog } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
 

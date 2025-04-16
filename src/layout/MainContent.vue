@@ -13,9 +13,9 @@
 </template>
 
 <script setup>
-import TopCenter from './RightBody/TopCenter.vue'
-import NewGuide from './RightBody/NewGuide.vue'
-import LastGuide from './RightBody/LastGuide.vue'
+import TopCenter from '@/views/RightBody/TopCenter.vue'
+import NewGuide from '@/views/RightBody/NewGuide.vue'
+import LastGuide from '@/views/RightBody/LastGuide.vue'
 </script>
 
 <style scoped>

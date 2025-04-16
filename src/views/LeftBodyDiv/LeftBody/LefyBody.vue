@@ -2,41 +2,41 @@
   <div class="lefybodybody">
     <div class="lefybody">
       <div class="leftbody2">
-        <img class="clickable fclass" width="30px" src="../icons/50309213222.png" />
-        <img class="fclass2 clickable" width="30px" src="../icons/chuangjian.png" />
+        <img class="clickable fclass" width="30px" src="/src/icons/50309213222.png" />
+        <img class="fclass2 clickable" width="30px" src="/src/icons/chuangjian.png" />
         <hr />
         <div @click="handleview0" :class="['fc3body', { fc3bodyover: view === 0 }]" class="clickable">
-          <img class="fclass3" width="20px" src="../icons/zhuye.png" />
+          <img class="fclass3" width="20px" src="/src/icons/zhuye.png" />
           <p>主页</p>
         </div>
         <div @click="handleview1" :class="['fc3body', { fc3bodyover: view === 1 }]" class="clickable">
-          <img class="fclass3" width="20px" src="../icons/duowenjianjia.png" />
+          <img class="fclass3" width="20px" src="/src/icons/duowenjianjia.png" />
           <p>工作空间</p>
         </div>
         <div @click="handleview2" :class="['fc3body', { fc3bodyover: view === 2 }]" class="clickable">
-          <img class="fclass3" width="20px" src="../icons/shangdian.png" />
+          <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
           <p>商店</p>
         </div>
         <div @click="handleview3" :class="['fc3body', { fc3bodyover: view === 3 }]" class="clickable">
-          <img class="fclass3" width="20px" src="../icons/shangdian.png" />
+          <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
           <p>社区</p>
         </div>
 
         <div class="bodyl">
           <div @click="handleviewmanage" v-if="userRole === 'admin'" class="last1 clickable tooltip-container">
-            <img width="20px" src="../icons/houtaiguanli-houtaiguanli.png" />
+            <img width="20px" src="/src/icons/houtaiguanli-houtaiguanli.png" />
             <div class="tooltip">后台管理系统</div>
           </div>
           <div class="last1 clickable tooltip-container">
-            <img width="20px" src="../icons/shiyongwendang.png" />
+            <img width="20px" src="/src/icons/shiyongwendang.png" />
             <div class="tooltip">使用文档</div>
           </div>
           <div class="last1 clickable tooltip-container">
-            <img width="20px" src="../icons/xiaoxi.png" />
+            <img width="20px" src="/src/icons/xiaoxi.png" />
             <div class="tooltip">消息提醒</div>
           </div>
           <div class="last1 clickable tooltip-container">
-            <img width="20px" src="../icons/yijiangoumai.png" />
+            <img width="20px" src="/src/icons/yijiangoumai.png" />
             <div class="tooltip">了解更多</div>
           </div>
           <div @click="handleviewlast1" class="last1 clickable tooltip-container">
@@ -61,12 +61,12 @@
 </template>
 
 <script setup>
-import LeftBDiv0 from './LeftBodyDiv/LeftBDiv0.vue';
-import LeftBDiv1 from './LeftBodyDiv/LeftBDiv1.vue';
-import LeftBDiv2 from './LeftBodyDiv/LeftBDiv2.vue';
-import LeftBDiv3 from './LeftBodyDiv/LeftBDiv3.vue';
-import LeftBDiv100 from './LeftBodyDiv/LeftBDiv100.vue';
-import LeftBDiv99 from './LeftBodyDiv/LeftBDiv99.vue';
+import LeftBDiv0 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv0.vue';
+import LeftBDiv1 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv1.vue';
+import LeftBDiv2 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv2.vue';
+import LeftBDiv3 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv3.vue';
+import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
+import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {getLoginUser} from '@/api/user.js';

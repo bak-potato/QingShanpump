@@ -90,7 +90,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getPostByIdApi } from '@/api/post';
-import PreviewOnly from '@/components/PreviewOnly.vue'
+import PreviewOnly from '@/components/editor/PreviewOnly.vue'
 
 const router = useRouter();
 

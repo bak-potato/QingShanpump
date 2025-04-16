@@ -13,6 +13,6 @@
 </template>
 
 <script setup>
-import LefyBody from './LefyBody.vue'
+import LefyBody from '@/views/LeftBodyDiv/LeftBody/LefyBody.vue'
 // import MainContent from './MainContent.vue'  // 导入新组件
 </script>

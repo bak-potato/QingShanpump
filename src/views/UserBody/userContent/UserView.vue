@@ -281,12 +281,12 @@ import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import UserE from './UserBody/UserE.vue'
-import { getLoginUser } from '../api/user.js'
-import { updateUserInfo } from '../api/user.js'
-import { userLogout,commonController } from '../api/user.js'
-import {listMyAppVOByPage} from '../api/app.js'
-import {deleteApp} from '../api/app.js'
+import UserE from '../../../components/user/UserExcel.vue'
+import { getLoginUser } from '../../../api/user.js'
+import { updateUserInfo } from '../../../api/user.js'
+import { userLogout,commonController } from '../../../api/user.js'
+import {listMyAppVOByPage} from '../../../api/app.js'
+import {deleteApp} from '../../../api/app.js'
 
 const router = useRouter()
 // 用户信息数据
@@ -572,7 +572,6 @@ const handleDeleteApp = async (index) => {
   margin-bottom: 12px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
   overflow: hidden;
 }
 
