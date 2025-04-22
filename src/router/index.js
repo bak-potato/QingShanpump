@@ -119,6 +119,11 @@ const router = createRouter({
           path: 'AnswerIns',
           name: 'AnswerIns',
           component: () => import('../views/RightBody/AnswerIns.vue'),
+        },
+        {
+          path: 'AIGirlfriend',
+          name: 'AIGirlfriend',
+          component: () => import('../views/bookmark/AIGirlfriend.vue'),
         }
       ],
     },
@@ -152,7 +157,7 @@ const router = createRouter({
       name: 'NotFound',
       component: () => import('../views/errors/404Vue.vue'),
     },
-   
+
   ],
 });
 

@@ -59,7 +59,7 @@
         <LeftBDiv3 v-if="view === 3" />
         <LeftBDiv100 v-if="view === 100" />
         <LeftBDiv99 v-if="view === 99" />
-
+        <LeftBDiv98 v-if="view === 98" />
 
       </div>
     </div>
@@ -73,6 +73,7 @@ import LeftBDiv2 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv2.vue';
 import LeftBDiv3 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv3.vue';
 import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
 import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
+import LeftBDiv98 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv98.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLoginUser } from '@/api/user.js';
