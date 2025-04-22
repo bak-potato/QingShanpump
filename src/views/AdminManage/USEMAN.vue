@@ -207,27 +207,24 @@ const paginatedList = computed(() => {
 
 const handleSearchById = async () => {
   if (!searchId.value) {
-    handleSearch() // 如果搜索框为空，则执行普通搜索
+    handleSearch()
     return
   }
 
   loading.value = true
   try {
     const response = await getuserbyid({ id: searchId.value })
-    console.log('搜索响应:', response.data)
     if (response.data.code === 0) {
-      // 将搜索结果放入数组，以便表格显示
       userList.value = response.data.data ? [response.data.data] : []
-      // 确保totalCount是整数
-      totalCount.value = response.data.data.total
-      currentPage.value = 1 // 重置到第一页
+      totalCount.value = response.data.data ? 1 : 0 // 确保总条数为1或0
+      currentPage.value = 1
     } else {
       userList.value = []
       totalCount.value = 0
       ElMessage.warning(response.data.message || '未找到匹配的用户')
     }
   } catch (error) {
-    console.error('搜索出错:', error)
+    console.log('搜索出错:', error)
     ElMessage.error('搜索出错，请检查网络或联系管理员')
   } finally {
     loading.value = false
@@ -272,14 +269,21 @@ const handleSearch = async () => {
 const handleSizeChange = (newSize) => {
   pageSize.value = newSize
   currentPage.value = 1
-  handleSearch()
+  if (searchId.value) {
+    handleSearchById()
+  } else {
+    handleSearch()
+  }
 }
 
 const handleCurrentChange = (newPage) => {
   currentPage.value = newPage
-  handleSearch()
+  if (searchId.value) {
+    handleSearchById()
+  } else {
+    handleSearch()
+  }
 }
-
 // 用户状态切换
 const toggleStatus = async (user) => {
   loading.value = true

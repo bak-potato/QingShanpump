@@ -30,7 +30,7 @@
                     <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType}})
                   </div>
                   <div class="action-buttons">
-                    <el-button type="text" @click="addscoring(questionSet.id)">编辑/查看策略</el-button>
+                    <el-button type="text" @click="addscoring(questionSet.id)">查看策略</el-button>
                     <el-button type="text" @click="add(questionSet.id)">添加/查看题目</el-button>
                     <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
@@ -66,104 +66,11 @@
 
               <!-- 策略更改键弹出 -->
              <!-- 策略更改键弹出 -->
-<el-dialog v-model="isScoringDialogVisible" title="策略设置" width="800" :before-close="handleClose" :modal="null">
-  <div class="policypp" style="position: relative;">
-    <!-- 遍历编辑中的策略数据 -->
-    <el-form
-      v-for="(policy, pIndex) in editPolicies"
-      :key="pIndex"
-      :model="policy"
-      label-width="150px"
-      style="margin-top: 20px; position: relative;"
-    >
-      <h3 style="margin-left:50px;margin-top:60px;">策略 {{ pIndex + 1 }}:</h3>
-      <el-form-item label="评分类型">
-        <el-radio-group v-model="policy.type">
-          <el-radio label="0">得分类应用</el-radio>
-          <el-radio label="1">测评类应用</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="分数" v-if="policy.type === '0'">
-        <el-input
-          v-model="policy.resultScoreRange"
-          placeholder="要大于或等于该分数"
-        />
-      </el-form-item>
-      <el-form-item label="属性" v-if="policy.type === '1'">
-        <el-select
-          v-model="policy.resultProp"
-          placeholder="请选择属性"
-          style="width: 100px"
-          multiple
-        >
-          <!-- 假设 resultProp 是选项数组，如 [{ label: 'I', value: 'I' }] -->
-          <el-option
-            v-for="item in resultProp"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="结果名称">
-        <el-input
-          v-model="policy.resultName"
-          placeholder="输入评分结果的名称"
-        />
-      </el-form-item>
-      <el-form-item label="结果描述">
-        <el-input
-          v-model="policy.resultDesc"
-          placeholder="输入评分结果的描述"
-          type="textarea"
-          :rows="3"
-        />
-      </el-form-item>
-      <el-button
-        type="primary"
-        @click="nremovePolicy(pIndex)"
-        style="position: relative; top:52px; left: 310px;"
-      >
-        删除策略
-      </el-button>
-    </el-form>
-    <!-- 添加策略按钮（保持在表单外） -->
-    <el-button
-      type="primary"
-      @click="addPolicy()"
-      style="position: relative; top:10px;left:200px;"
-    >
-      添加策略
-    </el-button>
-    <el-button
-      type="primary"
-      @click="nsavePolicy()"
-      style="margin-left: 330px; margin-top: 20px;"
-    >
-      保存编辑
-    </el-button>
-    <el-button
-      type="primary"
-      style="margin-left: 20px; margin-top: 20px;"
-      @click="isScoringDialogVisible = false"
-    >
-      取消
-    </el-button>
-  </div>
-</el-dialog>
             </div>
           </el-scrollbar>
         </div>
       </div>
       <div v-if="isShowa">
-        <div class="lastf1">
-          <div @click="handleisshow(true)" :class="['l2a', { l21: isShow }]">
-            手动设置
-          </div>
-          <div @click="handleisshow(false)" :class="['l2a', { l21:!isShow }]">
-            AI出题
-          </div>
-        </div>
         <div>
           <div class="AIquestion" v-if="!isShow"></div>
           <div class="handquestion" v-if="isShow">
@@ -193,7 +100,7 @@
             <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
 
           </div>
-          <div v-if="isShow" class="policy" style="position: relative;">
+          <div v-if="isShow " class="policy" style="position: relative;">
             <h2 style="position: absolute;top: 10px;">评分策略设置</h2>
             <el-form v-for="(policy, pIndex) in policies" :key="pIndex" :model="policy" label-width="150px" style="margin-top: 20px; position: relative;">
             <h3 style="margin-left:50px;margin-top:60px;">策略 {{ pIndex + 1 }}:</h3>
@@ -217,9 +124,9 @@
             <el-form-item label="结果描述">
               <el-input v-model="policy.resultDesc" placeholder="输入评分结果的描述"/>
             </el-form-item>
-             <el-button type="primary" @click="removePolicy(pIndex)" style="position: absolute; left:220px;">删除策略</el-button>
+             <!-- <el-button type="primary" @click="removePolicy(pIndex)" style="position: absolute; left:220px;">删除策略</el-button> -->
             </el-form>
-            <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button>
+            <!-- <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button> -->
             <el-button type="primary" @click="savePolicy" style="margin-left: 350px;">保存策略</el-button>
           </div>
         </div>
@@ -234,10 +141,11 @@ import { ref } from 'vue';
 // import { ArrowDown } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
 import {addApp, common,listMyAppVOByPage,editApp,deleteApp} from "@/api/app";
-import {listMyScoringResultVOByPage,editScoringResult,deleteScoringResult} from "@/api/scoring";
 import {addScoringResult} from "@/api/scoring";
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+// 路由传参
+const router = useRouter();
 // 评分策略设置
  const policies = ref([
   {
@@ -257,36 +165,83 @@ import { onMounted } from 'vue';
     { label: 'J', value: 'J' }
   ]);
   // 添加按钮
-  const addPolicy = () => {
-  // 获取最后一个策略的类型，如果没有则用默认值
-  const lastType = policies.value.length > 0
-    ? policies.value[policies.value.length - 1].type
-    : '0';
+//   const addPolicy = () => {
+//   // 获取最后一个策略的类型，如果没有则用默认值
+//   const lastType = policies.value.length > 0
+//     ? policies.value[policies.value.length - 1].type
+//     : '0';
 
-  policies.value.push({
-    type: lastType, // 使用最后一个策略的类型
-    appId: id.value,
-    resultScoreRange: '',
-    resultName: '',
-    resultProp: [],
-    resultDesc: ''
-  });
-};
+//   policies.value.push({
+//     type: lastType, // 使用最后一个策略的类型
+//     appId: id.value,
+//     resultScoreRange: '',
+//     resultName: '',
+//     resultProp: [],
+//     resultDesc: ''
+//   });
+// };
 // 删除按钮
-const removePolicy = (index) => {
-  if (policies.value.length > 1) {
-    policies.value.splice(index, 1);
-  } else {
-    ElMessage.warning('至少保留一个策略');
-  }
-};
-// 编辑删除
-const nremovePolicy = async() => {
-  const res = await deleteScoringResult()
-  console.log(res);
-}
+// const removePolicy = (index) => {
+//   if (policies.value.length > 1) {
+//     policies.value.splice(index, 1);
+//   } else {
+//     ElMessage.warning('至少保留一个策略');
+//   }
+// };
+
 // 存储编辑中的策略数据（从接口获取）
-const editPolicies = ref([]);
+// 定义一个用于进行路由跳转并传递参数的函数
+const addscoring = async (id) => {
+  console.log('传递的问题 ID 为:', id);
+  router.push({
+    path: '/applist',
+    query: { id }
+  })
+};
+// 保存新应用
+const id = ref()
+id.value = router.currentRoute.value.query.appId
+const saveQuestionSet = async() => {
+  const newSet = newQuestionSet.value;
+  // 对接接口
+  const addApi = {
+    appName: newSet.name,
+    appType: newSet.value,
+    appIcon: newSet.avatar,
+    appDesc: newSet.description,
+    scoringStrategy:newSet.value,
+  }
+  console.log(addApi)
+ const {data:{code,data}} = await addApp(addApi)
+ id.value = data
+ console.log(id.value)
+  if(code === 0) {
+    ElMessage.success('上传成功');
+
+  } else {
+    ElMessage.error('上传失败');
+  }
+
+  // 检查应用名称是否为空
+  if (newSet.name.trim() === '') {
+    ElMessage.error('应用名称不能为空');
+    return;
+  }
+  // 检查描述是否为空
+  if (newSet.description.trim() === '') {
+    ElMessage.error('描述不能为空');
+    return;
+  }
+
+  // 如果所有验证通过，保存新应用
+  // 重置新应用表单
+  newQuestionSet.value = {
+    name: '',
+    description: '',
+    avatar:'',
+    value:'',
+  };
+};
 // 保存策略
 const savePolicy = async () => {
     for (const policy of policies.value) {
@@ -336,11 +291,7 @@ const savePolicy = async () => {
         }
     ];
 };
-//  保存策略编辑
-const nsavePolicy = async () => {
- const res = await editScoringResult();
- console.log(res);
-}
+
 // 弹窗
 const nquestionSet = ref({
   id: null,
@@ -349,9 +300,9 @@ const nquestionSet = ref({
   appIcon: '' // 补充头像字段
 });
 const isEditDialogVisible = ref(false);
-const isScoringDialogVisible = ref(false);
-// 路由传参
-const router = useRouter();
+
+// 路由接收
+// const
 // 定义一个用于进行路由跳转并传递参数的函数
 const add = (id) => {
     // 打印传入的 id 参数，方便调试
@@ -368,30 +319,7 @@ const add = (id) => {
         console.error('路由跳转失败:', error);
     }
 };
-// 定义一个用于进行路由跳转并传递参数的函数
-const addscoring = async (id) => {
-  console.log('传递的问题 ID 为:', id);
-  isScoringDialogVisible.value = true;
-  try {
-    const res = await listMyScoringResultVOByPage({ appId: id });
-    const records = res.data.data.records;
-    console.log(records);
-    if (records.length > 0) {
-      // 假设 records 是一个包含策略数据的数组
-      editPolicies.value = records.map(record => ({
-        appId: record.appId,
-        resultScoreRange: record.resultScoreRange,
-        resultName: record.resultName,
-        resultProp: record.resultProp,
-        resultDesc: record.resultDesc
-      }))
-      console.log(editPolicies.value);
-    }
-  } catch (error) {
-    console.error('获取策略数据失败:', error);
-    ElMessage.error('获取策略数据失败，请重试');
-  }
-};
+
 // 定义是评分还是测评
 // const value3 = ref(true)
 // 定义习题集列表
@@ -422,11 +350,6 @@ const handleisshowa = async(show) => {
   isShowa.value = show;
 };
 
-// 切换手动设置和AI出题
-const handleisshow = (show) => {
-  isShow.value = show;
-};
-// 保存编辑
 // 引入编辑应用的接口（假设接口文件中已定义）
 
 const baocun = async () => {
@@ -469,49 +392,7 @@ const baocun = async () => {
   }
 };
 
-// 保存新应用
-const saveQuestionSet = async() => {
-  const newSet = newQuestionSet.value;
-  // 对接接口
-  const addApi = {
-    appName: newSet.name,
-    appType: newSet.value,
-    appIcon: newSet.avatar,
-    appDesc: newSet.description,
-    scoringStrategy:0
-  }
-  console.log(addApi)
- const {data:{code,data}} = await addApp(addApi)
- id.value = data
- console.log(id.value)
-  if(code === 0) {
-    ElMessage.success('上传成功');
 
-  } else {
-    ElMessage.error('上传失败');
-  }
-
-  // 检查应用名称是否为空
-  if (newSet.name.trim() === '') {
-    ElMessage.error('应用名称不能为空');
-    return;
-  }
-  // 检查描述是否为空
-  if (newSet.description.trim() === '') {
-    ElMessage.error('描述不能为空');
-    return;
-  }
-
-  // 如果所有验证通过，保存新应用
-  // 重置新应用表单
-  newQuestionSet.value = {
-    name: '',
-    description: '',
-    avatar:'',
-    value:'',
-  };
-};
-const id = ref()
 // 应用列表
 const init = async() => {
     try {
@@ -594,6 +475,13 @@ const tttt = async (file) => {
   ElMessage.success('上传成功');
   return true;
 };
+// 在没有策略时添加策略按钮
+// const addnewPolicy = (id) => {
+//   console.log(id)
+//   // 跳转页面
+//   isShowa.value = true;
+//   isScoringDialogVisible.value = false;
+// }
 </script>
 
 

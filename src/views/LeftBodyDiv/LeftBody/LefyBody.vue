@@ -17,6 +17,12 @@
           <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
           <p>商店</p>
         </div>
+
+        <div @click="handleview6" :class="['fc3body', { fc3bodyover: view === 6 }]" class="clickable">
+          <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
+          <p>官方应用</p>
+        </div>
+
         <div @click="handleview3" :class="['fc3body', { fc3bodyover: view === 3 }]" class="clickable">
           <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
           <p>社区</p>
@@ -67,9 +73,9 @@ import LeftBDiv2 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv2.vue';
 import LeftBDiv3 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv3.vue';
 import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
 import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import {getLoginUser} from '@/api/user.js';
+import { getLoginUser } from '@/api/user.js';
 const router = useRouter();
 
 // 从 sessionStorage 中读取 view 的值，如果没有则默认为 0
@@ -86,9 +92,9 @@ onMounted(() => {
 });
 
 const handleuser = async () => {
-      const res = await getLoginUser()
-userRole.value = res.data.data.userRole;
-    console.log(userRole.value);
+  const res = await getLoginUser()
+  userRole.value = res.data.data.userRole;
+  console.log(userRole.value);
 }
 
 // 更新激活的菜单项样式
@@ -132,20 +138,20 @@ const handleviewmanage = () => {
 
 }
 function isComputer() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'iemobile', 'opera mini','mobile'];
-      for (const keyword of mobileKeywords) {
-        if (userAgent.includes(keyword)) {
-          return false;
-        }
-      }
-      return true;
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'iemobile', 'opera mini', 'mobile'];
+  for (const keyword of mobileKeywords) {
+    if (userAgent.includes(keyword)) {
+      return false;
     }
+  }
+  return true;
+}
 
-    if (!isComputer()) {
-      console.log('当前登录设备不是电脑端');
-      router.push('/PhoneVue');
-    }
+if (!isComputer()) {
+  console.log('当前登录设备不是电脑端');
+  router.push('/PhoneVue');
+}
 
 
 // 处理商店点击
@@ -157,7 +163,6 @@ const handleview2 = () => {
 };
 const handleviewlast1 = () => {
   sessionStorage.setItem('view', 0);
-
   view.value = 0;
   updateActiveClass(0);
   router.push('/user');
@@ -168,6 +173,12 @@ const handleview3 = () => {
   view.value = 3;
   updateActiveClass(3);
   router.push('/community');
+}
+const handleview6 = () => {
+  sessionStorage.setItem('view', 6);
+  view.value = 6;
+  updateActiveClass(6);
+  router.push('/official');
 }
 
 const rightbody = ref(null);
@@ -180,6 +191,13 @@ const handleright = () => {
     console.error('rightbody element not found');
   }
 };
+
+// 监听 view 的变化，让样式变化有过渡效果
+watch(view, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    updateActiveClass(newValue);
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -204,7 +222,7 @@ const handleright = () => {
   opacity: 0;
   transition: opacity 0.3s, visibility 0.3s;
   font-size: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .tooltip::after {
@@ -227,6 +245,8 @@ const handleright = () => {
 .last1:hover {
   background-color: #f2f3f8;
   border-radius: 10px;
+  transition: background-color 0.3s ease;
+  /* 添加过渡效果 */
 }
 
 .last1 {
@@ -239,6 +259,7 @@ const handleright = () => {
   justify-content: center;
   align-items: center;
 }
+
 .inblowdiv {
   font-size: 10px;
   width: 100px;
@@ -248,6 +269,7 @@ const handleright = () => {
   color: #757a8c;
   margin-top: 5px;
 }
+
 /* 样式保持不变 */
 .visiable {
   z-index: 2;
@@ -256,6 +278,7 @@ const handleright = () => {
   background-image: url('../icons/zhankai.png');
   background-size: 100% 100%;
 }
+
 .hiddenicon {
   width: 15px;
   height: 15px;
@@ -265,6 +288,7 @@ const handleright = () => {
   bottom: 48vh;
   right: 10px;
 }
+
 .rightbody {
   width: 200px;
   z-index: 10;
@@ -277,10 +301,14 @@ const handleright = () => {
   background-color: #fff;
   height: 100%;
 }
+
 .last1:hover {
   background-color: #f2f3f8;
   border-radius: 10px;
+  transition: background-color 0.3s ease;
+  /* 添加过渡效果 */
 }
+
 .last1 {
   height: 40px;
   position: relative;
@@ -291,18 +319,26 @@ const handleright = () => {
   justify-content: center;
   align-items: center;
 }
+
 .bodyl {
   position: absolute;
   bottom: 0px;
   background-color: #ffffff;
   width: 58px;
 }
+
 .fc3body:hover {
   background-color: #f2f3f8;
+  transition: background-color 0.3s ease;
+  /* 添加过渡效果 */
 }
+
 .fc3bodyover {
   background-color: #f2f3f8;
+  transition: background-color 0.3s ease;
+  /* 添加过渡效果 */
 }
+
 .fc3body {
   width: 50px;
   height: 48px;
@@ -315,20 +351,24 @@ const handleright = () => {
   align-items: center;
   border-radius: 5px;
 }
+
 hr {
   width: 60%;
   height: 1px;
   margin-top: 20px;
   border: #e7e7ec 1px solid;
 }
+
 .fclass2 {
   margin-top: 30px;
   border-radius: 10px;
 }
+
 .fclass {
   margin-top: 20px;
   border-radius: 10px;
 }
+
 .leftbody2 {
   display: flex;
   flex-direction: column;
@@ -342,12 +382,14 @@ hr {
   height: 100%;
   border-right: 1px solid #e7e7ec;
 }
+
 .lefybodybody {
   width: auto;
   height: 100vh;
   display: flex;
   align-items: center;
 }
+
 .lefybody {
   width: auto;
   margin-left: 10px;

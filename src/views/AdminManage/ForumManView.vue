@@ -3,6 +3,7 @@
     <div class="header">
       <h2>帖子管理</h2>
       <div class="search-container">
+        <el-button type="primary" @click="router.push('/createpost')" style="margin-right: 10px;">添加帖子</el-button>
         <el-input
           v-model="searchId"
           placeholder="请输入帖子ID搜索"

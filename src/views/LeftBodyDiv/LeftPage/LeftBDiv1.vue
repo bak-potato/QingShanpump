@@ -5,15 +5,15 @@
       class="leftmenu1 mouse"
       :class="{ active: activeMenu === 'SoftwareManagement' }"
     >
-      <img class="mouse" width="20px" src="@/icons/yingyongguanli.png">应用管理
+      <img class="mouse" width="20px" src="@/icons/yingyongguanli.png">应用创建
     </div>
     <!-- <div
-      @click="router.push('/questionmanage'); activeMenu = 'questionmanage'"
+      @click="router.push('/applist'); activeMenu = 'applist'"
       class="leftmenu1 mouse"
-      :class="{ active: activeMenu === 'questionmanage' }"
+      :class="{ active: activeMenu === 'applist' }"
     >
       <img class="mouse" width="20px" src="@/icons/1-5qitazuoye.png">
-      题目管理
+      应用列表
     </div> -->
   </div>
 </template>

@@ -20,6 +20,11 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'official',
+          name: 'official',
+          component: () => import('../views/RightBody/officialDshop.vue'),
+        },
+        {
           path: 'community',
           name: 'community',
           component: () => import('../views/RightBody/CommunityView.vue'),
@@ -54,6 +59,12 @@ const router = createRouter({
           path: 'questionmanage',
           name: 'questionmanage',
           component: () => import('../views/Manage/QuestionManagement.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
+        },
+        {
+          path: 'applist',
+          name: 'applist',
+          component: () => import('../views/Manage/AppList.vue'),
           meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
@@ -122,6 +133,11 @@ const router = createRouter({
       component: () => import('../views/UserBody/userRegister/RegisterView.vue'),
     },
     {
+      path: '/ScoringContent',
+      name: 'ScoringContent',
+      component: () => import('../views/Scoring/ScoringContent.vue'),
+    },
+    {
       path: '/PhoneVue',
       name: 'PhoneVue',
       component: () => import('../views/PhoneVue/PhoneVue.vue'),
@@ -135,7 +151,8 @@ const router = createRouter({
       path: '/:pathMatch(.*)*', // 匹配所有未定义的路由
       name: 'NotFound',
       component: () => import('../views/errors/404Vue.vue'),
-    }
+    },
+   
   ],
 });
 

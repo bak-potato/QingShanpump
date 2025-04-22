@@ -17,8 +17,8 @@
                     <ArrowDown />
                   </el-icon>
                 </div>
-                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.id)">修改</el-button>
-                <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.id)">删除</el-button>
+                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.tid)">修改</el-button>
+                <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.tid)">删除</el-button>
               </div>
               <!-- 展开状态 -->
               <div v-if="question.expanded" class="question-details">
@@ -27,8 +27,6 @@
                     <span class="option-label">{{ option.key }}</span>
                     <span class="option-value">{{ option.value }}</span>
                     <span v-if="option.isAnswer" class="answer-mark">✔ 答案</span>
-                    <span v-if="value3" class="score-info">评分：{{ option.score }}</span>
-                    <span v-if="!value3" class="result-info">属性：{{ option.result }}</span>
                   </li>
                 </ul>
               </div>
@@ -36,7 +34,7 @@
               <div v-if="question.editing" class="edit-section">
                 <el-form :model="nnn" label-width="120px">
                   <el-form-item label="问题">
-                    <el-input v-model="nnn.text" placeholder="请输入问题"></el-input>
+                    <el-input v-model="nnn.title" placeholder="请输入问题"></el-input>
                   </el-form-item>
                   <el-form-item label="选项">
                     <div v-for="(option, oIndex) in nnn.options" :key="oIndex" class="option-item">
@@ -63,8 +61,8 @@
                   </el-form-item>
                 </el-form>
                 <div class="edit-buttons">
-                <el-button type="primary" @click="saveEdit(question.id)">保存</el-button>
-                <el-button type="text" @click="cancelEdit(question.id)">取消</el-button>
+                <el-button type="primary" @click="saveEdit(question.tid)">保存</el-button>
+                <el-button type="text" @click="noSave(question.tid)">取消</el-button>
                 </div>
               </div>
             </div>
@@ -82,7 +80,56 @@
         </div>
       </div>
       <div>
-        <div class="AIquestion" v-if="!isShow"></div>
+        <!-- ai出题 -->
+        <div class="AIquestion" v-if="!isShow">
+  <div class="question" >
+    <!-- 添加表单验证规则 -->
+    <el-form 
+      :model="ai" 
+      :rules="aiRules" 
+      ref="aiFormRef" 
+      label-width="100px"
+     
+    >
+      <el-form-item 
+        label="题目个数" 
+        prop="questionCount"
+        
+      >
+        <el-input 
+          v-model.number="ai.questionCount" 
+          placeholder="请输入题目个数" 
+          type="number" 
+          min="2" 
+          :max="50"
+        ></el-input>
+      </el-form-item>
+
+      <el-form-item 
+        label="选项个数" 
+        prop="optionCount"
+      >
+        <el-input 
+          v-model.number="ai.optionCount" 
+          placeholder="请输入选项个数" 
+          type="number" 
+          min="2" 
+          :max="10"
+        ></el-input>
+      </el-form-item>
+    </el-form>
+
+    <el-button 
+      type="primary" 
+      @click="addAi"
+       style="margin-left: 20px;"
+      :disabled="!ai.questionCount || !ai.optionCount"
+    >
+      提交
+    </el-button>
+  </div>
+        </div>
+        <!-- 人工出题 -->
         <div class="handquestion" v-if="isShow" >
           <div class="question-item">
               <el-form style="position: relative;" :model="newQuestion" label-width="120px">
@@ -168,7 +215,7 @@
 <script setup>
 import { ref,onMounted} from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
-import { addQuestion,listMyQuestionVOByPage} from "@/api/question";
+import { addQuestion,listMyQuestionVOByPage,aiGenerateQuestion,deleteQuestion,editQuestion} from "@/api/question";
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 const router = useRouter();
@@ -193,10 +240,47 @@ const newQuestion = ref({
 const getOptionLabel = (index) => {
   return String.fromCharCode(65 + index); // 65 是 'A' 的 ASCII 码
 };
+// 定义ai属性
+const ai = ref({
+  id:id, // 应用ID（从路由参数获取）
+  optionCount: 2,// 题目个数（生成多少道题）
+  questionCount: 2, // 每个题目的选项个数
+});
+// Ai表单验证规则
+const aiRules = ref({
+  questionCount: [
+    { required: true, message: '请输入题目个数', trigger: 'blur' },
+    { type: 'number', min: 2, message: '题目个数必须≥2', trigger: 'blur' },
+  ],
+  optionCount: [
+    { required: true, message: '请输入选项个数', trigger: 'blur' },
+    { type: 'number', min: 2, message: '选项个数必须≥2', trigger: 'blur' },
+  ],
+});
 // 切换 AI 出题和手动出题
 const handleisshow = (show) => {
   isShow.value = show;
 };
+const addAi = async () => {
+  // 确保参数为数字类型（避免后端解析错误）
+  console.log('AI出题参数', ai.value);
+  const params = {
+    appId: ai.value.id, 
+    optionNumber: ai.value.optionCount,
+    questionNumber: ai.value.questionCount
+  };
+  try {
+    console.log('AI出题参数', params);
+    const res = await aiGenerateQuestion(params);
+    console.log('AI出题成功', res);
+    // 处理返回的数据，例如更新本地状态或提示用户
+    ElMessage.success('AI出题成功');
+  } catch (error) {
+    // 处理网络错误或后端返回的具体错误
+    ElMessage.error(`请求失败：${error.message || '数据不存在'}`);
+  }
+};
+
 // 增加选项
 const addNewOption = (qIndex) => {
   newQuestion.value.questions[qIndex].options.push({
@@ -249,6 +333,8 @@ const saveQuestion = async (id) => {
   // 格式化数据：将每个问题的选项转换为API所需格式
   const questionContent = newQuestion.value.questions.map((question) => ({
     title: question.title,
+    // 生成一个独特的id,数字
+    tid: Math.random().toString(36).substr(2, 9),
     options: question.options.map((option, oIndex) => ({
       key: getOptionLabel(oIndex), // 生成A/B/C/D...
       value: option.text,
@@ -256,7 +342,7 @@ const saveQuestion = async (id) => {
       result: !value3.value ? option.result || null : null, // 测评模式
     })),
   }));
-
+console.log(questionContent);
   // 构造API参数（假设appId从路由获取）
   const params = {
     appId: id, // 应用ID（从路由参数获取）
@@ -284,7 +370,6 @@ const saveQuestion = async (id) => {
     alert('添加失败：' + message);
   }
 };
-
 // 编辑
 const questions = ref([]);
 const nnn = ref({
@@ -294,25 +379,34 @@ const nnn = ref({
   expanded: false,
   editing: false
 });
+
 // 获取题目列表
 const renderQuestions = async () => {
   try {
     const { data } = await listMyQuestionVOByPage({ appId: id });
+    console.log(data);
     const rawQuestions = data.data.records || [];
-
+    console.log(rawQuestions);
     // 确保每个题目有唯一 id 和正确的状态字段
     const processedQuestions = rawQuestions.flatMap(record => {
       return record.questionContent.map(content => ({
         id: record.id, // 总的ID
-        // 新增每个题目唯一id
+        tid: content.tid, // 每个问题的ID
         title: content.title,
-        options: content.options.map(option => ({ ...option })),
+      //  正确渲染选项
+        options: content.options.map((option, index) => ({
+          key: getOptionLabel(index), // 生成A/B/C/D...
+          value: option.value,
+          score: option.score || null, // 评分模式
+          result: option.result || null, // 测评模式
+        })),
         expanded: false, // 展开状态
         editing: false, // 编辑状态
       }));
     });
-
+    console
     questions.value = processedQuestions; // 赋值给数组
+    console.log(questions.value);
   } catch (error) {
     ElMessage.error('加载题目失败',error);
   }
@@ -325,12 +419,53 @@ const toggleQuestion = (title) => {
     question.expanded = !question.expanded;
   }
 }
+// 修改
+const toggleEdit = (tid) => {
+  // 打开面板
+  const question = questions.value.find(q => q.tid === tid);
+  if (question) {
+    question.editing = true;
+    // 复制当前问题的数据到 nnn 中
+    nnn.value = { ...question };
+  }
+}
+// 删除
+const DeleteQuestion = async (tid) => {
+  try {
+    const {code} = await deleteQuestion({tid:tid});
+    console.log(code);
+  }
+  catch (error) {
+    ElMessage.error('删除失败',error);
+  }
+}
+// 提交编辑
+const saveEdit = async () => {
+  try {
+      const {code} = await editQuestion(nnn.value);
+      console.log(code);
+  }
+  catch (error) {
+    ElMessage.error('修改失败',error);
+  }
+}
+// 取消
+const noSave = () => {
+  // 关闭面板
+  const question = questions.value.find(q => q.tid === nnn.value.tid);
+  if (question) {
+    question.editing = false;
+  }
+}
 // 组件挂载时加载数据
 onMounted(() => {
   renderQuestions();
 });
 </script>
 <style scoped>
+.option-list {
+  list-style: none;
+}
 .question-item{
 margin-top: 40px;
 }
@@ -412,7 +547,11 @@ left: 500px;
   border-radius: 50%;
   font-size: 14px;
 }
-
+.option-value {
+  position: relative;
+  left: 40px;
+  top:-24px;
+}
 .option-input {
   flex: 1;
 }
@@ -556,5 +695,8 @@ h2 {
   position: relative;
   height: auto;
   align-items: center;
+}
+.question {
+  padding-top: 80px;
 }
 </style>

@@ -14,3 +14,6 @@ export const editQuestion = (data) => {
 export const deleteQuestion = (data) => {
   return post('/api/question/delete', data)
 }
+export const aiGenerateQuestion = (data) => {
+  return post('/api/question/ai_generate', data)
+}

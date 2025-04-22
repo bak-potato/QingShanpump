@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref,  computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import * as echarts from 'echarts'
 import {
   CircleCheck,
@@ -69,77 +69,129 @@ import {
   Clock
 } from '@element-plus/icons-vue'
 
+// 模拟答题记录数据（可替换为真实接口数据）
+const answerRecords = ref([
+  { id: 1, status: 'correct', score: 90, duration: 60, createTime: '2023-10-01' },
+  { id: 2, status: 'correct', score: 85, duration: 75, createTime: '2023-10-01' },
+  { id: 3, status: 'wrong', score: 60, duration: 120, createTime: '2023-10-02' },
+  { id: 4, status: 'correct', score: 95, duration: 50, createTime: '2023-10-02' },
+  { id: 5, status: 'wrong', score: 55, duration: 150, createTime: '2023-10-03' },
+  { id: 6, status: 'correct', score: 88, duration: 65, createTime: '2023-10-03' },
+  { id: 7, status: 'correct', score: 92, duration: 55, createTime: '2023-10-04' },
+  { id: 8, status: 'wrong', score: 65, duration: 110, createTime: '2023-10-04' },
+]);
+
 // 答题统计数据
 const stats = computed(() => {
-  const validRecords = answerRecords.value.filter(r => r.status !== 'unfinished')
-
+  const validRecords = answerRecords.value.filter(r => r.status !== 'unfinished');
   return {
-    correctRate: ((validRecords.filter(r => r.status === 'correct').length / validRecords.length) * 100 || 0).toFixed(1),
-    avgScore: (validRecords.reduce((sum, r) => sum + r.score, 0) / validRecords.length || 0).toFixed(1),
+    correctRate: (validRecords.length > 0 ? 
+      (validRecords.filter(r => r.status === 'correct').length / validRecords.length * 100).toFixed(1) : 0),
+    avgScore: (validRecords.length > 0 ? 
+      (validRecords.reduce((sum, r) => sum + r.score, 0) / validRecords.length).toFixed(1) : 0),
     totalAnswers: answerRecords.value.length,
-    avgDuration: (validRecords.reduce((sum, r) => sum + (r.duration || 0), 0) / validRecords.length || 0).toFixed(1)
-  }
-})
+    avgDuration: (validRecords.length > 0 ? 
+      (validRecords.reduce((sum, r) => sum + r.duration, 0) / validRecords.length).toFixed(1) : 0)
+  };
+});
 
 // ECharts实例
-const correctChart = ref(null)
-const trendChart = ref(null)
-const answerRecords = ref([]);
+const correctChart = ref(null);
+const trendChart = ref(null);
+
 // 初始化图表
 onMounted(() => {
-  initCorrectChart()
-  initTrendChart()
-})
+  initCorrectChart();
+  initTrendChart();
+});
 
 // 正确率饼图
 const initCorrectChart = () => {
-  const chart = echarts.init(correctChart.value)
+  const chart = echarts.init(correctChart.value);
+  const validRecords = answerRecords.value.filter(r => r.status !== 'unfinished');
+  const correctCount = validRecords.filter(r => r.status === 'correct').length;
+  const errorCount = validRecords.length - correctCount;
+
   const option = {
-    tooltip: { trigger: 'item' },
+    tooltip: { trigger: 'item', formatter: "{b}: {d}%" },
     series: [{
-      name: '答题正确率',
+      name: '答题分布',
       type: 'pie',
       radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
       data: [
-        { value: stats.value.correctRate, name: '正确', itemStyle: { color: '#67C23A' } },
-        { value: 100 - stats.value.correctRate, name: '错误', itemStyle: { color: '#F56C6C' } }
+        { value: correctCount, name: '正确', itemStyle: { color: '#67C23A' } },
+        { value: errorCount, name: '错误', itemStyle: { color: '#F56C6C' } }
       ],
       label: {
+        show: true,
+        position: 'outside',
         formatter: '{b}: {d}%'
+      },
+      labelLine: {
+        length: 10,
+        lineStyle: {
+          color: '#333'
+        }
       }
     }]
-  }
-  chart.setOption(option)
-}
+  };
+  chart.setOption(option);
+};
 
 // 答题趋势折线图
 const initTrendChart = () => {
-  const chart = echarts.init(trendChart.value)
-  const dates = [...new Set(answerRecords.value.map(r =>
-    new Date(r.createTime).toLocaleDateString()
-  ))].sort()
+  const chart = echarts.init(trendChart.value);
+  const dateSet = new Set();
+  answerRecords.value.forEach(r => {
+    dateSet.add(new Date(r.createTime).toISOString().split('T')[0]);
+  });
+  const dates = Array.from(dateSet).sort();
+
+  const dailyCounts = dates.map(date => 
+    answerRecords.value.filter(r => 
+      new Date(r.createTime).toISOString().split('T')[0] === date
+    ).length
+  );
 
   const option = {
     xAxis: {
       type: 'category',
-      data: dates
+      data: dates,
+      axisTick: { alignWithLabel: true },
+      axisLine: { lineStyle: { color: '#e0e2e5' } }
     },
-    yAxis: { type: 'value' },
+    yAxis: {
+      type: 'value',
+      name: '答题次数',
+      splitLine: { lineStyle: { color: '#e0e2e5' } }
+    },
     series: [{
-      data: dates.map(date =>
-        answerRecords.value.filter(r =>
-          new Date(r.createTime).toLocaleDateString() === date
-        ).length
-      ),
+      name: '每日答题趋势',
+      data: dailyCounts,
       type: 'line',
       smooth: true,
-      areaStyle: {},
-      itemStyle: { color: '#409EFF' }
+      symbol: 'circle',
+      symbolSize: 6,
+      itemStyle: { color: '#409EFF' },
+      lineStyle: { color: '#409EFF', width: 2 },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+        offset: 0,
+        color: '#409EFF'
+      }, {
+        offset: 1,
+        color: '#f0f5ff'
+      }]) }
     }],
-    tooltip: { trigger: 'axis' }
-  }
-  chart.setOption(option)
-}
+    tooltip: {
+      trigger: 'axis',
+      formatter: function (params) {
+        return `${params[0].name}：<span style="color: #409EFF;">${params[0].value}</span>次`;
+      }
+    }
+  };
+  chart.setOption(option);
+};
 </script>
 
 <style scoped>

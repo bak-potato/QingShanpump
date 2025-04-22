@@ -18,7 +18,7 @@
 
 <script setup>
 import LastRightViewone from './LastRightViewone.vue';
-import PublicNotice from '../../components/PublicNotice.vue';
+import PublicNotice from '../../components/notice/PublicNotice.vue';
 import { ref } from 'vue';
 
 const isShow = ref(false);
