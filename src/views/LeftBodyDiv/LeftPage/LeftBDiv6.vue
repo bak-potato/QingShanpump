@@ -1,3 +1,3 @@
 <template>
-  <div>222</div>
+  <div>关于更多</div>
 </template>

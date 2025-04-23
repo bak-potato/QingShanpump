@@ -44,16 +44,31 @@
       <button class="share-btn" @click="handleShare">分享结果</button>
     </div>
   </div>
+  <el-dialog v-model="isEnjoy" title="分享当前题目">
+     <div style="text-align: center;">
+        <p>扫描二维码分享当前题目</p>
+        <canvas ref="qrCanvas" style="width: 200px; height: 200px; margin: 0 auto;"></canvas>
+        <p class="share-url">{{ shareUrl }}</p>
+        <el-button type="primary" @click="copyShareUrl" style="margin-top: 10px;">
+          <el-icon><DocumentCopy /></el-icon> 复制链接
+        </el-button>
+      </div>
+  </el-dialog>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref,nextTick } from 'vue'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-
+import { ElMessage } from 'element-plus'
+import QRCode from 'qrcode'
 const route = useRoute();
 const resultName = ref('')
 const resultDesc = ref('')
+const isEnjoy = ref(false);
+const qrCanvas = ref(null);
+const shareUrl = ref('')
+
 
 const props = defineProps({
   score: {
@@ -100,16 +115,59 @@ const resultTitle = computed(() => {
 const handleRetry = () => {
   emit('retry')
 }
-const handleShare = () => {
+
+const generateShareUrl = () => {
+  // 获取当前结果名称和描述
+  const name = resultName.value || '我的'
+  const desc = resultDesc.value || '结果描述'
+  // 构造分享链接
+  return `${window.location.origin}/AnswerIns?resultName=${encodeURIComponent(name)}&resultDesc=${encodeURIComponent(desc)}`
+}
+const handleShare = async () => {
   // 分享逻辑
   console.log('分享功能已触发')
+  shareUrl.value = generateShareUrl()
+  isEnjoy.value = true;
+  await nextTick();
+  if (qrCanvas.value) {
+    QRCode.toCanvas(qrCanvas.value, shareUrl.value, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    }, (error) => {
+      if (error) {
+        console.error('生成二维码失败:', error)
+        ElMessage.error('生成二维码失败')
+      }
+    })
+  }
 }
+const copyShareUrl = () => {
+  navigator.clipboard.writeText(shareUrl.value)
+    .then(() => {
+      ElMessage.success('链接已复制到剪贴板')
+    })
+    .catch(() => {
+      ElMessage.error('复制失败，请手动复制')
+    })
+}
+
+
+
+
 
 onMounted(() => {
   resultName.value = route.query.resultName || ''
   resultDesc.value = route.query.resultDesc || ''
 })
 </script>
+
+
+
+
 
 <style scoped>
 /* 浅蓝色风格美化 */

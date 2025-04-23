@@ -129,6 +129,11 @@ const router = createRouter({
           path: 'FriendVue',
           name: 'FriendVue',
           component: () => import('../views/RightBody/FriendVue.vue'),
+        },
+        {
+          path: 'SearchFriend',
+          name: 'SearchFriend',
+          component: () => import('../views/RightBody/SearchFriend.vue'),
         }
       ],
 

@@ -13,7 +13,7 @@
       <div style="text-align: center;">
         <p>扫描二维码分享当前配置</p>
         <canvas ref="qrCanvas" style="width: 200px; height: 200px; margin: 0 auto;"></canvas>
-        <p class="share-url">{{ shareUrl }}</p>
+      <p class="share-url" :style="{ maxWidth: '200px' }">{{ shareUrl }}</p >
         <el-button type="primary" @click="copyShareUrl" style="margin-top: 10px;">
           <el-icon><DocumentCopy /></el-icon> 复制链接
         </el-button>
@@ -78,6 +78,12 @@ const copyShareUrl = () => {
 </script>
 
 <style scoped>
+.share-url {
+  white-space: nowrap; /* 禁止文本换行 */
+  overflow: hidden; /* 隐藏溢出的内容 */
+  text-overflow: ellipsis; /* 当文本溢出时显示省略号 */
+  margin: 0 auto; /* 使元素居中 */
+}
 .share-url {
   word-break: break-all;
   font-size: 12px;

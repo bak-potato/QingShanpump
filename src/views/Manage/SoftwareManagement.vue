@@ -433,13 +433,7 @@ const toggleEdit = (id) => {
 
 // 删除应用
 const deleteQuestionSet = async (appId) => {
-    // 确认删除
-    const confirmDelete = window.confirm('确定要删除该应用吗？');
-    if (!confirmDelete) {
-      return;
-    }else {
       try {
-
         const res = await deleteApp({id:appId})
         if(res) {
           ElMessage.success('删除成功')
@@ -449,7 +443,7 @@ const deleteQuestionSet = async (appId) => {
         console.error('删除应用失败:', error);
         ElMessage.error('删除应用失败，请重试');
       }
-    }
+
 };
 // 上传头像
 const handleAvatarUpload = async (file) => {

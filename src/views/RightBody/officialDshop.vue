@@ -21,7 +21,7 @@
         <div style="display: flex;">
           <div class="agent-icon" style="background-color: #5a67d8;"></div>
           <div class="head">
-            <h3 class="agent-name">客服小谱</h3>
+            <h3 class="agent-name">AI女友</h3>
             <p class="agent-id">ID:18544 | 来自 xxxxx</p>
           </div>
         </div>

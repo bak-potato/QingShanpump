@@ -65,7 +65,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
-import { registerApi } from '../api/user.js';
+import { registerApi } from '@/api/user';
 
 const registerFormRef = ref();
 const loading = ref(false);
