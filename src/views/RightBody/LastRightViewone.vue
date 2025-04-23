@@ -34,6 +34,10 @@
 <script setup>
 </script>
 <style scoped>
+.lastright{
+  height: 600px;
+  background-color: #ffffff;
+}
 .ftca p{
   float: left;
     font-size: 18px;

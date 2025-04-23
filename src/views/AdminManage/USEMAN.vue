@@ -130,7 +130,7 @@
         <!-- 用户角色 -->
         <el-form-item label="用户角色" prop="userRole">
           <el-select v-model="currentUser.userRole">
-            <el-option label="普通用户" value="" />
+            <el-option label="普通用户" value="user" />
             <el-option label="管理员" value="admin" />
           </el-select>
         </el-form-item>

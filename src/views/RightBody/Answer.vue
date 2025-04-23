@@ -1,6 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="quiz-container">
+  <div v-if="submitting" class="fullscreen-loading">
+    <div class="loading-content">
+      <el-icon class="loading-icon" :size="32"><Loading /></el-icon>
+      <p class="loading-text">正在评分，请稍候...</p>
+    </div>
+  </div>
+  <div class="quiz-container" v-loading = "loading" >
     <!-- 题目区域，添加 v-if 确保有数据时才渲染 -->
     <div v-if="questions.length > 0" class="question-container">
       <h2 class="question-title">题目:{{ currentQuestion.title }}</h2>
@@ -45,19 +51,41 @@
       >
         提交答卷
       </el-button>
+
+      <el-button @click = enjoy() type="primary" >
+        <!-- 分享 -->
+        <el-icon><Share /></el-icon>
+      </el-button>
     </div>
   </div>
+  <el-dialog v-model="isEnjoy" title="分享当前题目">
+     <div style="text-align: center;">
+        <p>扫描二维码分享当前题目</p>
+        <canvas ref="qrCanvas" style="width: 200px; height: 200px; margin: 0 auto;"></canvas>
+        <p class="share-url">{{ shareUrl }}</p>
+        <el-button type="primary" @click="copyShareUrl" style="margin-top: 10px;">
+          <el-icon><DocumentCopy /></el-icon> 复制链接
+        </el-button>
+      </div>
+  </el-dialog>
+
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted,nextTick  } from 'vue';
 import { useRouter } from 'vue-router';
 import { listQuestionVOByPage ,addUserAnswer,getUserAnswerVOById} from '@/api/answer';
 import { ElMessage } from 'element-plus';
+import QRCode from 'qrcode'
 const router = useRouter();
 const questions = ref([]);
 const currentQuestionIndex = ref(0);
 const userAnswers = ref([]);
+const isEnjoy = ref(false);
+const qrCanvas = ref(null);
+const shareUrl = ref('')
+const submitting = ref(false);
+const loading = ref(false);
 // 计算当前题目
 const currentQuestion = computed(() => questions.value[currentQuestionIndex.value]);
 console.log(currentQuestion);
@@ -128,6 +156,8 @@ const nextQuestion = () => {
 };
 
 const submitQuiz = async () => {
+ submitting.value = true; // 开始提交
+  loading.value = true;
   const id = router.currentRoute.value.query.id;
   const answers = userAnswers.value.map((answer, index) => {
     const question = questions.value[index];
@@ -174,50 +204,49 @@ const goToResult = async(id) => {
   console.log(res.data.data.resultName);
 
 }
-// const submitQuiz = async () => {
+const generateShareUrl = () => {
+  // 获取当前题目
+  const currentQuestion = questions.value[currentQuestionIndex.value];
+  if (currentQuestion) {
+    const id = router.currentRoute.value.query.id;
+    // 构造分享链接，这里假设分享链接包含题目ID和当前题目索引
+    return `${window.location.origin}/Answer?questionId=${id}&index=${currentQuestionIndex.value}`;
+  }
+}
+// 生成二维码
+const enjoy = async () => {
+  console.log('分享');
+  shareUrl.value = generateShareUrl()
+  isEnjoy.value = true;
+   await nextTick();
+  console.log(qrCanvas.value);
+  // 生成二维码
+  if (qrCanvas.value) {
+    QRCode.toCanvas(qrCanvas.value, shareUrl.value, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    }, (error) => {
+      if (error) {
+        console.error('生成二维码失败:', error)
+        ElMessage.error('生成二维码失败')
+      }
+    })
+  }
+}
 
-//   const id = router.currentRoute.value.query.id;
-//   const answers = userAnswers.value.map((answer, index) => {
-//     const question = questions.value[index];
-//     if (question.isMultiple) {
-//       return answer ? answer.map(i => optionLabels[i]).join(',') : '';
-//     }
-//     return answer !== null ? optionLabels[answer] : '';
-//   });
-
-//   const data = {
-//     appId: id,
-//     choices: answers
-//   };
-//   console.log(data);
-//   try {
-//     const res = await addUserAnswer(data);
-//     console.log(res);
-//     // 路由跳转并传递参数
-//     router.push({
-//       path: '/AnswerIns',
-//       query: {
-//         result:res.data.data
-//       }
-//     });
-
-//     if (res.data.code === 0) {
-//       ElMessage({
-//         message: '提交成功',
-//         type: 'success',
-//         duration: 2000
-//       });
-//     }
-//   } catch (error) {
-//     console.error('提交答卷失败:', error);
-//     ElMessage({
-//       message: '提交失败',
-//       type: 'error',
-//       duration: 2000
-//     });
-//   }
-// };
-
+const copyShareUrl = () => {
+  navigator.clipboard.writeText(shareUrl.value)
+    .then(() => {
+      ElMessage.success('链接已复制到剪贴板')
+    })
+    .catch(() => {
+      ElMessage.error('复制失败，请手动复制')
+    })
+}
 onMounted(() => {
   listQuestions();
 });
@@ -323,5 +352,45 @@ onMounted(() => {
   text-align: center;
   font-size: 18px;
   color: #333;
+}
+
+
+.fullscreen-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-icon {
+  animation: rotating 2s linear infinite;
+  margin-bottom: 16px;
+  color: #409eff;
+}
+
+.loading-text {
+  font-size: 18px;
+  color: #606266;
+}
+
+@keyframes rotating {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

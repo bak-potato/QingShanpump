@@ -78,12 +78,12 @@ const value9 = ref(false)
 const textarea = ref('')
 
 const currentConfig = computed(() => ({
-  model: value2.value,
-  multiTurn: value3.value,
-  systemPrompt: textarea.value,
-  maxTokens: value4.value,
-  temperature: value5.value / 100,
-  topP: value6.value / 100,
+  // model: value2.value,
+  // multiTurn: value3.value,
+  // systemPrompt: textarea.value,
+  // maxTokens: value4.value,
+  // temperature: value5.value / 100,
+  // topP: value6.value / 100,
   webSearch: value7.value,
   knowledgeBase: value8.value,
   functionCall: value9.value

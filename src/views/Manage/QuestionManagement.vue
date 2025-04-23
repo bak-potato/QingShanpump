@@ -82,52 +82,63 @@
       <div>
         <!-- ai出题 -->
         <div class="AIquestion" v-if="!isShow">
-  <div class="question" >
-    <!-- 添加表单验证规则 -->
-    <el-form
-      :model="ai"
-      :rules="aiRules"
-      ref="aiFormRef"
-      label-width="100px"
+          <div class="question" >
+            <el-form
+              :model="ai"
+              :rules="aiRules"
+              ref="aiFormRef"
+              label-width="100px"
+            >
+              <el-form-item
+                label="题目个数"
+                prop="questionCount"
+              >
+                <el-input
+                  v-model.number="ai.questionCount"
+                  placeholder="请输入题目个数"
+                  type="number"
+                  min="2"
+                  :max="50"
+                ></el-input>
+              </el-form-item>
 
-    >
-      <el-form-item
-        label="题目个数"
-        prop="questionCount"
+              <el-form-item
+                label="选项个数"
+                prop="optionCount"
+              >
+                <el-input
+                  v-model.number="ai.optionCount"
+                  placeholder="请输入选项个数"
+                  type="number"
+                  min="2"
+                  :max="10"
+                ></el-input>
+              </el-form-item>
+            </el-form>
 
-      >
-        <el-input
-          v-model.number="ai.questionCount"
-          placeholder="请输入题目个数"
-          type="number"
-          min="2"
-          :max="50"
-        ></el-input>
-      </el-form-item>
+            <el-button
+              type="primary"
+              @click="addAi"
+              style="margin-left: 20px;"
+              :disabled="!ai.questionCount || !ai.optionCount || loading"
+            >
+              <span v-if="!loading">提交</span>
+              <span v-else>
+                <el-icon class="is-loading">
+                  <Loading />
+                </el-icon>
+                生成中...
+              </span>
+            </el-button>
+          </div>
 
-      <el-form-item
-        label="选项个数"
-        prop="optionCount"
-      >
-        <el-input
-          v-model.number="ai.optionCount"
-          placeholder="请输入选项个数"
-          type="number"
-          min="2"
-          :max="10"
-        ></el-input>
-      </el-form-item>
-    </el-form>
-
-    <el-button
-      type="primary"
-      @click="addAi"
-       style="margin-left: 20px;"
-      :disabled="!ai.questionCount || !ai.optionCount"
-    >
-      提交
-    </el-button>
-  </div>
+          <!-- 加载动画 -->
+          <div v-if="loading" class="loading-overlay">
+            <div class="loading-content">
+              <el-progress type="circle" :percentage="progress" :status="progressStatus" />
+              <p class="loading-text">AI正在生成题目，请稍候...</p>
+            </div>
+          </div>
         </div>
         <!-- 人工出题 -->
         <div class="handquestion" v-if="isShow" >
@@ -213,8 +224,8 @@
 </template>
 
 <script setup>
+import { ArrowDown, Loading } from '@element-plus/icons-vue';
 import { ref,onMounted} from 'vue';
-import { ArrowDown } from '@element-plus/icons-vue';
 import { addQuestion,listMyQuestionVOByPage,aiGenerateQuestion,deleteQuestion,editQuestion} from "@/api/question";
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
@@ -223,6 +234,13 @@ const router = useRouter();
 const id = router.currentRoute.value.query.id
 const isShow = ref(true);
 const value3 = ref(true);
+const aiFormRef = ref(null);
+// 添加加载状态相关变量
+const loading = ref(false);
+const progress = ref(0);
+const progressStatus = ref('');
+const progressInterval = ref(null);
+
 // 定义新题目的数据结构（支持多个问题）
 const newQuestion = ref({
   questions: [ // 问题数组，每个元素是一个独立问题
@@ -261,23 +279,60 @@ const aiRules = ref({
 const handleisshow = (show) => {
   isShow.value = show;
 };
+
 const addAi = async () => {
-  // 确保参数为数字类型（避免后端解析错误）
-  console.log('AI出题参数', ai.value);
-  const params = {
-    appId: ai.value.id,
-    optionNumber: ai.value.optionCount,
-    questionNumber: ai.value.questionCount
-  };
+  // 验证表单
   try {
-    console.log('AI出题参数', params);
-    const res = await aiGenerateQuestion(params);
-    console.log('AI出题成功', res);
-    // 处理返回的数据，例如更新本地状态或提示用户
-    ElMessage.success('AI出题成功');
+    await aiFormRef.value.validate();
   } catch (error) {
-    // 处理网络错误或后端返回的具体错误
-    ElMessage.error(`请求失败：${error.message || '数据不存在'}`);
+    console.error('表单验证失败:', error);
+    return;
+  }
+
+  // 开始加载
+  loading.value = true;
+  progress.value = 0;
+  progressStatus.value = '';
+
+  // 模拟进度条
+  progressInterval.value = setInterval(() => {
+    progress.value += Math.floor(Math.random() * 10) + 5;
+    if (progress.value >= 95) {
+      clearInterval(progressInterval.value);
+    }
+  }, 500);
+
+  try {
+    const params = {
+      appId: ai.value.id,
+      optionNumber: ai.value.optionCount,
+      questionNumber: ai.value.questionCount
+    };
+
+    const res = await aiGenerateQuestion(params);
+    console.log(res);
+    // 完成加载
+    clearInterval(progressInterval.value);
+    progress.value = 100;
+    progressStatus.value = 'success';
+
+    // 稍作延迟让用户看到完成状态
+    setTimeout(() => {
+      loading.value = false;
+      ElMessage.success('AI出题成功');
+      renderQuestions(); // 刷新题目列表
+    }, 800);
+
+  } catch (error) {
+    // 出错处理
+    clearInterval(progressInterval.value);
+    progress.value = 100;
+    progressStatus.value = 'exception';
+
+    setTimeout(() => {
+      loading.value = false;
+      ElMessage.error(`请求失败：${error.message || '数据不存在'}`);
+    }, 800);
   }
 };
 
@@ -352,7 +407,9 @@ console.log(questionContent);
   // 调用添加接口
   const { data: { code, message } } = await addQuestion(params);
   if (code === 0) {
-    alert('题目添加成功');
+    ElMessage.success('添加成功');
+    // 刷新题目列表
+    renderQuestions();
     // 清空表单（保留1个初始问题，方便继续创建）
     newQuestion.value = {
       questions: [
@@ -532,12 +589,12 @@ onMounted(() => {
   list-style: none;
 }
 .question-item{
-margin-top: 40px;
+  margin-top: 40px;
 }
 .switch {
-position: absolute;
-top: -30px;
-left: 500px;
+  position: absolute;
+  top: -30px;
+  left: 500px;
 }
 .edit-buttons {
   position: absolute;
@@ -631,8 +688,6 @@ left: 500px;
 .delete-button el-icon {
   color: #7e3e3e;
 }
-
-
 
 .answer-tag {
   margin-left: 10px;
@@ -763,5 +818,21 @@ h2 {
 }
 .question {
   padding-top: 80px;
+}
+.loading-overlay {
+  position: fixed; /* 使用 fixed 定位覆盖整个页面 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* 确保在最上层 */
+}
+
+.loading-content {
+  text-align: center;
 }
 </style>

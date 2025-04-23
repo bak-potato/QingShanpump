@@ -27,10 +27,10 @@
               <div v-for="(questionSet) in questionSets" :key="questionSet.id" class="scrollbar-demo-item">
                 <div class="question-set-header">
                   <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;({{questionSet.appType}})
+                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;
                   </div>
                   <div class="action-buttons">
-                    <el-button type="text" @click="addscoring(questionSet.id)">查看策略</el-button>
+                    <el-button type="text" v-if="questionSet.appType !== 1" @click="addscoring(questionSet.id)">查看策略</el-button>
                     <el-button type="text" @click="add(questionSet.id)">添加/查看题目</el-button>
                     <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
                     <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
@@ -217,7 +217,8 @@ const saveQuestionSet = async() => {
  console.log(id.value)
   if(code === 0) {
     ElMessage.success('上传成功');
-
+    // 重新获取应用列表数据
+    await init();
   } else {
     ElMessage.error('上传失败');
   }
@@ -275,6 +276,8 @@ const savePolicy = async () => {
         const res = await addScoringResult(requests);
         console.log(res);
         ElMessage.success('保存成功');
+        // 重新获取应用列表数据
+        await init();
     } catch (error) {
         ElMessage.error('保存失败');
         console.error('savePolicy error:', error);
@@ -399,7 +402,7 @@ const init = async() => {
         const res = await listMyAppVOByPage({ page: null});
 
         questionSets.value = res.data.data.records
-
+        console.log(questionSets.value)
     } catch (error) {
         console.error('获取应用列表失败:', error);
     }

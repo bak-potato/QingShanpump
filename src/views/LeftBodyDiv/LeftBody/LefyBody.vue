@@ -60,6 +60,7 @@
         <LeftBDiv100 v-if="view === 100" />
         <LeftBDiv99 v-if="view === 99" />
         <LeftBDiv98 v-if="view === 98" />
+        <LeftBDiv6 v-if="view === 6" />
 
       </div>
     </div>
@@ -74,6 +75,8 @@ import LeftBDiv3 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv3.vue';
 import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
 import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
 import LeftBDiv98 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv98.vue';
+import LeftBDiv6 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv6.vue';
+
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLoginUser } from '@/api/user.js';
@@ -95,7 +98,7 @@ onMounted(() => {
 const handleuser = async () => {
   const res = await getLoginUser()
   userRole.value = res.data.data.userRole;
-  console.log(userRole.value);
+  console.log('aaaa',userRole.value);
 }
 
 // 更新激活的菜单项样式

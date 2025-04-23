@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { loginApi, getLoginUser } from '../api/user.js'; // 引入 getLoginUser 接口
+import { loginApi, getLoginUser } from '@/api/user.js'; // 引入 getLoginUser 接口
 import { ElMessage } from 'element-plus';
 import router from '@/router';
 

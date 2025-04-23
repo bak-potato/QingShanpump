@@ -97,8 +97,13 @@ const isShow = ref(false);
 }
 
 .lastguide {
+
   width: 100%;
   display: flex;
+  height: 650px;
+  position:absolute;
+  top: 10px;
+  overflow: hidden;
   justify-content: center;
 }
 </style>
