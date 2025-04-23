@@ -27,6 +27,10 @@
           <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
           <p>社区</p>
         </div>
+        <div @click="handleview7" :class="['fc3body', { fc3bodyover: view === 7 }]" class="clickable">
+          <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
+          <p>社区</p>
+        </div>
 
         <div class="bodyl">
           <div @click="handleviewmanage" v-if="userRole === 'admin'" class="last1 clickable tooltip-container">
@@ -61,7 +65,7 @@
         <LeftBDiv99 v-if="view === 99" />
         <LeftBDiv98 v-if="view === 98" />
         <LeftBDiv6 v-if="view === 6" />
-
+        <LeftBDiv7 v-if="view === 7" />
       </div>
     </div>
   </div>
@@ -76,6 +80,8 @@ import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
 import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
 import LeftBDiv98 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv98.vue';
 import LeftBDiv6 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv6.vue';
+import LeftBDiv7 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv7.vue';
+
 
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -183,6 +189,12 @@ const handleview6 = () => {
   view.value = 6;
   updateActiveClass(6);
   router.push('/official');
+}
+const handleview7 = () => {
+  sessionStorage.setItem('view', 7);
+  view.value = 7;
+  updateActiveClass(7);
+  router.push('/FriendVue');
 }
 
 const rightbody = ref(null);

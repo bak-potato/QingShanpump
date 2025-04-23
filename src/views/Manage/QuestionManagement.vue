@@ -17,7 +17,7 @@
                     <ArrowDown />
                   </el-icon>
                 </div>
-                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.id)">修改</el-button>
+                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.questionId)">修改</el-button>
                 <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.questionId,question.id)">删除</el-button>
               </div>
               <!-- 展开状态 -->
@@ -477,10 +477,10 @@ const toggleQuestion = (title) => {
   }
 }
 // 修改
-const toggleEdit = (id) => {
-  console.log(id);
+const toggleEdit = (questionId) => {
+  console.log(questionId);
   // 打开面板
-  const question = questions.value.find(q => q.id === id);
+  const question = questions.value.find(q => q.questionId === questionId);
   if (question) {
     question.editing = true;
     // 复制当前问题的数据到 nnn 中

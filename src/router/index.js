@@ -124,8 +124,14 @@ const router = createRouter({
           path: 'AIGirlfriend',
           name: 'AIGirlfriend',
           component: () => import('../views/bookmark/AIGirlfriend.vue'),
+        },
+        {
+          path: 'FriendVue',
+          name: 'FriendVue',
+          component: () => import('../views/RightBody/FriendVue.vue'),
         }
       ],
+
     },
     {
       path: '/login',
