@@ -17,7 +17,7 @@
     </div>
 
     <div class="input-area">
-      <input type="text" v-model="inputMessage" @keyup.enter="sendMessage" placeholder="发消息..." class="message-input">
+      <input id="fxx" type="text" v-model="inputMessage" @keyup.enter="sendMessage" placeholder="发消息..." class="message-input">
       <button @click="sendMessage" class="send-button">
         <i class="fas fa-paper-plane"></i> 发送
       </button>
@@ -27,7 +27,11 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { debounce } from 'lodash-es'
 
+const router = useRouter()
 const isPinkMode = ref(false)
 const messages = ref([
   { text: "亲爱的，你终于来啦~ 今天过得怎么样呀？❤️", isAI: true }
@@ -35,7 +39,11 @@ const messages = ref([
 const inputMessage = ref('')
 const chatContainer = ref(null)
 
-const sendMessage = async () => {
+const sendMessage = debounce(async () => {
+    if (!inputMessage.value.trim()) {
+    ElMessage.warning('消息不能为空哦~')
+    return
+  }
   if (!inputMessage.value.trim()) return
 
   // 添加用户消息
@@ -60,7 +68,7 @@ const sendMessage = async () => {
     await nextTick()
     scrollToBottom()
   }, 800)
-}
+}, 300, { leading: true, trailing: false })
 
 const scrollToBottom = () => {
   if (chatContainer.value) {
@@ -81,18 +89,41 @@ const generateAIResponse = (userInput) => {
   ]
   return responses[Math.floor(Math.random() * responses.length)]
 }
-
+setTimeout(() => {
+  const onFocus = document.getElementById('fxx');
+  onFocus.focus();
+},500)
 // 初始问候
 onMounted(() => {
-  setTimeout(() => {
-    messages.value.push({
-      text: "人家等你好久啦~ 有什么想和我聊的吗？(✿◠‿◠)",
-      isAI: true
-    })
-    scrollToBottom()
-  }, 1500)
+  // 检查是否已经刷新过
+
+
   sessionStorage.setItem('view', 98);
-})
+
+  if (!sessionStorage.getItem('hasRefreshed')) {
+    sessionStorage.setItem('hasRefreshed', 'true');
+    // 延迟1s后刷新页面
+    setTimeout(() => {
+      window.location.reload();
+    }, 50);
+  } else {
+    ElMessage.success({
+      showClose: true,
+      message: '温馨提示：可以设置不同体验对象和模型',
+    })
+    // 正常执行其他初始化逻辑
+    setTimeout(() => {
+      messages.value.push({
+        text: "人家等你好久啦~ 有什么想和我聊的吗？(✿◠‿◠)",
+        isAI: true
+      });
+      scrollToBottom();
+    }, 1500);
+  }
+});
+router.afterEach(() => {
+  sessionStorage.removeItem('hasRefreshed');
+});
 </script>
 
 <style scoped>
@@ -324,6 +355,7 @@ input:checked+.slider:before {
 .send-button:hover {
   background: linear-gradient(135deg, white, white);
   transform: translateY(-2px);
+  color: #000000;
 }
 
 .pink-mode .send-button:hover {

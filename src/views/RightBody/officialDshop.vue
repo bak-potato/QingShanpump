@@ -1,3 +1,4 @@
+我已经按照QRCode  请帮我在第一个卡片中添加一个分享功能  单机后出现一个弹窗 并且显示二维码
 <template>
   <div class="container">
     <!-- 插入图片 -->

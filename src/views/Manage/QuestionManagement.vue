@@ -17,8 +17,8 @@
                     <ArrowDown />
                   </el-icon>
                 </div>
-                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.tid)">修改</el-button>
-                <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.tid)">删除</el-button>
+                <el-button class="xiugaiaa" type="text" @click="toggleEdit(question.id)">修改</el-button>
+                <el-button class="xiugaiaa" type="text" @click="DeleteQuestion(question.questionId,question.id)">删除</el-button>
               </div>
               <!-- 展开状态 -->
               <div v-if="question.expanded" class="question-details">
@@ -57,12 +57,12 @@
                         </el-button>
                       </div>
                     </div>
-                    <el-button class="cjxx1" type="primary" @click="addOption(question.id)">增加选项</el-button>
+                    <el-button class="cjxx1" type="primary" @click="addOption(question.questionId)">增加选项</el-button>
                   </el-form-item>
                 </el-form>
                 <div class="edit-buttons">
-                <el-button type="primary" @click="saveEdit(question.tid)">保存</el-button>
-                <el-button type="text" @click="noSave(question.tid)">取消</el-button>
+                <el-button type="primary" @click="saveEdit(question.id)">保存</el-button>
+                <el-button type="text" @click="noSave(question.questionId)">取消</el-button>
                 </div>
               </div>
             </div>
@@ -84,43 +84,43 @@
         <div class="AIquestion" v-if="!isShow">
   <div class="question" >
     <!-- 添加表单验证规则 -->
-    <el-form 
-      :model="ai" 
-      :rules="aiRules" 
-      ref="aiFormRef" 
+    <el-form
+      :model="ai"
+      :rules="aiRules"
+      ref="aiFormRef"
       label-width="100px"
-     
+
     >
-      <el-form-item 
-        label="题目个数" 
+      <el-form-item
+        label="题目个数"
         prop="questionCount"
-        
+
       >
-        <el-input 
-          v-model.number="ai.questionCount" 
-          placeholder="请输入题目个数" 
-          type="number" 
-          min="2" 
+        <el-input
+          v-model.number="ai.questionCount"
+          placeholder="请输入题目个数"
+          type="number"
+          min="2"
           :max="50"
         ></el-input>
       </el-form-item>
 
-      <el-form-item 
-        label="选项个数" 
+      <el-form-item
+        label="选项个数"
         prop="optionCount"
       >
-        <el-input 
-          v-model.number="ai.optionCount" 
-          placeholder="请输入选项个数" 
-          type="number" 
-          min="2" 
+        <el-input
+          v-model.number="ai.optionCount"
+          placeholder="请输入选项个数"
+          type="number"
+          min="2"
           :max="10"
         ></el-input>
       </el-form-item>
     </el-form>
 
-    <el-button 
-      type="primary" 
+    <el-button
+      type="primary"
       @click="addAi"
        style="margin-left: 20px;"
       :disabled="!ai.questionCount || !ai.optionCount"
@@ -265,7 +265,7 @@ const addAi = async () => {
   // 确保参数为数字类型（避免后端解析错误）
   console.log('AI出题参数', ai.value);
   const params = {
-    appId: ai.value.id, 
+    appId: ai.value.id,
     optionNumber: ai.value.optionCount,
     questionNumber: ai.value.questionCount
   };
@@ -333,8 +333,8 @@ const saveQuestion = async (id) => {
   // 格式化数据：将每个问题的选项转换为API所需格式
   const questionContent = newQuestion.value.questions.map((question) => ({
     title: question.title,
-    // 生成一个独特的id,数字
-    tid: Math.random().toString(36).substr(2, 9),
+    // 生成一个从1单数开始的id
+    questionId:  newQuestion.value.questions.indexOf(question) + 1,
     options: question.options.map((option, oIndex) => ({
       key: getOptionLabel(oIndex), // 生成A/B/C/D...
       value: option.text,
@@ -390,21 +390,21 @@ const renderQuestions = async () => {
     // 确保每个题目有唯一 id 和正确的状态字段
     const processedQuestions = rawQuestions.flatMap(record => {
       return record.questionContent.map(content => ({
-        id: record.id, // 总的ID
-        tid: content.tid, // 每个问题的ID
+        questionId: content.questionId,
+        id: record.id,
         title: content.title,
       //  正确渲染选项
         options: content.options.map((option, index) => ({
           key: getOptionLabel(index), // 生成A/B/C/D...
           value: option.value,
-          score: option.score || null, // 评分模式
+          score: option.score , // 评分模式
           result: option.result || null, // 测评模式
         })),
         expanded: false, // 展开状态
         editing: false, // 编辑状态
       }));
     });
-    console
+    console.log(processedQuestions);
     questions.value = processedQuestions; // 赋值给数组
     console.log(questions.value);
   } catch (error) {
@@ -420,39 +420,104 @@ const toggleQuestion = (title) => {
   }
 }
 // 修改
-const toggleEdit = (tid) => {
+const toggleEdit = (id) => {
+  console.log(id);
   // 打开面板
-  const question = questions.value.find(q => q.tid === tid);
+  const question = questions.value.find(q => q.id === id);
   if (question) {
     question.editing = true;
     // 复制当前问题的数据到 nnn 中
-    nnn.value = { ...question };
+    nnn.value = {
+      questionId: question.questionId,
+      title: question.title,
+      options: question.options.map(option => ({
+        key: option.key,
+        value: option.value,
+        score: option.score,
+        result: option.result
+      })),
+    }
+    console.log(nnn.value);
   }
 }
 // 删除
-const DeleteQuestion = async (tid) => {
+const DeleteQuestion = async (questionId,id) => {
   try {
-    const {code} = await deleteQuestion({tid:tid});
-    console.log(code);
+    console.log(id,questionId);
+    const res = await deleteQuestion({id:id,questionId:questionId});
+    if (res.code === 0) {
+      ElMessage.success('删除成功');
+    }
+    // 重新加载题目列表
+    renderQuestions();
+    console.log(res);
   }
   catch (error) {
     ElMessage.error('删除失败',error);
   }
 }
 // 提交编辑
-const saveEdit = async () => {
+const saveEdit = async (id) => {
+  // 检查题目ID是否存在
+  console.log(nnn.value);
+  if (!nnn.value.questionId) {
+    ElMessage.error('编辑的题目ID不存在');
+    return;
+  }
+  // 从路由获取外层id（假设路由中的id就是接口示例中的外层id）
+  const outerId = id;
+  // 构造questionContent
+  const questionContent = [{
+    questionId: nnn.value.questionId, // 题目自身的id
+    title: nnn.value.title,
+    options: nnn.value.options.map(option => ({
+      key: option.key,
+      value: option.value,
+      score: option.score,
+      result: option.result
+    }))
+  }];
+  // 构造完整参数（注意键名是id，与接口示例一致）
+  const params = {
+    id: outerId, // 外层id
+    questionContent
+  };
   try {
-      const {code} = await editQuestion(nnn.value);
-      console.log(code);
+    const { data } = await editQuestion(params);
+    if (data.code === 0) {
+      ElMessage.success('修改成功');
+      // 关闭编辑状态并更新本地数据
+      const question = questions.value.find(q => q.questionId === nnn.value.questionId);
+      if (question) {
+        question.editing = false;
+        question.title = nnn.value.title;
+        question.options = nnn.value.options;
+      }
+    } else {
+      ElMessage.error(`修改失败：${data.message}`);
+    }
+  } catch (error) {
+    ElMessage.error('网络错误，修改失败');
+    console.error('编辑请求失败', error);
   }
-  catch (error) {
-    ElMessage.error('修改失败',error);
+};
+// 增加选项
+const addOption = (questionId) => {
+  const question = questions.value.find(q => q.questionId === questionId);
+  if (question) {
+    const newKey = String.fromCharCode(65 + question.options.length);
+    question.options.push({ key: newKey, value: '', score: '', result: '' });
+    // 若该题目处于编辑状态，同步更新 nnn.value.options
+
   }
+    if (question.editing) {
+      nnn.value.options = [...question.options]; // 复制数组确保响应式更新
+    }
 }
 // 取消
-const noSave = () => {
+const noSave = (questionId) => {
   // 关闭面板
-  const question = questions.value.find(q => q.tid === nnn.value.tid);
+  const question = questions.value.find(q => q.questionId === questionId);
   if (question) {
     question.editing = false;
   }

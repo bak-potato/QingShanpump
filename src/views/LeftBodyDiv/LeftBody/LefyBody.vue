@@ -19,7 +19,7 @@
         </div>
 
         <div @click="handleview6" :class="['fc3body', { fc3bodyover: view === 6 }]" class="clickable">
-          <img class="fclass3" width="20px" src="/src/icons/shangdian.png" />
+          <img class="fclass3" width="20px" src="/src/icons/guanfang.png" />
           <p>官方应用</p>
         </div>
 
