@@ -1,10 +1,7 @@
 <template>
   <div class="register-container">
     <el-card class="register-card">
-      <h3 style="position: absolute; color: silver; font-size: 16px;
-      top: 10px;
-      right: 20px;
-      " @click="handlelog">返回登录</h3>
+      <h3 @click="handlelog">返回登录</h3>
       <h2 class="title">用户注册</h2>
 
       <el-form
@@ -79,8 +76,9 @@ const registerForm = reactive({
   password: '',
   confirmPassword: ''
 });
+
 const handlelog = () => {
-  window.location.href = "/login"
+  window.location.href = '/login';
 }
 const validatePassword = (rule, value, callback) => {
   if (value!== registerForm.password) {
@@ -139,19 +137,32 @@ console.log(requestData)
 </script>
 
 <style scoped>
+h3{
+  position: absolute;
+  top: 20px;
+  font-weight: 600;
+  color: #878787;
+  font-size: 16px;
+  right: 20px;
+}
 .register-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
+  background-image:url(/src/images/666666.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
 }
 
 .register-card {
   width: 100%;
   max-width: 500px;
-  margin: 20px;
   position: relative;
+  margin: 20px;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
