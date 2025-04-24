@@ -13,7 +13,7 @@
       <div style="text-align: center;">
         <p>扫描二维码分享当前配置</p>
         <canvas ref="qrCanvas" style="width: 200px; height: 200px; margin: 0 auto;"></canvas>
-      <p class="share-url" :style="{ maxWidth: '200px' }">{{ shareUrl }}</p >
+      <p class="share-url" :style="{ maxWidth: '280px' }">{{ shareUrl }}</p >
         <el-button type="primary" @click="copyShareUrl" style="margin-top: 10px;">
           <el-icon><DocumentCopy /></el-icon> 复制链接
         </el-button>

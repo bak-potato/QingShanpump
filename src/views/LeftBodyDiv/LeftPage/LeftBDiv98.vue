@@ -30,17 +30,17 @@
     <!-- 5 -->
     <div class="leftmenu4">
       <h3>max_tokens </h3>
-      <el-slider v-model="value4" :format-tooltip="formatTooltip" />
+      <el-slider v-model="value4"  />
     </div>
     <!-- 6 -->
     <div class="leftmenu4">
       <h3>temperature </h3>
-      <el-slider v-model="value5" :format-tooltip="formatTooltip" />
+      <el-slider v-model="value5"  />
     </div>
     <!-- 7 -->
     <div class="leftmenu4">
       <h3>top_p </h3>
-      <el-slider v-model="value6" :format-tooltip="formatTooltip" />
+      <el-slider v-model="value6" />
     </div>
     <hr style="border:1px solid #e0e0e0; margin-top: 10px;">
 
@@ -57,7 +57,7 @@
 
     <div class="leftmenu3">
       <h3>生成分享二维码</h3>
-      <QRCodeShare :config="currentConfig" />
+      <QRCodeShare style="margin-top: -30px;" :config="currentConfig" />
     </div>
   </div>
 </template>
