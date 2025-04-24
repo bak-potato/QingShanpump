@@ -1,6 +1,10 @@
 <template>
   <div class="register-container">
     <el-card class="register-card">
+      <h3 style="position: absolute; color: silver; font-size: 16px;
+      top: 10px;
+      right: 20px;
+      " @click="handlelog">返回登录</h3>
       <h2 class="title">用户注册</h2>
 
       <el-form
@@ -75,7 +79,9 @@ const registerForm = reactive({
   password: '',
   confirmPassword: ''
 });
-
+const handlelog = () => {
+  window.location.href = "/login"
+}
 const validatePassword = (rule, value, callback) => {
   if (value!== registerForm.password) {
     callback(new Error('两次输入密码不一致!'));
@@ -145,6 +151,7 @@ console.log(requestData)
   width: 100%;
   max-width: 500px;
   margin: 20px;
+  position: relative;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }

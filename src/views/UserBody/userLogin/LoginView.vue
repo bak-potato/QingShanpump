@@ -45,7 +45,7 @@
         </el-form-item>
 
         <div class="register-link">
-          没有账号? <el-link type="primary" @click="router.push('/register')">立即注册</el-link>
+          没有账号? <el-link style="margin-top: -5px;" type="primary" @click="router.push('/register')">立即注册</el-link>
         </div>
 
         <div class="third-party-login">
