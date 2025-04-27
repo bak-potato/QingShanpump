@@ -56,13 +56,13 @@
       </div>
       <div ref="rightbody" class="rightbody">
         <div v-if="0" @click="handleright" class="hiddenicon"></div>
+        <LeftBDiv98 v-if="view === 98"  />
         <LeftBDiv0 v-if="view === 0 && $route.path === '/'" />
         <LeftBDiv2 v-if="view === 2" />
         <LeftBDiv1 v-if="view === 1" />
         <LeftBDiv3 v-if="view === 3" />
         <LeftBDiv100 v-if="view === 100" />
         <LeftBDiv99 v-if="view === 99" />
-        <LeftBDiv98 v-if="view === 98" />
         <LeftBDiv6 v-if="view === 6" />
         <LeftBDiv7 v-if="view === 7" />
         <LeftBDiv0 v-if="view === 0 && $route.path === '/user'" />
@@ -76,12 +76,11 @@ import LeftBDiv0 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv0.vue';
 import LeftBDiv1 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv1.vue';
 import LeftBDiv2 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv2.vue';
 import LeftBDiv3 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv3.vue';
+import LeftBDiv6 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv6.vue';
+import LeftBDiv7 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv7.vue';
 import LeftBDiv100 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv100.vue';
 import LeftBDiv99 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv99.vue';
 import LeftBDiv98 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv98.vue';
-import LeftBDiv6 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv6.vue';
-import LeftBDiv7 from '@/views/LeftBodyDiv/LeftPage/LeftBDiv7.vue';
-
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getLoginUser } from '@/api/user.js';
@@ -108,6 +107,8 @@ const initializeViewFromRoute = () => {
     '/official': 6,
     '/FriendVue': 7,
     '/usermanage1': 100,
+    '/AIGirlfriend': 98,
+    '/answer': 99,
     '/user': 0 // 个人中心也使用0但需要特殊处理
   };
 

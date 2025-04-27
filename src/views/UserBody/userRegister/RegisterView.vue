@@ -3,14 +3,12 @@
     <el-card class="register-card">
       <h3 @click="handlelog">返回登录</h3>
       <h2 class="title">用户注册</h2>
-
       <el-form
         :model="registerForm"
         :rules="rules"
         ref="registerFormRef"
         label-position="top"
-        @submit.prevent="handleRegister"
-      >
+        @submit.prevent="handleRegister">
         <el-form-item label="用户名" prop="username">
           <el-input
             v-model="registerForm.username"

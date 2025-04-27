@@ -6,7 +6,6 @@
     </el-header>
     <!-- 主体内容 -->
     <el-main>
-      <NewGuide />
       <LastGuide />
     </el-main>
   </el-container>
@@ -14,7 +13,6 @@
 
 <script setup>
 import TopCenter from '@/views/RightBody/TopCenter.vue'
-import NewGuide from '@/views/RightBody/NewGuide.vue'
 import LastGuide from '@/views/RightBody/LastGuide.vue'
 </script>
 

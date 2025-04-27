@@ -39,6 +39,15 @@
       <img width="20px" src="@/icons/shenhe.png">
       应用审核
     </div>
+
+        <div
+      @click="router.push('/charmanage'); activeMenu = 'charmanage'"
+      class="leftmenu1"
+      :class="{ active: activeMenu === 'charmanage' }"
+    >
+      <img width="20px" src="@/icons/shenhe.png">
+      聊天管理
+    </div>
   </div>
 </template>
 
@@ -56,6 +65,7 @@ onMounted(() => {
   else if (path.includes('VueDataAnalyticsPanel')) activeMenu.value = 'VueDataAnalyticsPanel'
   else if (path.includes('ApplicationReview')) activeMenu.value = 'ApplicationReview'
   else if (path.includes('ForumManView')) activeMenu.value = 'ForumManView'
+  else if (path.includes('charmanage')) activeMenu.value = 'charmanage'
 
 })
 </script>

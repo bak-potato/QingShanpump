@@ -77,7 +77,7 @@
 <script setup>
 import { useRouter } from 'vue-router'; // 引入路由
 import { User, Delete, Search } from '@element-plus/icons-vue';//引入图标
-import { ref } from 'vue';
+import { ref,  } from 'vue';
 const dialogDelete = ref(false);//控制删除好友的弹出框
 const dialogShen = ref(false);//控制好友申请的弹出框
 const router = useRouter(); // 创建路由实例
@@ -104,6 +104,7 @@ const friendRequests = ref([
     { id: 1, name: '王五', avatar: '/src/images/RC.jpg' },
     { id: 2, name: '赵六', avatar: '/src/images/RC.jpg' }
 ])
+
 </script>
 
 <style scoped>
@@ -169,13 +170,10 @@ const friendRequests = ref([
     border-top: 1px solid #eee;
     padding: 16px 24px;
 }
-
 /* 好友列表容器 */
 .friend-list {
     max-height: 400px;
-    overflow-y: auto;
 }
-
 /* 好友项通用样式 */
 .friend-item {
     display: flex;

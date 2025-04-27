@@ -116,6 +116,11 @@ const router = createRouter({
           meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
+          path: 'charmanage',
+          name: 'charmanage',
+          component: () => import('../views/AdminManage/CharManage.vue'),
+        },
+        {
           path: 'AnswerIns',
           name: 'AnswerIns',
           component: () => import('../views/RightBody/AnswerIns.vue'),
@@ -134,7 +139,12 @@ const router = createRouter({
           path: 'SearchFriend',
           name: 'SearchFriend',
           component: () => import('../views/RightBody/SearchFriend.vue'),
-        }
+        },
+        {
+          path: 'OpenPageManager',
+          name: 'OpenPageManager',
+          component: () => import('../views/bookmark/OpenPageManager.vue'),
+        },
       ],
 
     },
@@ -170,26 +180,44 @@ const router = createRouter({
     },
 
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  }
 });
 
 router.beforeEach(async (to, from, next) => {
+  // 添加路由跳转日志便于调试
+  console.log(`Navigating from ${from.path} to ${to.path}`);
+
   const isAuthenticated = checkAuth();
   const userRole = localStorage.getItem('userRole') || '';
+
   // 需要登录但未登录
   if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log('Redirecting to login: authentication required');
     return next({ name: 'login', query: { redirect: to.fullPath } });
   }
+
   // 需要管理员权限但不是管理员
   if (to.meta.requiresAdmin && userRole !== 'admin') {
+    console.log('Redirecting to 403: admin role required');
     return next({ name: 'Forbidden' });
   }
 
-  // 其他情况正常放行
+  // 确保总是调用 next()
   next();
+});
+router.afterEach((to, ) => {
+  console.log(`Navigation complete to ${to.path}`);
 });
 
 function checkAuth() {
-  return localStorage.getItem('isLoggedIn') === 'true';
+  const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  console.log(`Authentication check: ${loggedIn}`);
+  return loggedIn;
 }
-
 export default router;

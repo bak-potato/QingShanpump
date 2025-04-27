@@ -490,7 +490,8 @@ onMounted(async () => {
       userInfo.createTime = data.createTime
       userInfo.lastLogin = data.updateTime
     }
-
+    // 本地存储用户id
+    localStorage.setItem('userId', userInfo.id)
     // 获取我的应用列表
     const appRes = await listMyAppVOByPage({ page: null })
     if (appRes.data.code === 0) {
