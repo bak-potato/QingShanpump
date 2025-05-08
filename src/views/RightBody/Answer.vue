@@ -156,7 +156,22 @@ const nextQuestion = () => {
 };
 
 const submitQuiz = async () => {
- submitting.value = true; // 开始提交
+   for (let i = 0; i < questions.value.length; i++) {
+    const question = questions.value[i];
+    const answer = userAnswers.value[i];
+    if (question.isMultiple) {
+      if (!answer || answer.length === 0) {
+        ElMessage.error('请回答所有题目');
+        return;
+      }
+    } else {
+      if (answer === undefined || answer === null) {
+        ElMessage.error('请回答所有题目');
+        return;
+      }
+    }
+  }
+  submitting.value = true; // 开始提交
   loading.value = true;
   const id = router.currentRoute.value.query.id;
   const answers = userAnswers.value.map((answer, index) => {
@@ -171,7 +186,6 @@ const submitQuiz = async () => {
     appId: id,
     choices: answers
   };
-console.log(data);
   try {
     console.log('data',data)
     const res = await addUserAnswer(data);
@@ -188,7 +202,6 @@ console.log(data);
   } catch (error) {
     console.error('提交答卷失败:', error);
   }
-
 };
 // 返回评测结果
 const goToResult = async(id) => {
@@ -200,9 +213,6 @@ const goToResult = async(id) => {
         resultName:res.data.data.resultName
       }
     });
-  console.log(res.data.data);
-  console.log(res.data.data.resultName);
-
 }
 const generateShareUrl = () => {
   // 获取当前题目

@@ -109,7 +109,8 @@ const handleLogin = async () => {
     }
 
     const res = await loginApi(loginForm);
-    if (res.status === 200) {
+    // console.log();
+    if (res.data.message === 'ok') {
       ElMessage.success('登录成功');
       localStorage.setItem('isLoggedIn', 'true');
       if (rememberMe.value) {

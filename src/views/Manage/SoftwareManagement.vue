@@ -169,7 +169,7 @@
         </div>
 
         <!-- 评分策略设置 -->
-        <div class="scoring-policy">
+        <div class="scoring-policy" v-if="newApp.type !== 1">
           <h2 class="policy-title">评分策略设置</h2>
 
           <el-form

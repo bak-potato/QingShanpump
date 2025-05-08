@@ -142,8 +142,7 @@
         :model="currentApp"
         label-width="100px"
         :rules="formRules"
-        ref="formRef"
-      >
+        ref="formRef">
         <el-form-item label="应用名称" prop="appName">
           <el-input v-model="currentApp.appName" placeholder="请输入应用名称"></el-input>
         </el-form-item>
@@ -165,8 +164,7 @@
             <el-upload
               action="#"
               :show-file-list="false"
-              :before-upload="handleAvatarUpload"
-            >
+              :before-upload="handleAvatarUpload">
               <el-button type="primary" size="small" class="mt-2">
                 更换图标
               </el-button>
@@ -187,7 +185,6 @@
           </el-select>
         </el-form-item>
       </el-form>
-
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="saveApp">保存</el-button>
@@ -199,7 +196,7 @@
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { listAppByPage, addApp, deleteApp } from '../../api/app.js';
+import { listAppByPage, addApp, deleteApp,editApp } from '../../api/app.js';
 import { commonController } from '../../api/user.js';
 
 // 表格数据
@@ -342,7 +339,6 @@ const handleDelete = async (row) => {
       ElMessage.success('应用删除成功');
       // 重新加载当前页数据
       await loadApplications();
-
       // 如果当前页没有数据了，且不是第一页，则返回上一页
       if (tableData.value.length === 0 && currentPage.value > 1) {
         currentPage.value -= 1;
@@ -359,6 +355,7 @@ const handleDelete = async (row) => {
   }
 };
 
+// 保存应用
 // 保存应用
 const saveApp = async () => {
   if (!formRef.value) {
@@ -393,11 +390,21 @@ const saveApp = async () => {
         ElMessage.error(response ? response.message || '添加应用失败' : '添加应用失败');
       }
     } else {
-      // 编辑应用逻辑保持不变
-      const index = tableData.value.findIndex(app => app.id === currentApp.id);
-      if (index !== -1) {
-        tableData.value[index] = { ...currentApp };
-        ElMessage.success('应用信息更新成功');
+      // 修改编辑应用逻辑，调用editApp API
+      const response = await editApp({
+        id: currentApp.id,
+        appDesc: currentApp.appDesc,
+        appIcon: currentApp.appIcon,
+        appName: currentApp.appName,
+        appType: currentApp.appType,
+        scoringStrategy: currentApp.scoringStrategy
+      });
+
+      if (response && response.data.code === 0) {
+        ElMessage.success('应用更新成功');
+        await loadApplications(); // 重新加载数据
+      } else {
+        ElMessage.error(response ? response.message || '更新应用失败' : '更新应用失败');
       }
     }
 

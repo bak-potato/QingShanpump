@@ -15,54 +15,9 @@ const handleNodeClick = (data) => {
 
 const data = [
   {
-    label: '应用商店',
-    children: [
-      {
-        label: '最近更新',
-      },
-      {
-        label: '效率工具',
-      },
-      {
-        label: '代码助手',
-      },
-    ],
-  },
-  {
-    label: '分类查看',
-    children: [
-      {
+    label: '全部',
 
-        label: '学习教育',
-      },
-      {
-        label: '娱乐休闲',
-      },
-      {
-        label: '心理测试',
-      },
-      {
-        label: '生活实用',
-      },
-      {
-        label: '智力挑战',
-      },
-      {
-        label: '科普知识',
-      },
-      {
-        label: '其他',
-      }
-    ],
-  },
-  {
-    label: '我的收藏',
-    children: [
-      {
-        label: '收藏夹1',
-      }
-    ],
-  },
+  }
 ];
 
 const defaultProps = {

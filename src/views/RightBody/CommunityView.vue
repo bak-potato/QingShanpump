@@ -1,10 +1,9 @@
 <template>
   <div class="dshop">
-    <div class="dshoptitle">
-      <p class="dshoptitle1 ">深度社区</p>
+    <div class="dshoptititle">
+      <p class="dshoptititle1 ">深度社区</p>
       <div class="search-container">
-        <el-input style="border-radius: 25px;" v-model="keyword" placeholder="搜索帖子" clearable
-          @keyup.enter="handleSearch"></el-input>
+        <el-input style="border-radius: 25px;" v-model="keyword" placeholder="搜索帖子" clearable @keyup.enter="handleSearch"></el-input>
       </div>
       <el-button @click="handleNewPost" class="dstt2" type="primary">发布帖子</el-button>
     </div>
@@ -56,7 +55,10 @@
     </div>
 
     <div class="dshoptitleta">
-      <el-row :gutter="24">
+      <div v-if="posts.length === 0" class="loading">
+        <div class="spinner"></div>
+      </div>
+      <el-row :gutter="24" v-else>
         <el-col :span="8" v-for="(post, index) in currentPosts" :key="index">
           <el-card shadow="hover" style="width: 100%; margin-bottom: 10px;" @click="goToPostDetail(post.id)">
             <div class="post-card">
@@ -76,9 +78,9 @@
               <div class="post-stats">
                 <div class="stat-item">
                   <el-icon>
-                    <Star />
+                    <Star/>
                   </el-icon>
-                  <span>{{ post.thumbNum || 0 }}</span>
+                  <span>{{ post.thumbNum }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon>
@@ -169,9 +171,10 @@ const fetchPosts = async () => {
       current: currentPage.value,
       pageSize: pageSize.value
     });
+    console.log('fetchPosts',response.data.data)
     posts.value = response.data.data.records;
     totalPosts.value = parseInt(response.data.data.total);
-
+    console.log('总帖子:', posts.value);
     for (let post of posts.value) {
       if (!post.userId) {
         console.warn('帖子对象缺少userId属性，跳过获取用户信息');
@@ -210,8 +213,6 @@ onMounted(() => {
 });
 </script>
 
-
-
 <style scoped>
 /* 基础布局优化 */
 .dshop {
@@ -221,7 +222,7 @@ onMounted(() => {
   padding: 0 20px;
 }
 
-.dshoptitle {
+.dshoptititle {
   display: flex;
   align-items: center;
   gap: 30px;
@@ -234,7 +235,7 @@ onMounted(() => {
 }
 
 /* 标题样式增强 */
-.dshoptitle1 {
+.dshoptititle1 {
   font-size: 28px;
   font-weight: 600;
   color: #1a1a1a;
@@ -389,6 +390,29 @@ onMounted(() => {
     .el-icon {
       color: currentColor;
     }
+  }
+}
+
+/* 加载动画样式 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-left-color: #6B5BFF;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

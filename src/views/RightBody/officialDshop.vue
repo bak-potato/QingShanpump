@@ -9,12 +9,6 @@
     <div class="box">
       <el-tabs v-model="activeName" type="card" class="demo-tabs" @tab-click="handleClick">
         <el-tab-pane label="全部" name="all"></el-tab-pane>
-        <el-tab-pane label="商业服务" name="business"></el-tab-pane>
-        <el-tab-pane label="写作辅助" name="writing"></el-tab-pane>
-        <el-tab-pane label="工作提效" name="efficiency"></el-tab-pane>
-        <el-tab-pane label="教育辅助" name="education"></el-tab-pane>
-        <el-tab-pane label="生活助手" name="life"></el-tab-pane>
-        <el-tab-pane label="其他" name="other"></el-tab-pane>
       </el-tabs>
       <div style="max-width: 1344pxd;max-height: 232px; display: flex;">
       <el-card v-for="item in newCards" :key="item.id"  style="max-width: 480px" @click="handleAIf" class="clickable-card">
@@ -48,7 +42,7 @@ import router from '@/router';
 const cards = [
   {
     id: 1,
-    name: 'AI女友',
+    name: 'AI聊天',
     description: '智谱开放平台AI智能客服魔镜体，知识库内容为专有知识不支持复制，需替换自有知识库',
     tags: ['生活助手'],
     date: '2024-11-10',
