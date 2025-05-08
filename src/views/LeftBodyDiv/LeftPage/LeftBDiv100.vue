@@ -48,6 +48,15 @@
       <img width="20px" src="@/icons/yunyingguanli-liaotianguanli.png">
       聊天管理
     </div>
+
+     <div
+      @click="router.push('/AnnouncementManagement'); activeMenu = 'AnnouncementManagement'"
+      class="leftmenu1"
+      :class="{ active: activeMenu === 'AnnouncementManagement' }"
+    >
+      <img width="20px" src="@/icons/gonggao.png">
+      公告管理
+    </div>
   </div>
 </template>
 
@@ -66,6 +75,7 @@ onMounted(() => {
   else if (path.includes('ApplicationReview')) activeMenu.value = 'ApplicationReview'
   else if (path.includes('ForumManView')) activeMenu.value = 'ForumManView'
   else if (path.includes('charmanage')) activeMenu.value = 'charmanage'
+  else if (path.includes('AnnouncementManagement')) activeMenu.value = 'AnnouncementManagement'
 
 })
 </script>

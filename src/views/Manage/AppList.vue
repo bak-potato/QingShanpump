@@ -25,12 +25,13 @@ const appId = router.currentRoute.value.query.id;
 console.log(appId);
 // 添加策略
 const addScoring = (appId) => {
-    router.push({ path: "/SoftwareManagement", query: { appId: appId } }); 
+    router.push({ path: "/SoftwareManagement", query: { appId: appId } });
 }
 // 获取应用策略列表
 const editPolicies = ref([]);
 const getScoringList = async () => {
-    const res = await listMyScoringResultVOByPage({ appId: appId });
+    const res = await listMyScoringResultVOByPage({appId: appId});
+    console.log(res.data.data.records);
     const scoringList = res.data.data.records;
     editPolicies.value = scoringList.map((record) => ({
         id: record.id,
@@ -53,7 +54,7 @@ const deletePolicy = async (id) => {
     try {
         await deleteScoringResult({id:id});
         ElMessage.success("删除成功");
-        getScoringList(); 
+        getScoringList();
     }catch (error) {
         ElMessage.error("删除失败",error);
     }
@@ -84,4 +85,4 @@ const deletePolicy = async (id) => {
         left: 110px;
     }
 }
-</style>    
+</style>

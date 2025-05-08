@@ -108,6 +108,12 @@ const router = createRouter({
           name: 'ApplicationReview',
           component: () => import('../views/AdminManage/ApplicationReview.vue'),
           meta: { requiresAuth: true, requiresAdmin: true }
+        },{
+
+          path: 'AnnouncementManagement',
+          name: 'AnnouncementManagement',
+          component: () => import('../views/AdminManage/AnnouncementManagement.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
           path: 'ForumManView',
@@ -130,11 +136,7 @@ const router = createRouter({
           name: 'AIGirlfriend',
           component: () => import('../views/bookmark/AIGirlfriend.vue'),
         },
-        {
-          path: 'FriendVue',
-          name: 'FriendVue',
-          component: () => import('../views/RightBody/FriendVue.vue'),
-        },
+
         {
           path: 'SearchFriend',
           name: 'SearchFriend',

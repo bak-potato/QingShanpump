@@ -39,10 +39,9 @@
       <!-- 互动统计 -->
       <div class="interaction-stats">
         <div class="stat-item" @click="handlefrao">
-          <el-icon :color="postData.isLiked ? '#ff4222' : ''"><StarFilled /></el-icon>
+          <el-icon :color="postData.isLiked ? '#ff4222' : ''"><Pointer /></el-icon>
           <span>{{ postData.favourNum }}</span>
         </div>
-
 
       </div>
     </div>

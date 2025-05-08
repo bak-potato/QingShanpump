@@ -1,4 +1,4 @@
-<template>
+ <template>
   <el-container>
     <el-header>
       <h2>用户信息中心</h2>
@@ -96,8 +96,7 @@
 
 
       <!-- 我的应用 -->
- <!-- 我的应用 -->
-<el-card class="user-record mt-4">
+      <el-card class="user-record mt-4">
   <div class="record-container">
     <h3 class="record-title">我的应用</h3>
     <!-- 应用列表 -->
@@ -156,7 +155,7 @@
       <el-empty description="暂无应用，快去创建一个吧！" />
     </div>
   </div>
-</el-card>
+      </el-card>
 
 
 
@@ -165,8 +164,8 @@
         <div class="record-container">
           <h3 class="record-title">答题记录</h3>
 
-  <div class="search-controls">
-    <el-input
+          <div class="search-controls">
+            <el-input
       v-model="searchKeyword"
       placeholder="搜索题目名称"
       clearable
@@ -176,54 +175,38 @@
       <template #prefix>
         <el-icon><Search /></el-icon>
       </template>
-    </el-input>
-    <el-button
+            </el-input>
+            <el-button
       type="primary"
       @click="handleSearch"
       :icon="Search"
     >
       搜索
-    </el-button>
-    <el-button
+            </el-button>
+            <el-button
       type="default"
       @click="handleReset"
     >
       重置
-    </el-button>
-  </div>
+            </el-button>
+          </div>
 
 
           <el-table   :data="filteredRecords"  border  style="width: 100%">
-            <el-table-column   prop="questionName"  label="题目名称" min-width="200"/>
-            <el-table-column  prop="score" label="得分" width="100" />
+            <el-table-column   prop="appName"  label="题目名称" min-width="200"/>
 
-            <el-table-column  label="答题时间"  width="180">
+            <el-table-column  label="创建时间"  width="180">
               <template #default="scope">
                 {{ formatDate(scope.row.createTime) }}
               </template>
             </el-table-column>
-
-            <el-table-column  prop="status"  label="状态"  width="120">
-              <template #default="scope">
-                <el-tag
-                  :type="scope.row.status === 'correct' ? 'success' :
-                          scope.row.status === 'wrong' ? 'warning' : 'info'"
-                  :effect="scope.row.status === 'correct' ? 'dark' :
-                          scope.row.status === 'wrong' ? 'dark' : 'plain'"
-                >
-                  {{ scope.row.status === 'correct' ? '正确' :
-                        scope.row.status === 'wrong' ? '错误' : '未完成' }}
-                </el-tag>
-              </template>
-            </el-table-column>
-
             <el-table-column label="操作" width="180" fixed="right">
               <template #default="scope">
-                <el-button  size="small"  type="primary"  @click="handleView(scope.row)" >
+                <el-button  size="small"  type="primary"  @click="handleView(scope.row.id)" >
                     查看
                 </el-button>
 
-                <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleDelete(scope.$index)">
+                <el-popconfirm title="确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
                   <template #reference>
                     <el-button size="small" type="danger" >
                       删除
@@ -236,37 +219,96 @@
         </div>
       </el-card>
 
-      <!-- 查看题目信息对话框 -->
-      <el-dialog  v-model="selectedRecord"  title="题目信息"  width="600px">
-        <el-form>
-          <el-form-item label="题目名称:">
-            {{ selectedRecord.questionName }}
-          </el-form-item>
+      <!-- 查看答案记录对话框 -->
+      <el-dialog
+    v-model="selectedRecord"
+    title="答题详情"
+    width="680px"
+    class="answer-detail-dialog"
+  >
+    <!-- 加载状态 -->
+    <div v-if="isLoading" class="loading-container">
+      <el-icon class="loading-icon"><Loading /></el-icon>
+      <p class="loading-text">正在加载答题详情...</p>
+    </div>
 
-          <el-form-item label="题目选项:">
-            <el-radio-group v-model="selectedRecord.selectedOption">
-              <el-radio v-for="(option, index) in selectedRecord.options" :key="index" :label="index">
-                {{ option }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="用户答案:">
-            {{ selectedRecord.userAnswer }}
-          </el-form-item>
-          <el-form-item label="正确答案:">
-            {{ selectedRecord.correctAnswer }}
-          </el-form-item>
-          <el-form-item label="得分:">
-            {{ selectedRecord.score }}
-          </el-form-item>
-          <el-form-item label="答题时间:">
-            {{ formatDate(selectedRecord.createTime)}}
-          </el-form-item>
-        </el-form>
-        <template #footer>
-          <el-button @click="selectedRecord = false" type="primary">关闭</el-button>
-        </template>
+    <!-- 内容区域 -->
+    <div v-else class="detail-content">
+      <!-- 头部信息 -->
+      <div class="header-section">
+        <h3 class="title">{{ write.resultName || '答题结果' }}</h3>
+        <div class="time-stamp">
+          <el-icon><Clock /></el-icon>
+          <span>{{ formatDate(write.createTime) }}</span>
+        </div>
+      </div>
+
+      <!-- 主要内容 -->
+      <div class="main-section">
+        <!-- 答案区块 -->
+        <div class="answer-block">
+          <div class="block-header">
+            <el-icon class="icon"><EditPen /></el-icon>
+            <span class="label">用户答案</span>
+          </div>
+          <div class="choices-container">
+            <template v-if="write.choices && write.choices.length">
+              <el-tag
+                v-for="(choice, index) in write.choices"
+                :key="index"
+                type="info"
+                class="choice-tag"
+                effect="dark"
+              >
+                {{ choice }}
+              </el-tag>
+            </template>
+            <el-empty v-else description="未作答" :image-size="60" />
+          </div>
+        </div>
+
+        <!-- 结果区块 -->
+        <div class="result-block">
+          <div class="result-row">
+            <div class="result-item">
+              <div class="label-box">
+                <el-icon><Trophy /></el-icon>
+                <span class="label">获得称号</span>
+              </div>
+              <div class="value">{{ write.resultName || '--' }}</div>
+            </div>
+            <div class="result-item">
+              <div class="label-box">
+                <el-icon><Comment /></el-icon>
+                <span class="label">系统评价</span>
+              </div>
+              <div class="value">{{ write.resultDesc || '--' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template #footer>
+      <el-button
+        type="primary"
+        @click="selectedRecord = false"
+        class="close-btn"
+      >
+        关闭
+      </el-button>
+    </template>
       </el-dialog>
+
+
+
+
+
+
+
+
+
+
 
       <!-- 答题数据分析 -->
        <el-card class="user-record mt-4">
@@ -286,8 +328,9 @@ import { getLoginUser } from '../../../api/user.js'
 import { updateUserInfo } from '../../../api/user.js'
 import { userLogout,commonController } from '../../../api/user.js'
 import {listMyAppVOByPage} from '../../../api/app.js'
+import {listMyUserAnswerVOByPage} from  '@/api/answer.js'
 import {deleteApp} from '../../../api/app.js'
-
+const answerRecords = ref([])
 const router = useRouter()
 // 用户信息数据
 const userInfo = reactive({
@@ -304,6 +347,7 @@ const userInfo = reactive({
 const showEditDialog = ref(false)
 const selectedRecord = ref(null)
 const editFormRef = ref(null)
+const isLoading = ref(false)
 const editForm = reactive({
   username: userInfo.username
 })
@@ -398,37 +442,18 @@ const handleSecuritySettings = async () => {
 };
 
 // 答题记录数据
-const answerRecords = ref([
-  {
-    id: 1,
-    questionName: 'Python基础测试',
-    score: 95,
-    createTime: new Date('2025-03-15'),
-    status: 'correct'
-  },
-  {
-    id: 2,
-    questionName: '前端开发实战',
-    score: 82,
-    createTime: new Date('2025-03-12'),
-    status: 'correct'
-  },
-  {
-    id: 3,
-    questionName: '数据库原理',
-    score: 75,
-    createTime: new Date('2025-03-10'),
-    status: 'wrong'
-  },
-  {
-    id: 4,
-    questionName: '算法设计',
-    score: 0,
-    createTime: new Date('2025-03-08'),
-    status: 'unfinished'
+const fetchAnswerRecords = async () => {
+  try {
+    const res = await listMyAppVOByPage({ page: null }) // 假设接口无需分页
+    answerRecords.value = res.data.data.records || []
+    console.log('answerRecords',answerRecords.value)
+    filteredRecords.value = answerRecords.value // 初始化显示全部记录
+  } catch (error) {
+    console.error('获取答题记录失败:', error)
+    ElMessage.error('加载答题记录失败')
   }
-])
-
+}
+fetchAnswerRecords()
 // 搜索关键字
 const searchKeyword = ref('')
 // 筛选后的记录
@@ -436,8 +461,11 @@ const filteredRecords = ref([])
 // 搜索处理
 const handleSearch = () => {
   filteredRecords.value = answerRecords.value.filter(record =>
-    record.questionName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+    record.appName?.toLowerCase().includes(searchKeyword.value.toLowerCase())
   )
+  if (filteredRecords.value.length === 0) {
+    ElMessage.warning('未找到匹配的答题记录')
+  }
 }
 // 重置搜索
 const handleReset = () => {
@@ -445,19 +473,43 @@ const handleReset = () => {
   filteredRecords.value = answerRecords.value
 
 }
-filteredRecords.value = answerRecords.value
+const answer = async() => {
+  const res = await listMyAppVOByPage({ page: null })
+  filteredRecords.value = res.data.data.records
+  console.log(res.data.data.records)
+}
+answer()
 // 查看题目信息
-const handleView = (row) => {
-  selectedRecord.value = row
-  console.log(selectedRecord.value)
+const write = ref({})
+const handleView = async (appId) => {
+    selectedRecord.value = true;
+    isLoading.value = true // 显示加载
+    try {
+        const res = await listMyUserAnswerVOByPage({ page: null, appId: appId });
+        // 取最新的一条记录
+        write.value = res.data.data.records[0] || {};
+    } catch (error) {
+        console.error('请求出错:', error);
+        ElMessage.error('获取答题记录失败');
+    } finally {
+    isLoading.value = false // 隐藏加载
+  }
+};
+const handleDelete = async (id) => {
+  try {
+    const response = await deleteApp({ id: id }); // 调用删除应用的接口
+    if (response.status === 200 && response.data.code === 0 && response.data.data) {
+      // 删除成功
+      ElMessage.success('应用已删除');
+    }
+    await answer()
+  }
+  catch (error) {
+    console.error('删除应用请求出错:', error);
+    ElMessage.error('删除应用请求出错，请检查网络或联系管理员');
+  }
 }
 
-// 删除记录
-const handleDelete = (index) => {
-  answerRecords.value.splice(index, 1)
-  filteredRecords.value.splice(index, 1)
-  ElMessage.success('记录已删除')
-}
 
 
 
@@ -527,6 +579,24 @@ const handleDeleteApp = async (index) => {
 
 
 <style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+
+  .loading-icon {
+    font-size: 40px;
+    color: var(--el-color-primary);
+    animation: rotating 2s linear infinite;
+  }
+
+  .loading-text {
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+  }
+}
 .app-actions {
   display: flex;
   gap: 8px;
@@ -675,5 +745,138 @@ const handleDeleteApp = async (index) => {
 :deep(.el-descriptions__label) {
   width: 120px;
   font-weight: 500;
+}
+.answer-detail-dialog {
+  :deep(.el-dialog__header) {
+    border-bottom: 1px solid #eee;
+    margin-right: 0;
+  }
+
+  :deep(.el-dialog__body) {
+    padding: 20px 30px;
+  }
+}
+.detail-content {
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+
+    .title {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .time-stamp {
+      display: flex;
+      align-items: center;
+      color: #999;
+
+      .el-icon {
+        margin-right: 6px;
+      }
+    }
+  }
+
+  .main-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+  }
+}
+
+/* 答案区块 */
+.answer-block {
+  margin-bottom: 25px;
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+
+    .icon {
+      font-size: 18px;
+      color: var(--el-color-primary);
+      margin-right: 8px;
+    }
+
+    .label {
+      font-size: 15px;
+      color: #333;
+      font-weight: 500;
+    }
+  }
+
+  .choices-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 40px;
+
+    .choice-tag {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+    }
+  }
+}
+
+/* 结果区块 */
+.result-block {
+  .result-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .result-item {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    .label-box {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .el-icon {
+        color: var(--el-color-primary);
+        font-size: 16px;
+        margin-right: 8px;
+      }
+
+      .label {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .value {
+      color: #333;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+  }
+}
+
+/* 关闭按钮 */
+.close-btn {
+  width: 120px;
+}
+
+@keyframes rotating {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

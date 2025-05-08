@@ -112,7 +112,8 @@ const initializeViewFromRoute = async () => {
     '/ForumManView': 100,
     '/VueDataAnalyticsPanel': 100,
     '/ApplicationReview': 100,
-    '/charmanage': 100
+    '/charmanage': 100,
+    '/AnnouncementManagement': 100,
   }[path] || 0;
 };
 

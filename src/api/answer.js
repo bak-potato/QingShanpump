@@ -8,6 +8,9 @@ export const listQuestionVOByPage = (data) => {
 }
 export const getUserAnswerVOById = (data) => {
   // const params = qs.stringify(data)
-// ?${ params }/
-  return get(`/api/userAnswer/get/vo`,data)
+  // ?${ params }/
+  return get(`/api/userAnswer/get/vo`, data)
+}
+export const listMyUserAnswerVOByPage = (data) => {
+  return post('/api/userAnswer/my/list/page/vo', data)
 }

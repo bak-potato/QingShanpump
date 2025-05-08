@@ -381,7 +381,7 @@ const createNewApp = async () => {
     ElMessage.error('应用描述不能为空');
     return;
   }
-  if (!newApp.value.type) {
+  if (newApp.value.type === '') {
     ElMessage.error('请选择应用类型');
     return;
   }
@@ -395,7 +395,8 @@ const createNewApp = async () => {
       scoringStrategy: newApp.value.type,
     });
 
-    currentAppId.value = data;
+    currentAppId.value = data.data;
+    console.log('应用创建成功:', currentAppId.value);
     ElMessage.success('应用创建成功');
 
     // 重置表单
@@ -455,19 +456,19 @@ const saveScoringPolicies = async () => {
         resultPropValue = [policy.resultProp.value || policy.resultProp];
       }
     }
-
+    console.log(currentAppId.value)
     return {
-      appId: currentAppId.value,
-      type: policy.type,
+      appId: currentAppId.value||iid,
       resultScoreRange: policy.resultScoreRange || 0,
       resultName: policy.resultName,
-      resultProp: resultPropValue,
+      resultProp: resultPropValue||[],
       resultDesc: policy.resultDesc
     };
   });
-
+ console.log(requests);
   try {
-    await addScoringResult(requests);
+    const res = await addScoringResult(requests);
+    console.log('策略保存成功:', res);
     ElMessage.success('策略保存成功');
 
     // 重置策略表单
@@ -546,7 +547,12 @@ const handleNewAppAvatarUpload = async (file) => {
 const viewScoringStrategy = (appId) => {
   router.push({ path: '/applist', query: { id: appId } });
 };
-
+const iid = router.currentRoute.value.query.appId;
+console.log(iid);
+/**
+ * 查看策略
+ * @param {number} appId - 应用ID
+ */
 /**
  * 查看题目
  * @param {number} appId - 应用ID

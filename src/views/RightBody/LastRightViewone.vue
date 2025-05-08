@@ -1,6 +1,6 @@
 <template>
   <div class="lastright">
-    <el-scrollbar height="670px">
+    <el-scrollbar height="570px">
       <!-- 加载状态 -->
       <div v-if="loading" class="loading-container">
         <div v-for="i in 5" :key="i" class="skeleton-card">
@@ -18,7 +18,7 @@
         <el-card
           v-for="item in listData"
           :key="item.id"
-          style="min-width: 400px; position: relative; margin: 10px; height: 140px; width: 90%;border-radius: 15px;"
+          style="min-width: 400px; position: relative; margin: 10px; height: 120px; width: 90%;border-radius: 15px;"
           shadow="hover"
         >
           <div class="app-card-container">
@@ -28,11 +28,7 @@
             <div class="app-content">
               <h3 class="app-title">{{ item.appName }}</h3>
               <p class="app-description">{{ item.appDesc }}</p>
-              <div class="app-stats">
-                <span><img width="16px" height="16px" src="@/icons/navbar_guanzhong.png"> {{ item.views || '304.7k' }}</span>
-                <span><img width="16px" height="16px" src="@/icons/31pinglun.png"> {{ item.comments || '304.7k' }}</span>
-                <span><img width="16px" height="16px" src="@/icons/shoucang.png"> {{ item.favorites || '304.7k' }}</span>
-              </div>
+
             </div>
             <el-button
               type="primary"
@@ -97,7 +93,7 @@ const answer = (id) => {
 
 .app-card-container {
   display: flex;
-  height: 100%;
+  height: 100px;
   padding: 10px;
   position: relative;
 }

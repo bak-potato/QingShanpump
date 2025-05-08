@@ -2,7 +2,7 @@
   <div class="lastguide">
     <div class="lastguidein">
       <div class="topf clickable">推荐应用</div>
-      <div class="topf2">帖子 </div>
+      <div class="topf2">公告 </div>
 
       <div class="lastf">
         <LastRightViewone />
@@ -74,8 +74,6 @@ const isShow = ref(false);
   width: 49%;
   margin-left: 1%;
   float: left;
-    border: #e7e7ec 1px solid;
-  background-color: #ffffff;
   border-radius: 20px;
   height: 700px;
 }
