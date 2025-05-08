@@ -94,12 +94,13 @@ const userRole = ref();
 // 页面加载时根据路由初始化view
 onMounted(async () => {
   await handleuser();
-  initializeViewFromRoute();
+  await initializeViewFromRoute();
 });
 
-const initializeViewFromRoute = () => {
+const initializeViewFromRoute = async () => {
+  await handleuser(); // 确保先获取用户角色
   const path = route.path;
-  const viewMap = {
+  view.value = {
     '/': 0,
     '/SoftwareManagement': 1,
     '/store': 2,
@@ -109,10 +110,8 @@ const initializeViewFromRoute = () => {
     '/usermanage1': 100,
     '/AIGirlfriend': 98,
     '/answer': 99,
-    '/user': 0 // 个人中心也使用0但需要特殊处理
-  };
-
-  view.value = viewMap[path] || 0;
+    '/user': 0
+  }[path] || 0;
 };
 
 const handleuser = async () => {

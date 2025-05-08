@@ -1,7 +1,7 @@
 <!-- MainContent.vue -->
 <template>
   <el-container>
-    <el-header>
+    <el-header style="height: auto;">
       <TopCenter />
     </el-header>
     <!-- 主体内容 -->
@@ -17,9 +17,11 @@ import LastGuide from '@/views/RightBody/LastGuide.vue'
 </script>
 
 <style scoped>
+*{
+  overflow-x: hidden;
+}
 .el-main {
   position: relative;
   min-width: 1000px;
-  margin-top: 160px;
 }
 </style>

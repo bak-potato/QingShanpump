@@ -1,0 +1,132 @@
+Date : 2025-04-28 21:08:02
+Directory : d:\destok\QingShanpump-main\src
+Total : 75 files,  12781 codes, 194 comments, 1543 blanks, all 14518 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| vue        |         52 |     12,019 |        132 |      1,440 |     13,591 |
+| JavaScript |         19 |        622 |         50 |         74 |        746 |
+| CSS        |          2 |        108 |          4 |         20 |        132 |
+| TypeScript |          1 |         31 |          8 |          8 |         47 |
+| XML        |          1 |          1 |          0 |          1 |          2 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                         | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                            |         75 |     12,781 |        194 |      1,543 |     14,518 |
+| . (Files)                                                                    |          2 |         26 |          0 |          7 |         33 |
+| api                                                                          |         12 |        255 |         29 |         41 |        325 |
+| assets                                                                       |          3 |        109 |          4 |         21 |        134 |
+| components                                                                   |          5 |        494 |          6 |         64 |        564 |
+| components\editor                                                            |          2 |         53 |          2 |          9 |         64 |
+| components\notice                                                            |          1 |        108 |          1 |         18 |        127 |
+| components\share                                                             |          1 |         86 |          0 |         11 |         97 |
+| components\user                                                              |          1 |        247 |          3 |         26 |        276 |
+| hooks                                                                        |          1 |         31 |          8 |          8 |         47 |
+| layout                                                                       |          2 |         37 |          4 |          6 |         47 |
+| router                                                                       |          1 |        210 |          4 |         10 |        224 |
+| store                                                                        |          3 |         71 |          5 |         12 |         88 |
+| utils                                                                        |          2 |         67 |         12 |          9 |         88 |
+| views                                                                        |         44 |     11,481 |        122 |      1,365 |     12,968 |
+| views\AdminManage                                                            |          7 |      2,610 |         33 |        283 |      2,926 |
+| views\LeftBodyDiv                                                            |         10 |      1,280 |         15 |        142 |      1,437 |
+| views\LeftBodyDiv\LeftBody                                                   |          1 |        285 |          1 |         31 |        317 |
+| views\LeftBodyDiv\LeftPage                                                   |          9 |        995 |         14 |        111 |      1,120 |
+| views\Manage                                                                 |          3 |      1,704 |         18 |        154 |      1,876 |
+| views\PhoneVue                                                               |          1 |         94 |          1 |         16 |        111 |
+| views\Post                                                                   |          4 |        950 |         22 |        142 |      1,114 |
+| views\RightBody                                                              |         11 |      2,671 |         13 |        354 |      3,038 |
+| views\Scoring                                                                |          1 |        204 |          7 |         24 |        235 |
+| views\UserBody                                                               |          3 |      1,054 |         12 |        124 |      1,190 |
+| views\UserBody\userContent                                                   |          1 |        604 |         11 |         65 |        680 |
+| views\UserBody\userLogin                                                     |          1 |        249 |          1 |         36 |        286 |
+| views\UserBody\userRegister                                                  |          1 |        201 |          0 |         23 |        224 |
+| views\bookmark                                                               |          2 |        675 |          1 |         89 |        765 |
+| views\errors                                                                 |          2 |        239 |          0 |         37 |        276 |
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                     | language   | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\destok\QingShanpump-main\src\App.vue                                      | vue        |          7 |          0 |          5 |         12 |
+| d:\destok\QingShanpump-main\src\api\answer.js                                | JavaScript |         10 |          3 |          1 |         14 |
+| d:\destok\QingShanpump-main\src\api\app.js                                   | JavaScript |         28 |          5 |          5 |         38 |
+| d:\destok\QingShanpump-main\src\api\auth.js                                  | JavaScript |         21 |          1 |          4 |         26 |
+| d:\destok\QingShanpump-main\src\api\chat.js                                  | JavaScript |         20 |          0 |          2 |         22 |
+| d:\destok\QingShanpump-main\src\api\favour.js                                | JavaScript |         10 |          1 |          4 |         15 |
+| d:\destok\QingShanpump-main\src\api\message.js                               | JavaScript |         39 |          0 |          5 |         44 |
+| d:\destok\QingShanpump-main\src\api\post.js                                  | JavaScript |         16 |          5 |          1 |         22 |
+| d:\destok\QingShanpump-main\src\api\postController.js                        | JavaScript |         28 |          0 |         10 |         38 |
+| d:\destok\QingShanpump-main\src\api\question.js                              | JavaScript |         19 |          0 |          1 |         20 |
+| d:\destok\QingShanpump-main\src\api\scoring.js                               | JavaScript |         17 |          0 |          2 |         19 |
+| d:\destok\QingShanpump-main\src\api\thumb.js                                 | JavaScript |          4 |          1 |          1 |          6 |
+| d:\destok\QingShanpump-main\src\api\user.js                                  | JavaScript |         43 |         13 |          5 |         61 |
+| d:\destok\QingShanpump-main\src\assets\base.css                              | CSS        |         74 |          2 |         15 |         91 |
+| d:\destok\QingShanpump-main\src\assets\logo.svg                              | XML        |          1 |          0 |          1 |          2 |
+| d:\destok\QingShanpump-main\src\assets\main.css                              | CSS        |         34 |          2 |          5 |         41 |
+| d:\destok\QingShanpump-main\src\components\editor\MdEditor.vue               | vue        |         34 |          1 |          5 |         40 |
+| d:\destok\QingShanpump-main\src\components\editor\PreviewOnly.vue            | vue        |         19 |          1 |          4 |         24 |
+| d:\destok\QingShanpump-main\src\components\notice\PublicNotice.vue           | vue        |        108 |          1 |         18 |        127 |
+| d:\destok\QingShanpump-main\src\components\share\QRCodeShare.vue             | vue        |         86 |          0 |         11 |         97 |
+| d:\destok\QingShanpump-main\src\components\user\UserExcel.vue                | vue        |        247 |          3 |         26 |        276 |
+| d:\destok\QingShanpump-main\src\hooks\usePagination.ts                       | TypeScript |         31 |          8 |          8 |         47 |
+| d:\destok\QingShanpump-main\src\layout\HomeView.vue                          | vue        |         14 |          2 |          3 |         19 |
+| d:\destok\QingShanpump-main\src\layout\MainContent.vue                       | vue        |         23 |          2 |          3 |         28 |
+| d:\destok\QingShanpump-main\src\main.js                                      | JavaScript |         19 |          0 |          2 |         21 |
+| d:\destok\QingShanpump-main\src\router\index.js                              | JavaScript |        210 |          4 |         10 |        224 |
+| d:\destok\QingShanpump-main\src\store\auth.js                                | JavaScript |         44 |          2 |          7 |         53 |
+| d:\destok\QingShanpump-main\src\store\message.js                             | JavaScript |         16 |          2 |          2 |         20 |
+| d:\destok\QingShanpump-main\src\store\qusetion.js                            | JavaScript |         11 |          1 |          3 |         15 |
+| d:\destok\QingShanpump-main\src\utils\api.js                                 | JavaScript |         59 |         12 |          6 |         77 |
+| d:\destok\QingShanpump-main\src\utils\request.js                             | JavaScript |          8 |          0 |          3 |         11 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\ApplicationManagement.vue  | vue        |        492 |          6 |         50 |        548 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\ApplicationReview.vue      | vue        |        273 |          1 |         29 |        303 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\CharManage.vue             | vue        |        345 |          5 |         45 |        395 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\ForumManView.vue           | vue        |        261 |          0 |         32 |        293 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\USEMAN.vue                 | vue        |        439 |          8 |         41 |        488 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\UserManageView.vue         | vue        |        127 |          1 |         16 |        144 |
+| d:\destok\QingShanpump-main\src\views\AdminManage\VueDataAnalyticsPanel.vue  | vue        |        673 |         12 |         70 |        755 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftBody\LefyBody.vue      | vue        |        285 |          1 |         31 |        317 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv0.vue     | vue        |         36 |          0 |          2 |         38 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv1.vue     | vue        |         53 |          8 |          9 |         70 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv100.vue   | vue        |         97 |          0 |         11 |        108 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv2.vue     | vue        |        101 |          0 |         11 |        112 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv3.vue     | vue        |         83 |          0 |         12 |         95 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv6.vue     | vue        |          3 |          0 |          1 |          4 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv7.vue     | vue        |        204 |          0 |         23 |        227 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv98.vue    | vue        |        389 |          6 |         39 |        434 |
+| d:\destok\QingShanpump-main\src\views\LeftBodyDiv\LeftPage\LeftBDiv99.vue    | vue        |         29 |          0 |          3 |         32 |
+| d:\destok\QingShanpump-main\src\views\Manage\AppList.vue                     | vue        |         84 |          0 |          3 |         87 |
+| d:\destok\QingShanpump-main\src\views\Manage\QuestionManagement.vue          | vue        |        781 |          9 |         49 |        839 |
+| d:\destok\QingShanpump-main\src\views\Manage\SoftwareManagement.vue          | vue        |        839 |          9 |        102 |        950 |
+| d:\destok\QingShanpump-main\src\views\PhoneVue\PhoneVue.vue                  | vue        |         94 |          1 |         16 |        111 |
+| d:\destok\QingShanpump-main\src\views\Post\CreatePost.vue                    | vue        |        172 |          5 |         26 |        203 |
+| d:\destok\QingShanpump-main\src\views\Post\EditPost.vue                      | vue        |        189 |          5 |         25 |        219 |
+| d:\destok\QingShanpump-main\src\views\Post\PostDetail.vue                    | vue        |        340 |          4 |         53 |        397 |
+| d:\destok\QingShanpump-main\src\views\Post\PostMain.vue                      | vue        |        249 |          8 |         38 |        295 |
+| d:\destok\QingShanpump-main\src\views\RightBody\Answer.vue                   | vue        |        354 |          6 |         37 |        397 |
+| d:\destok\QingShanpump-main\src\views\RightBody\AnswerIns.vue                | vue        |        426 |          0 |         70 |        496 |
+| d:\destok\QingShanpump-main\src\views\RightBody\CommunityView.vue            | vue        |        361 |          0 |         54 |        415 |
+| d:\destok\QingShanpump-main\src\views\RightBody\DShop.vue                    | vue        |        332 |          1 |         23 |        356 |
+| d:\destok\QingShanpump-main\src\views\RightBody\FriendVue.vue                | vue        |        331 |          3 |         37 |        371 |
+| d:\destok\QingShanpump-main\src\views\RightBody\LastGuide.vue                | vue        |         90 |          0 |         20 |        110 |
+| d:\destok\QingShanpump-main\src\views\RightBody\LastLeftViewone.vue          | vue        |        103 |          1 |         15 |        119 |
+| d:\destok\QingShanpump-main\src\views\RightBody\LastRightViewone.vue         | vue        |        128 |          0 |          7 |        135 |
+| d:\destok\QingShanpump-main\src\views\RightBody\SearchFriend.vue             | vue        |        299 |          1 |         51 |        351 |
+| d:\destok\QingShanpump-main\src\views\RightBody\TopCenter.vue                | vue        |         65 |          0 |         16 |         81 |
+| d:\destok\QingShanpump-main\src\views\RightBody\officialDshop.vue            | vue        |        182 |          1 |         24 |        207 |
+| d:\destok\QingShanpump-main\src\views\Scoring\ScoringContent.vue             | vue        |        204 |          7 |         24 |        235 |
+| d:\destok\QingShanpump-main\src\views\UserBody\userContent\UserView.vue      | vue        |        604 |         11 |         65 |        680 |
+| d:\destok\QingShanpump-main\src\views\UserBody\userLogin\LoginView.vue       | vue        |        249 |          1 |         36 |        286 |
+| d:\destok\QingShanpump-main\src\views\UserBody\userRegister\RegisterView.vue | vue        |        201 |          0 |         23 |        224 |
+| d:\destok\QingShanpump-main\src\views\bookmark\AIGirlfriend.vue              | vue        |        429 |          1 |         61 |        491 |
+| d:\destok\QingShanpump-main\src\views\bookmark\OpenPageManager.vue           | vue        |        246 |          0 |         28 |        274 |
+| d:\destok\QingShanpump-main\src\views\errors\403Vue.vue                      | vue        |        138 |          0 |         19 |        157 |
+| d:\destok\QingShanpump-main\src\views\errors\404Vue.vue                      | vue        |        101 |          0 |         18 |        119 |
+| Total                                                                        |            |     12,781 |        194 |      1,543 |     14,518 |
++------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

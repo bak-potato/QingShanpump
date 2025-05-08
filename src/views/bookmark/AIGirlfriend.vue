@@ -1,28 +1,38 @@
 <template>
-    <div style="max-width: 120px;max-height: 30px;position: relative;">
-      <el-button type="primary" @click="openPageManager" style="position: absolute;left: 1200px;top: 10px;">页面管理</el-button>
+  <!-- 页面的最外层容器，设置最大宽度、最大高度和相对定位 -->
+  <div style="max-width: 120px;max-height: 30px;position: relative;">
+    <!-- 页面管理按钮，点击时调用 openPageManager 方法，设置按钮样式和位置 -->
+    <el-button type="primary" @click="openPageManager"
+      style="position: absolute;left: 1200px;top: 10px;">页面管理</el-button>
   </div>
   <div class="chat-app">
     <!-- 消息列表 -->
-
+    <!-- 聊天容器，使用 ref 引用，用于滚动到底部 -->
     <div class="chat-container" ref="chatContainer">
-
-      <div v-for="(message, index) in messages" :key="index" :class="['message', message.isAI? 'ai' : 'user']">
+      <!-- 遍历消息列表，根据消息的 isAI 属性添加不同的类名 -->
+      <div v-for="(message, index) in messages" :key="index" :class="['message', message.isAI ? 'ai' : 'user']">
+        <!-- 消息内容容器 -->
         <div class="message-content">
+          <!-- 消息文本 -->
           <div class="message-text">{{ message.text }}</div>
-          <div
-            class="message-time"
-            :class="{ 'user-time': message.isAI, 'ai-time': !message.isAI }"
-          >
+          <!-- 消息时间，根据消息的 isAI 属性添加不同的类名 -->
+          <div class="message-time" :class="{ 'user-time': message.isAI, 'ai-time': !message.isAI }">
             {{ formatTime(message.time) }}
           </div>
         </div>
-        <el-icon @click="deletemessage(index)" class="delete-btn"><Delete /></el-icon>
+        <!-- 删除按钮，点击时调用 deletemessage 方法删除对应消息 -->
+        <el-icon @click="deletemessage(index)" class="delete-btn">
+          <Delete />
+        </el-icon>
       </div>
     </div>
 
+    <!-- 输入区域 -->
     <div class="input-area">
-      <input id="fxx" type="text" v-model="inputMessage" @keyup.enter="sendMessage" placeholder="发消息..." class="message-input">
+      <!-- 输入框，使用 v-model 双向绑定 inputMessage，按下回车键时调用 sendMessage 方法 -->
+      <input id="fxx" type="text" v-model="inputMessage" @keyup.enter="sendMessage" placeholder="发消息..."
+        class="message-input">
+      <!-- 发送按钮，点击时调用 sendMessage 方法 -->
       <button @click="sendMessage" class="send-button">
         <i class="fas fa-paper-plane"></i> 发送
       </button>
@@ -31,23 +41,62 @@
 </template>
 
 <script setup>
+// 引入 Vue 相关的响应式和生命周期函数
 import { ref, onMounted, nextTick, watch } from 'vue'
+// 引入 Vue Router 相关函数
 import { useRouter } from 'vue-router'
+// 引入 Element Plus 的消息提示组件
 import { ElMessage } from 'element-plus'
+// 引入 lodash-es 的防抖函数
 import { debounce } from 'lodash-es'
-import {SendMessageSse, listMessage,deleteMessage} from '@/api/message'
-
+// 引入自定义的 API 函数
+import { SendMessage, listMessage, deleteMessage } from '@/api/message'
+// 引入用户相关的 Vuex Store
+import { useUserStore } from '@/store/message'
+// 获取用户相关的 Vuex Store 实例
+const userStore = useUserStore()
+// 监听用户相关的聊天参数变化，深度监听并在组件初始化时立即执行回调
+watch(
+  () => userStore.chatParams,
+  (newParams) => {
+    console.log('参数更新:', newParams);
+    // 可添加参数变化后的逻辑（如提示用户）
+  },
+  { deep: true, immediate: true }
+);
+// 获取 Vue Router 实例
 const router = useRouter()
+// 定义聊天窗口 ID 的响应式变量
 const chatWindowId = ref('') // 使用 ref 定义，以便后续监听变化
+// 定义消息列表的响应式变量
 const messages = ref([])
+// 定义输入消息的响应式变量
 const inputMessage = ref('')
+// 定义聊天容器的引用
 const chatContainer = ref(null)
-
-// 打开页面管理
+// 定义敏感词列表的响应式变量
+const sensitiveWords = ref([
+  // 一、违法犯罪类
+  "毒品", "枪支", "赌博", "走私", "抢劫", "盗窃", "诈骗", "洗钱", "傻逼", "sb",
+  "傻逼", "贱货", "去死", "垃圾", "诽谤", "造谣", "人身攻击", 'cnm', '二逼', '二b','你妈逼', '草你妈', '滚',
+  // 二、色情低俗类
+  "色情", "淫秽", "嫖娼", "露点", "AV", "约炮", "性交易", "低俗表演",
+  // 三、暴力恐怖类
+  "爆炸", "杀人", "恐怖袭击", "暴力威胁", "血腥", "肢解", "炸弹",
+  // 四、政治敏感类（严格遵循法律法规）
+  "颠覆国家", "分裂主义", "法轮功", "港独", "台独", "反华",
+  // 五、恶意广告与虚假信息
+  "刷单", "诈骗", "免费领取", "点击领取", "中奖", "病毒链接", "虚假宣传",
+  // 六、侮辱诽谤与脏话
+  "傻×", "贱货", "去死", "垃圾", "诽谤", "造谣", "人身攻击",
+  // 七、其他不当内容
+  "吸毒", "酒驾", "违禁品", "反动", "虚假信息", "恶意攻击"
+]);
+// 打开页面管理的方法，跳转到名为 'OpenPageManager' 的路由
 const openPageManager = () => {
   router.push({ name: 'OpenPageManager' })
 }
-// 格式化时间函数（在script中定义）
+// 格式化时间的函数，根据时间戳返回格式化后的时间字符串
 const formatTime = (timestamp) => {
   const date = new Date(timestamp);
   const today = new Date();
@@ -56,7 +105,6 @@ const formatTime = (timestamp) => {
   const padZero = (n) => String(n).padStart(2, '0');
   const hh = padZero(date.getHours());
   const mm = padZero(date.getMinutes());
-
   if (isToday) {
     return `${hh}:${mm}`;
   } else {
@@ -70,66 +118,91 @@ const formatTime = (timestamp) => {
     }
   }
 };
-
-// 加载历史消息
+// 加载历史消息的异步函数
 const loadMessages = async () => {
   try {
-    const res = await listMessage({chatWindowsId: chatWindowId.value})
+    // 调用 listMessage API 获取历史消息
+    const res = await listMessage({ chatWindowsId: chatWindowId.value })
     console.log('历史消息:', res.data.data)
     if (res.data.data && res.data.data.length > 0) {
-      // 将API返回的消息转换为组件需要的格式
+      // 将 API 返回的消息转换为组件需要的格式
       messages.value = res.data.data.map(msg => ({
         id: msg.id,
         text: msg.content,
-        isAI: msg.type === 1 ,// 假设1是AI消息，0是用户消息
+        isAI: msg.type === 1,// 假设1是AI消息，0是用户消息
         time: new Date(msg.createTime).getTime() // 转换为时间戳
       }))
 
       await nextTick()
+      // 滚动到聊天容器底部
       scrollToBottom()
     }
   } catch (error) {
     console.error('加载消息失败:', error)
+    // 显示加载历史消息失败的提示
     ElMessage.error('加载历史消息失败')
   }
 }
-
+// 发送消息的防抖函数
 const sendMessage = debounce(async () => {
-  if (!inputMessage.value.trim()) {
+  const inputText = inputMessage.value.trim(); // 提取输入内容
+  if (!inputText) {
+    // 消息为空时显示提示
     ElMessage.warning('消息不能为空哦~');
     return;
   }
+  // 敏感词检测逻辑改进
+  //  统一转小写进行检测和汉字匹配
+  const lowerCaseInput = inputText.toLowerCase();
+  const hasSensitiveWord = sensitiveWords.value.some(word =>
+    lowerCaseInput.includes(word.toLowerCase()) // 支持子字符串匹配
+  );
 
-  // 添加用户消息
+  if (hasSensitiveWord) {
+    // 包含敏感词时显示提示并清空输入框
+    ElMessage.warning('消息中包含敏感词，请重新输入！');
+    inputMessage.value = '';  // 正确清空输入框
+    return; // 阻止后续执行
+  }
+
+  // 添加用户消息（仅在检查通过后执行）
   messages.value.push({
-    text: inputMessage.value,
+    text: inputText,
     isAI: false,
-    time: new Date().getTime() // 存储时间戳
+    time: new Date().getTime()
   });
-
   const params = {
     chatWindowId: chatWindowId.value,
-    content: inputMessage.value,
+    content: inputText,
     type: 0,
+    max_tokens: userStore.chatParams.max_tokens,
+    temperature: userStore.chatParams.temperature,
+    top_p: userStore.chatParams.top_p
   };
-
+  console.log('发送消息:', params);
+  // 清空输入框
   inputMessage.value = '';
   await nextTick();
+  // 滚动到聊天容器底部
   scrollToBottom();
 
   try {
-    const { data } = await SendMessageSse(params);
+    // 调用 SendMessage API 发送消息并获取 AI 响应
+    const { data } = await SendMessage(params);
+    console.log('AI响应:', data);
     const aiResponse = generateAIResponse(data);
+    // 添加 AI 响应消息
     messages.value.push({
       text: aiResponse,
       isAI: true,
-      time: new Date().getTime() // 存储时间戳
+      time: new Date().getTime()
     });
-
     await nextTick();
+    // 滚动到聊天容器底部
     scrollToBottom();
   } catch (error) {
     console.error('发送消息失败:', error);
+    // 发送消息失败时添加错误提示消息
     messages.value.push({
       text: "哎呀，出错了~ 请再试一次吧 (｡•́︿•̀｡)",
       isAI: true
@@ -139,52 +212,39 @@ const sendMessage = debounce(async () => {
   }
 }, 300, { leading: true, trailing: false });
 
+// 滚动到聊天容器底部的函数
 const scrollToBottom = () => {
   if (chatContainer.value) {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
   }
 }
 
+// 生成 AI 响应的函数，根据 API 返回的数据生成相应的响应文本
 const generateAIResponse = (response) => {
-  if (typeof response === 'string' && !response.startsWith('data:')) {
-    return response;
+  if (response && response.data && response.data.aiMessage) {
+    return response.data.aiMessage;
   }
 
-  if (typeof response === 'string' && response.startsWith('data:')) {
-    try {
-      const jsonStr = response.substring(5);
-      const parsed = JSON.parse(jsonStr);
-
-      if (parsed && parsed.message) {
-        return parsed.message;
-      }
-    } catch (e) {
-      console.error('解析消息失败:', e);
-      return "抱歉，我好像遇到了一些技术问题，请稍后再试~";
-    }
-  }
-
-  if (response && typeof response === 'object' && response.message) {
-    return response.message;
-  }
   return "亲爱的，我不太明白你的意思，能再说清楚一点吗？❤️";
 }
 
-const deletemessage = async(index) => {
+// 删除消息的异步函数
+const deletemessage = async (index) => {
   // 从loadMessages中找到对应的消息的id
   const messageId = messages.value[index];
   if (messageId) {
     // 获取消息的id
     const id = messageId.id;
-    const {data:{code}} = await deleteMessage({id:id})
-    if(code === 0) {
+    const { data: { code } } = await deleteMessage({ id: id })
+    if (code === 0) {
+      // 删除成功时显示提示并重新加载消息
       ElMessage.success('删除成功')
       loadMessages();
     }
   }
 }
 
-// 监听路由参数变化，确保 chatWindowId 正确获取
+// 监听路由参数变化，确保 chatWindowId 正确获取并在变化时加载消息
 watch(() => router.currentRoute.value.query.chatId, (newValue) => {
   chatWindowId.value = newValue;
   if (newValue) {
@@ -192,6 +252,7 @@ watch(() => router.currentRoute.value.query.chatId, (newValue) => {
   }
 })
 
+// 组件挂载完成后的生命周期钩子函数
 onMounted(() => {
   if (!sessionStorage.getItem('hasRefreshed')) {
     sessionStorage.setItem('hasRefreshed', 'true');
@@ -199,21 +260,26 @@ onMounted(() => {
     return;
   }
   sessionStorage.setItem('view', 98);
+  // 获取路由参数中的 chatId 并赋值给 chatWindowId
   chatWindowId.value = router.currentRoute.value.query.chatId;
   if (chatWindowId.value) {
+    // 如果 chatWindowId 存在则加载历史消息
     loadMessages();
   }
 
+  // 显示温馨提示
   ElMessage.success({
     showClose: true,
     message: '温馨提示：可以设置不同体验对象和模型',
   })
 });
 
+// 路由切换完成后的钩子函数，移除 sessionStorage 中的 hasRefreshed 项
 router.afterEach(() => {
   sessionStorage.removeItem('hasRefreshed');
 });
 </script>
+
 
 <style scoped>
 /* 样式保持不变，移除所有包含 .chat-app.pink-mode 及其相关选择器的样式 */
@@ -313,7 +379,7 @@ input:checked+.slider:before {
   animation: fadeIn 0.5s ease;
   border-radius: 15px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-  position: relative; /* 添加相对定位 */
+  position: relative; /* 添加相对定位*/
 }
 
 @keyframes fadeIn {
@@ -350,8 +416,9 @@ input:checked+.slider:before {
 }
 
 .message-text {
-  font-size: 18px;
-  color: #333;
+ font-size: 18px;
+ color: #333;
+ min-width: 30px;
 }
 
 .ai .message-text {
@@ -441,6 +508,7 @@ input:checked+.slider:before {
 }
 
 .message-time {
+  min-width: 40px;
   font-size: 12px;
   color: #999;
   position: absolute;

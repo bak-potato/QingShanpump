@@ -1,153 +1,421 @@
 <template>
-  <div class="questionMan">
-    <h1>应用管理</h1>
-    <div class="questionbody">
-      <div class="lastf12">
-        <div
-          @click="handleisshowa(true)"
-          :class="['l2ab', { l21: isShowa, 'active-tab': isShowa }]"
-        >
-          <h2>创建应用</h2>
-        </div>
-        <div
-          @click="handleisshowa(false)"
-          :class="['l2ab', { l21:!isShowa, 'active-tab':!isShowa }]"
-        >
-          <h2>应用列表</h2>
-        </div>
+  <!-- 主容器 -->
+    <el-scrollbar style="background-color: white; margin-top: 1vh;" height="98vh">
+  <div class="app-management-container">
+    <!-- 页面标题 -->
+    <h1 class="page-title">应用管理</h1>
+
+    <!-- 主体内容区域 -->
+    <div class="app-management-body">
+      <!-- 顶部选项卡 -->
+ <div class="lastf12">
+      <div
+        @click="isShowa = true"
+        :class="['l2ab', { 'active-tab': isShowa }]"
+      >
+        <h2>创建应用</h2>
       </div>
-      <div v-if="!isShowa">
-        <h2 class="h2a">已创建应用</h2>
-        <div class="elscbody">
+      <div
+        @click="isShowa = false"
+        :class="['l2ab', { 'active-tab': !isShowa }]"
+      >
+        <h2>应用列表</h2>
+      </div>
+    </div>
+      <!-- 应用列表视图 -->
+      <div v-if="!isShowa" class="app-list-view">
+        <h2 class="section-title">已创建应用</h2>
+        <div class="scroll-container">
           <el-scrollbar>
-            <!-- 根据是否有内容来决定是否显示el-empty -->
-            <el-empty v-if="questionSets.length === 0" description="暂无创建应用" />
-            <!-- 渲染题目列表 -->
-            <div v-else>
-              <div v-for="(questionSet) in questionSets" :key="questionSet.id" class="scrollbar-demo-item">
-                <div class="question-set-header">
-                  <div class="question-set-name" @click="toggleQuestionSet(setIndex)">
-                    <el-avatar :size="40" :src="questionSet.appIcon" class="profile-avatar2"/> {{ questionSet.appName }}&nbsp;&nbsp;
+            <!-- 空状态提示 -->
+            <el-empty v-if="apps.length === 0" description="暂无创建应用" />
+
+            <!-- 应用列表 -->
+            <div v-else class="app-list">
+              <div v-for="app in apps" :key="app.id" class="app-item">
+                <div class="app-header">
+                  <!-- 应用信息 -->
+                  <div class="app-info" @click="toggleAppDetails(app.id)">
+                    <el-avatar :size="40" :src="app.appIcon" class="app-avatar"/>
+                    <span class="app-name">{{ app.appName }}</span>
                   </div>
-                  <div class="action-buttons">
-                    <el-button type="text" v-if="questionSet.appType !== 1" @click="addscoring(questionSet.id)">查看策略</el-button>
-                    <el-button type="text" @click="add(questionSet.id)">添加/查看题目</el-button>
-                    <el-button type="text" @click.stop="toggleEdit(questionSet.id)">更改</el-button>
-                    <el-button type="text" @click.stop="deleteQuestionSet(questionSet.id)">删除</el-button>
+
+                  <!-- 操作按钮 -->
+                  <div class="app-actions">
+                    <el-button
+                      type="text"
+                      v-if="app.appType !== 1"
+                      @click="viewScoringStrategy(app.id)"
+                    >
+                      查看策略
+                    </el-button>
+                    <el-button type="text" @click="viewQuestions(app.id)">
+                      添加/查看题目
+                    </el-button>
+                    <el-button type="text" @click.stop="openEditDialog(app.id)">
+                      编辑
+                    </el-button>
+                    <el-button type="text" @click.stop="confirmDeleteApp(app.id)">
+                      删除
+                    </el-button>
                   </div>
                 </div>
               </div>
-               <!-- 应用更改键弹出 -->
-              <el-dialog v-model="isEditDialogVisible" title="Tips"  width="500" :before-close="handleClose" :modal="null">
-                  <el-form :model="nquestionSet" label-width="120px">
-                    <el-form-item label="应用名称">
-                      <el-input v-model="nquestionSet.appName" placeholder="请输入应用名称"></el-input>
-                    </el-form-item>
-                    <el-form-item label="应用描述">
-                      <el-input v-model="nquestionSet.appDesc" placeholder="请输入应用描述"></el-input>
-                    </el-form-item>
-                    <!-- 上传头像 -->
-                    <el-form-item label="上传头像">
-                      <el-avatar :size="40" :src="nquestionSet.appIcon" class="profile-avatar" />
-                      <el-upload action="#" :show-file-list="false" :before-upload="tttt" >
-                        <el-button type="Default" size="small" class="mt-2">
-                          更改头像
-                        </el-button>
-                      </el-upload>
-                    </el-form-item>
-                  </el-form>
-                  <template #footer>
-                    <div class="dialog-footer">
-                      <el-button @click="isEditDialogVisible = false">取消</el-button>
-                      <el-button type="primary" @click="baocun()"> 保存 </el-button>
-                    </div>
-                  </template>
-              </el-dialog>
 
-              <!-- 策略更改键弹出 -->
-             <!-- 策略更改键弹出 -->
+              <!-- 应用编辑对话框 -->
+              <el-dialog
+                v-model="isEditDialogVisible"
+                title="编辑应用"
+                width="500px"
+                :before-close="handleDialogClose"
+              >
+                <el-form :model="editingApp" label-width="120px">
+                  <el-form-item label="应用名称">
+                    <el-input
+                      v-model="editingApp.appName"
+                      placeholder="请输入应用名称"
+                    />
+                  </el-form-item>
+                  <el-form-item label="应用描述">
+                    <el-input
+                      v-model="editingApp.appDesc"
+                      placeholder="请输入应用描述"
+                    />
+                  </el-form-item>
+                  <el-form-item label="应用头像">
+                    <el-avatar :size="60" :src="editingApp.appIcon" class="app-avatar-large" />
+                    <el-upload
+                      action="#"
+                      :show-file-list="false"
+                      :before-upload="handleAvatarUpload"
+                    >
+                      <el-button type="default" size="small" class="upload-btn">
+                        更换头像
+                      </el-button>
+                    </el-upload>
+                  </el-form-item>
+                </el-form>
+                <template #footer>
+                  <div class="dialog-footer">
+                    <el-button @click="isEditDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="saveAppChanges">保存</el-button>
+                  </div>
+                </template>
+              </el-dialog>
             </div>
           </el-scrollbar>
         </div>
       </div>
-      <div v-if="isShowa">
-        <div>
-          <div class="AIquestion" v-if="!isShow"></div>
-          <div class="handquestion" v-if="isShow">
-            <label class="switch">
-            </label>
-             <div class="tou">
-              <el-avatar :size="40" :src="newQuestionSet.avatar" class="profile-avatar" />
-               <el-upload action="/api/common/upload" :show-file-list="false"  :before-upload="handleAvatarUpload" >
-                <el-button type="Default" size="small" class="mt-2">
-                上传照片
+
+      <!-- 创建应用视图 -->
+      <div v-if="isShowa" class="create-app-view">
+        <!-- 应用基本信息表单 -->
+        <div class="app-basic-info">
+          <div class="avatar-upload">
+            <el-avatar :size="100" :src="newApp.avatar" class="new-app-avatar" />
+            <el-upload
+              action="/api/common/upload"
+              :show-file-list="false"
+              :before-upload="handleNewAppAvatarUpload"
+            >
+              <el-button type="default" size="small" class="upload-btn">
+                上传头像
               </el-button>
-               </el-upload>
-             </div>
-            <div class="tmmc">
-              请输入应用名称： <el-input class="tmmc1" v-model="newQuestionSet.name" placeholder="请输入应用名称"></el-input>
-                            <el-select v-model="newQuestionSet.value" placeholder="类型选择" style="width: 100px;size: 100px;">
-                                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
-                            </el-select>
-
-            </div>
-            <!-- 新增应用描述输入框 -->
-            <div class="app-description">
-                <el-form-item label="应用描述" style="margin-top: 20px;">
-                    <el-input  v-model="newQuestionSet.description" type="textarea"  :rows="3"  placeholder="请输入应用描述（最多200字）" maxlength="200" show-word-limit style="width: 500px;">               </el-input>
-                </el-form-item>
-            </div>
-            <el-button type="primary" @click="saveQuestionSet">上传应用</el-button>
-
+            </el-upload>
           </div>
-          <div v-if="isShow " class="policy" style="position: relative;">
-            <h2 style="position: absolute;top: 10px;">评分策略设置</h2>
-            <el-form v-for="(policy, pIndex) in policies" :key="pIndex" :model="policy" label-width="150px" style="margin-top: 20px; position: relative;">
-            <h3 style="margin-left:50px;margin-top:60px;">策略 {{ pIndex + 1 }}:</h3>
-            <el-form-item label="评分类型">
-              <el-radio-group v-model="policy.type">
-                <el-radio label="0" >得分类应用</el-radio>
-                <el-radio label="1" >测评类应用</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="分数" v-if="policy.type === '0'">
-              <el-input  v-model="policy.resultScoreRange" placeholder="要大于或等于该分数" />
-            </el-form-item>
-            <el-form-item label="属性" v-if="policy.type === '1'">
-               <el-select v-model="policy.resultProp" placeholder="请选择属性" style="width: 100px;size: 100px;" v-if="policy.type === '1'">
-                <el-option v-for="item in resultProp" :key="item" :label="item.label" :value="item"/>
-               </el-select>
-            </el-form-item>
-             <el-form-item label="结果名称">
-              <el-input v-model="policy.resultName" placeholder="输入评分结果的名称"/>
-            </el-form-item>
-            <el-form-item label="结果描述">
-              <el-input v-model="policy.resultDesc" placeholder="输入评分结果的描述"/>
-            </el-form-item>
-             <!-- <el-button type="primary" @click="removePolicy(pIndex)" style="position: absolute; left:220px;">删除策略</el-button> -->
-            </el-form>
-            <!-- <el-button type="primary" @click="addPolicy()" style="position: absolute; left:100px;">添加策略</el-button> -->
-            <el-button type="primary" @click="savePolicy" style="margin-left: 350px;">保存策略</el-button>
+
+          <div class="app-name-input">
+            <el-input
+              v-model="newApp.name"
+              placeholder="请输入应用名称"
+              class="name-input"
+            />
+            <el-select
+              v-model="newApp.type"
+              placeholder="选择应用类型"
+              class="type-select"
+            >
+              <el-option
+                v-for="item in appTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </div>
+
+          <div class="app-description">
+            <el-form-item label="应用描述">
+              <el-input
+                v-model="newApp.description"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入应用描述（最多200字）"
+                maxlength="200"
+                show-word-limit
+                class="description-textarea"
+              />
+            </el-form-item>
+          </div>
+
+          <el-button
+            type="primary"
+            @click="createNewApp"
+            class="submit-btn"
+            style="margin-left: calc(50% - 100px);"
+          >
+            创建应用
+          </el-button>
         </div>
 
+        <!-- 评分策略设置 -->
+        <div class="scoring-policy">
+          <h2 class="policy-title">评分策略设置</h2>
+
+          <el-form
+            v-for="(policy, index) in scoringPolicies"
+            :key="index"
+            :model="policy"
+            label-width="150px"
+            class="policy-form"
+          >
+            <h3 class="policy-subtitle">策略 {{ index + 1 }}:</h3>
+
+            <el-form-item label="评分类型">
+              <el-radio-group v-model="policy.type">
+                <el-radio label="0">得分类应用</el-radio>
+                <el-radio label="1">测评类应用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item label="分数" v-if="policy.type === '0'">
+              <el-input
+                v-model="policy.resultScoreRange"
+                placeholder="请输入合格分数"
+                class="score-input"
+              />
+            </el-form-item>
+
+            <el-form-item label="属性" v-if="policy.type === '1'">
+              <el-select
+                v-model="policy.resultProp"
+                placeholder="请选择属性"
+                class="prop-select"
+              >
+                <el-option
+                  v-for="item in personalityTraits"
+                  :key="item"
+                  :label="item.label"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="结果名称">
+              <el-input
+                v-model="policy.resultName"
+                placeholder="输入评分结果名称"
+                class="result-name-input"
+              />
+            </el-form-item>
+
+            <el-form-item label="结果描述">
+              <el-input
+                v-model="policy.resultDesc"
+                placeholder="输入评分结果描述"
+                type="textarea"
+                :rows="2"
+                class="result-desc-input"
+              />
+            </el-form-item>
+          </el-form>
+
+          <el-button
+            type="primary"
+            @click="saveScoringPolicies"
+            class="save-policy-btn"
+          >
+            保存策略
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
+  </el-scrollbar>
+
 </template>
 
 <script setup>
-import { ref } from 'vue';
-// import { ArrowDown } from '@element-plus/icons-vue';
-import { ElMessage } from 'element-plus'; // 引入 ElMessage 用于提示
-import {addApp, common,listMyAppVOByPage,editApp,deleteApp} from "@/api/app";
-import {addScoringResult} from "@/api/scoring";
+import { ref, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
-// 路由传参
+import {
+  addApp,
+  common,
+  listMyAppVOByPage,
+  editApp,
+  deleteApp
+} from "@/api/app";
+import { addScoringResult } from "@/api/scoring";
+
 const router = useRouter();
-// 评分策略设置
- const policies = ref([
+const isShowa = ref(true); // true显示创建应用，false显示应用
+// ==================== 应用列表相关 ====================
+const apps = ref([]); // 应用列表数据
+const currentAppId = ref(null); // 当前操作的应用ID
+const isEditDialogVisible = ref(false); // 编辑对话框显示状态
+const editingApp = ref({  // 正在编辑的应用数据
+  id: null,
+  appName: '',
+  appDesc: '',
+  appIcon: ''
+});
+
+/**
+ * 初始化应用列表数据
+ */
+const initAppList = async () => {
+  try {
+    const res = await listMyAppVOByPage({ page: null });
+    apps.value = res.data.data.records;
+  } catch (error) {
+    console.error('获取应用列表失败:', error);
+    ElMessage.error('获取应用列表失败');
+  }
+};
+
+/**
+ * 打开编辑应用对话框
+ * @param {number} appId - 应用ID
+ */
+const openEditDialog = (appId) => {
+  const targetApp = apps.value.find(app => app.id === appId);
+  if (!targetApp) {
+    ElMessage.warning('未找到对应的应用');
+    return;
+  }
+
+  editingApp.value = { ...targetApp };
+  isEditDialogVisible.value = true;
+};
+
+/**
+ * 保存应用编辑
+ */
+const saveAppChanges = async () => {
+  if (!editingApp.value.id) {
+    ElMessage.error('应用数据异常');
+    return;
+  }
+  if (editingApp.value.appName.trim() === '') {
+    ElMessage.error('应用名称不能为空');
+    return;
+  }
+  if (editingApp.value.appDesc.trim() === '') {
+    ElMessage.error('应用描述不能为空');
+    return;
+  }
+
+  try {
+    await editApp({
+      id: editingApp.value.id,
+      appName: editingApp.value.appName.trim(),
+      appDesc: editingApp.value.appDesc.trim(),
+      appIcon: editingApp.value.appIcon.trim()
+    });
+
+    isEditDialogVisible.value = false;
+    ElMessage.success('应用更新成功');
+    await initAppList();
+  } catch (error) {
+    console.error('更新应用失败:', error);
+    ElMessage.error('更新应用失败');
+  }
+};
+
+/**
+ * 确认删除应用
+ * @param {number} appId - 应用ID
+ */
+const confirmDeleteApp = (appId) => {
+  ElMessageBox.confirm('确定要删除此应用吗?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      await deleteApp({ id: appId });
+      ElMessage.success('删除成功');
+      await initAppList();
+    } catch (error) {
+      console.error('删除应用失败:', error);
+      ElMessage.error('删除失败');
+    }
+  }).catch(() => {
+    // 用户取消删除
+  });
+};
+
+// ==================== 创建应用相关 ====================
+const newApp = ref({  // 新应用数据
+  name: '',
+  type: '',
+  avatar: '',
+  description: ''
+});
+
+const appTypes = [  // 应用类型选项
+  { value: 0, label: '系统测评' },
+  { value: 1, label: 'AI评测' }
+];
+
+/**
+ * 创建新应用
+ */
+const createNewApp = async () => {
+  if (newApp.value.name.trim() === '') {
+    ElMessage.error('应用名称不能为空');
+    return;
+  }
+  if (newApp.value.description.trim() === '') {
+    ElMessage.error('应用描述不能为空');
+    return;
+  }
+  if (!newApp.value.type) {
+    ElMessage.error('请选择应用类型');
+    return;
+  }
+
+  try {
+    const { data } = await addApp({
+      appName: newApp.value.name,
+      appType: newApp.value.type,
+      appIcon: newApp.value.avatar,
+      appDesc: newApp.value.description,
+      scoringStrategy: newApp.value.type,
+    });
+
+    currentAppId.value = data;
+    ElMessage.success('应用创建成功');
+
+    // 重置表单
+    newApp.value = {
+      name: '',
+      type: '',
+      avatar: '',
+      description: ''
+    };
+
+    // 刷新应用列表
+    await initAppList();
+  } catch (error) {
+    console.error('创建应用失败:', error);
+    ElMessage.error('创建应用失败');
+  }
+};
+
+// ==================== 评分策略相关 ====================
+const scoringPolicies = ref([  // 评分策略数据
   {
     type: '0',
     appId: 0,
@@ -157,793 +425,457 @@ const router = useRouter();
     resultDesc: ''
   }
 ]);
-  // 定义属性
-  const resultProp = ref([
-    { label: 'I', value: 'I' },
-    { label: 'S', value: 'S' },
-    { label:'T', value: 'T' },
-    { label: 'J', value: 'J' }
-  ]);
-  // 添加按钮
-//   const addPolicy = () => {
-//   // 获取最后一个策略的类型，如果没有则用默认值
-//   const lastType = policies.value.length > 0
-//     ? policies.value[policies.value.length - 1].type
-//     : '0';
 
-//   policies.value.push({
-//     type: lastType, // 使用最后一个策略的类型
-//     appId: id.value,
-//     resultScoreRange: '',
-//     resultName: '',
-//     resultProp: [],
-//     resultDesc: ''
-//   });
-// };
-// 删除按钮
-// const removePolicy = (index) => {
-//   if (policies.value.length > 1) {
-//     policies.value.splice(index, 1);
-//   } else {
-//     ElMessage.warning('至少保留一个策略');
-//   }
-// };
+const personalityTraits = [  // 人格特质选项
+  { label: 'I', value: 'I' },
+  { label: 'S', value: 'S' },
+  { label: 'T', value: 'T' },
+  { label: 'J', value: 'J' }
+];
 
-// 存储编辑中的策略数据（从接口获取）
-// 定义一个用于进行路由跳转并传递参数的函数
-const addscoring = async (id) => {
-  console.log('传递的问题 ID 为:', id);
-  router.push({
-    path: '/applist',
-    query: { id }
-  })
-};
-// 保存新应用
-const id = ref()
-id.value = router.currentRoute.value.query.appId
-const saveQuestionSet = async() => {
-  const newSet = newQuestionSet.value;
-  // 对接接口
-  const addApi = {
-    appName: newSet.name,
-    appType: newSet.value,
-    appIcon: newSet.avatar,
-    appDesc: newSet.description,
-    scoringStrategy:newSet.value,
-  }
-  console.log(addApi)
- const {data:{code,data}} = await addApp(addApi)
- id.value = data
- console.log(id.value)
-  if(code === 0) {
-    ElMessage.success('上传成功');
-    // 重新获取应用列表数据
-    await init();
-  } else {
-    ElMessage.error('上传失败');
-  }
-
-  // 检查应用名称是否为空
-  if (newSet.name.trim() === '') {
-    ElMessage.error('应用名称不能为空');
-    return;
-  }
-  // 检查描述是否为空
-  if (newSet.description.trim() === '') {
-    ElMessage.error('描述不能为空');
-    return;
-  }
-
-  // 如果所有验证通过，保存新应用
-  // 重置新应用表单
-  newQuestionSet.value = {
-    name: '',
-    description: '',
-    avatar:'',
-    value:'',
-  };
-};
-// 保存策略
-const savePolicy = async () => {
-    for (const policy of policies.value) {
-        if (!policy.resultName) {
-            ElMessage.error('请填写结果名称和描述');
-            return;
-        }
-    }
-    const requests = policies.value.map(policy => {
-        let resultPropValue = [];
-        console.log('Before transformation, policy.resultProp:', policy.resultProp);
-        if (policy.type === '1') {
-            if (Array.isArray(policy.resultProp)) {
-                resultPropValue = policy.resultProp.map(item => item.value || item);
-            } else if (typeof policy.resultProp === 'object' && policy.resultProp!== null) {
-                // 如果是对象，将其值添加到数组中
-                resultPropValue = [policy.resultProp.value || policy.resultProp];
-            }
-        }
-        return {
-            appId: id.value,
-            type: policy.type,
-            resultScoreRange: policy.resultScoreRange || 0,
-            resultName: policy.resultName,
-            resultProp: resultPropValue,
-            resultDesc: policy.resultDesc
-        };
-    });
-    console.log('savePolicy requests:', requests);
-    try {
-        const res = await addScoringResult(requests);
-        console.log(res);
-        ElMessage.success('保存成功');
-        // 重新获取应用列表数据
-        await init();
-    } catch (error) {
-        ElMessage.error('保存失败');
-        console.error('savePolicy error:', error);
-    }
-    // 清空
-    policies.value = [
-        {
-            type: '0',
-            appId: 0,
-            resultScoreRange: null,
-            resultName: '',
-            resultProp: [],
-            resultDesc: ''
-        }
-    ];
-};
-
-// 弹窗
-const nquestionSet = ref({
-  id: null,
-  appName: '',
-  appDesc: '',
-  appIcon: '' // 补充头像字段
-});
-const isEditDialogVisible = ref(false);
-
-// 路由接收
-// const
-// 定义一个用于进行路由跳转并传递参数的函数
-const add = (id) => {
-    // 打印传入的 id 参数，方便调试
-    console.log('传递的问题 ID 为:', id);
-    try {
-        // 使用路由实例进行跳转，将 id 作为查询参数传递
-        router.push({
-            path: '/questionmanage',
-            // 使用简洁表示法，当对象属性名和变量名一致时可省略值
-            query: { id }
-        });
-    } catch (error) {
-        // 若跳转过程中出现错误，打印错误信息
-        console.error('路由跳转失败:', error);
-    }
-};
-
-// 定义是评分还是测评
-// const value3 = ref(true)
-// 定义习题集列表
-const questionSets = ref([]);
-const isShow = ref(true);
-const isShowa = ref(true);
-// 定义选择类型
-const options = [
-  {
-    value: 0,
-    label: '系统测评',
-  },
-  {
-    value: 1,
-    label: 'ai评测',
-  },
-]
-// 定义新习题集的数据结构
-const newQuestionSet = ref({
-  name: '',
-  value: '',
-  avatar: '',
-  description: '' // 新增描述字段
-});
-
-// 切换创建应用和应用列表
-const handleisshowa = async(show) => {
-  isShowa.value = show;
-};
-
-// 引入编辑应用的接口（假设接口文件中已定义）
-
-const baocun = async () => {
-  // 获取当前编辑的应用（从 questionSet 中获取，而非通过 index）
-  const currentQuestionSet = nquestionSet.value;
-
+/**
+ * 保存评分策略
+ */
+const saveScoringPolicies = async () => {
   // 验证必填字段
-  if (!currentQuestionSet.id) {
-    ElMessage.error('应用数据异常，请重试');
-    return;
-  }
-  if (currentQuestionSet.appName.trim() === '') {
-    ElMessage.error('应用名称不能为空');
-    return;
-  }
-  if (currentQuestionSet.appDesc.trim() === '') {
-    ElMessage.error('应用描述不能为空');
-    return;
+  for (const policy of scoringPolicies.value) {
+    if (!policy.resultName) {
+      ElMessage.error('请填写结果名称');
+      return;
+    }
   }
 
-  // 构造请求参数（根据后端接口要求调整字段）
-  const editParams = {
-    id: currentQuestionSet.id,
-    appName: currentQuestionSet.appName.trim(),
-    appDesc: currentQuestionSet.appDesc.trim(),
-    appIcon: currentQuestionSet.appIcon.trim() // 头像字段
-    // 如有其他字段（如头像），需在此补充
-  };
+  // 准备请求数据
+  const requests = scoringPolicies.value.map(policy => {
+    let resultPropValue = [];
+    if (policy.type === '1' && policy.resultProp) {
+      if (Array.isArray(policy.resultProp)) {
+        resultPropValue = policy.resultProp.map(item => item.value || item);
+      } else if (typeof policy.resultProp === 'object') {
+        resultPropValue = [policy.resultProp.value || policy.resultProp];
+      }
+    }
+
+    return {
+      appId: currentAppId.value,
+      type: policy.type,
+      resultScoreRange: policy.resultScoreRange || 0,
+      resultName: policy.resultName,
+      resultProp: resultPropValue,
+      resultDesc: policy.resultDesc
+    };
+  });
 
   try {
-    // 调用编辑接口
-    const res = await editApp(editParams);
-    isEditDialogVisible.value = false;
-    console.log(res);
-    // 重新获取应用列表数据
-    await init();
-  } catch (error) {
-    console.error('编辑接口调用失败:', error);
-    ElMessage.error('编辑失败，请检查网络或重试');
-  }
-};
+    await addScoringResult(requests);
+    ElMessage.success('策略保存成功');
 
-
-// 应用列表
-const init = async() => {
-    try {
-        const res = await listMyAppVOByPage({ page: null});
-
-        questionSets.value = res.data.data.records
-        console.log(questionSets.value)
-    } catch (error) {
-        console.error('获取应用列表失败:', error);
-    }
-};
-onMounted(() => {
-    init();
-  })
-// 切换习题集的展开状态
-// const toggleQuestionSet = (index) => {
-//   questionSets.value[index].expanded = !questionSets.value[index].expanded;
-// };
-
-// 判断是否为多选题
-// const isMultipleChoice = (question) => {
-//   return question.options.filter(option => option.isAnswer).length > 1;
-// };
-// 切换编辑状态
-const toggleEdit = (id) => {
-  const targetSet = questionSets.value.find(set => set.id === id);
-  if (!targetSet) {
-    ElMessage.warning('未找到对应的应用，请刷新后重试');
-    return;
-  }
-  // 创建一个新的对象副本
-  nquestionSet.value = {...targetSet };
-  isEditDialogVisible.value = true;
-};
-
-// 删除应用
-const deleteQuestionSet = async (appId) => {
-      try {
-        const res = await deleteApp({id:appId})
-        if(res) {
-          ElMessage.success('删除成功')
-          await init();
-        }
-      }catch (error) {
-        console.error('删除应用失败:', error);
-        ElMessage.error('删除应用失败，请重试');
+    // 重置策略表单
+    scoringPolicies.value = [
+      {
+        type: '0',
+        appId: 0,
+        resultScoreRange: null,
+        resultName: '',
+        resultProp: [],
+        resultDesc: ''
       }
+    ];
+  } catch (error) {
+    console.error('保存策略失败:', error);
+    ElMessage.error('保存策略失败');
+  }
+};
 
-};
-// 上传头像
+// ==================== 文件上传相关 ====================
+/**
+ * 处理头像上传
+ * @param {File} file - 上传的文件
+ */
 const handleAvatarUpload = async (file) => {
-  const isImage = file.type.startsWith('image/');
-  if (!isImage) {
+  if (!file.type.startsWith('image/')) {
     ElMessage.error('只能上传图片文件');
     return false;
   }
+
   const formData = new FormData();
   formData.append('file', file);
-  const res = await common(formData); // 确保 common 内部 URL 正确
-  newQuestionSet.value.avatar = res.data.data;
-  ElMessage.success('上传成功');
-  return true;
+
+  try {
+    const res = await common(formData);
+    editingApp.value.appIcon = res.data.data;
+    ElMessage.success('头像上传成功');
+    return true;
+  } catch (error) {
+    console.error('上传失败:', error);
+    ElMessage.error('上传失败');
+    return false;
+  }
 };
-const tttt = async (file) => {
-  const isImage = file.type.startsWith('image/');
-  if (!isImage) {
+
+/**
+ * 处理新应用头像上传
+ * @param {File} file - 上传的文件
+ */
+const handleNewAppAvatarUpload = async (file) => {
+  if (!file.type.startsWith('image/')) {
     ElMessage.error('只能上传图片文件');
     return false;
   }
+
   const formData = new FormData();
   formData.append('file', file);
-  const res = await common(formData); // 确保 common 内部 URL 正确
-  nquestionSet.value.appIcon = res.data.data;
-  ElMessage.success('上传成功');
-  return true;
+
+  try {
+    const res = await common(formData);
+    newApp.value.avatar = res.data.data;
+    ElMessage.success('头像上传成功');
+    return true;
+  } catch (error) {
+    console.error('上传失败:', error);
+    ElMessage.error('上传失败');
+    return false;
+  }
 };
-// 在没有策略时添加策略按钮
-// const addnewPolicy = (id) => {
-//   console.log(id)
-//   // 跳转页面
-//   isShowa.value = true;
-//   isScoringDialogVisible.value = false;
-// }
+
+// ==================== 路由相关 ====================
+/**
+ * 查看评分策略
+ * @param {number} appId - 应用ID
+ */
+const viewScoringStrategy = (appId) => {
+  router.push({ path: '/applist', query: { id: appId } });
+};
+
+/**
+ * 查看题目
+ * @param {number} appId - 应用ID
+ */
+const viewQuestions = (appId) => {
+  router.push({ path: '/questionmanage', query: { id: appId } });
+};
+
+// ==================== 生命周期钩子 ====================
+onMounted(() => {
+  initAppList();
+});
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<style scoped>
-.policy-form {
-  margin-bottom: 30px;
-  padding: 20px;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  position: relative;
-
-  h3 {
-    position: absolute;
-    top: -18px;
-    left: 20px;
-    background: white;
-    padding: 0 10px;
-    color: #409eff;
-  }
+<style scoped lang="scss">
+.lastf12 {
+  display: flex;
+  width: 226px;
+  height: 36px;
+  background-color: #e6e8f2;
+  border-radius: 6px;
+  margin: 20px;
 }
-.bccas1 {
-position: absolute;
+
+.l2ab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
-.edit-section {
-  margin-top: 20px;
+
+.l2ab h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.active-tab {
+  background-color: white;
+  color: #409eff;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 主容器样式 */
+.app-management-container {
+  max-width: 1350px;
+  min-width: 1350px;
+  margin: 0 auto;
+  height: auto;
   padding: 20px;
-  width: 100%;
-  /* background-color: #f9fafc; */
+  background-color: #f5f7fa;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.question-item {
-  margin-top: 30px;
+/* 页面标题 */
+.page-title {
+  font-size: 24px;
+  color: #303133;
   margin-bottom: 20px;
-  width: 1000px;
-  padding: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+/* 主体内容区域 */
+.app-management-body {
   background-color: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.question-text {
-  margin-bottom: 15px;
-}
-
-
-.option-item {
-  margin-bottom: 10px;
-}
-
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.option-label {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #409eff;
-  color: white;
-  border-radius: 50%;
-  font-size: 14px;
-}
-
-.option-input {
-  flex: 1;
-}
-.option-input2 {
-  width: 110px;
-  height: 30px;
-}
-
-.delete-button {
-  margin-left: 10px;
-}
-
-.edit-buttons {
-  margin-top: 20px;
-  text-align: right;
-}
-/* 其他样式保持不变 */
-.h2a {
-  margin-top: 20px;
-}
-.question-set-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  .question-set-name {
-    margin-bottom: 10px;
-  }
-  .profile-avatar2 {
-    position: relative;
-    top: 10px;
-    left: -2px;
-
-  }
-}
-
-/* .action-buttons {
-} */
-
-.edit-section {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-</style>
-
-<style >
-.handquestion {
-    width: 200px;
-    background-color: lightgray;
-    border: 1px solid #ccc;
-
-    /* 借助不同方向的阴影营造立体效果 */
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3), -1px -1px 3px rgba(255, 255, 255, 0.8);
-    transition: box-shadow 0.3s ease;
-}
-
-.handquestion:hover {
-    /* 鼠标悬停时调整阴影，增强交互效果 */
-    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4), -2px -2px 4px rgba(255, 255, 255, 0.9);
-}
-.policy{
-    width: 100%;
-    margin-top: 20px;
-    background-color: rgb(255, 255, 255);
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    /* 借助不同方向的阴影营造立体效果 */
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3), -1px -1px 3px rgba(255, 255, 255, 0.8);
-    transition: box-shadow 0.3s ease;
-    h2 {
-      margin-left: 70px;
-      margin-top: 10px;
-    }
-}
-.policy:hover {
-    /* 鼠标悬停时调整阴影，增强交互效果 */
-    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4), -2px -2px 4px rgba(255, 255, 255, 0.9);
-}
-.policypp {
-   width: 100%;
-    margin-top: 20px;
-    background-color: rgb(255, 255, 255);
-    border: 0px solid #ccc;
-}
-.tou{
-  float: left;
-  width: 200px;
-  height: 200px;
-  position: relative;
-  left: 350px;
-  top: 27px;
-  .profile-avatar {
-    margin-top: 20px;
-  }
-  .mt-2 {
-    position: relative;
-    top: -35px;
-    left: -87px;
-  }
-}
-
-.question-set-info {
-  display: flex;
-  align-items: center;
-}
-
-.create-time {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 4px;
-}
-.lastf12 {
-  display: flex;
-  align-content: center;
-  justify-content: space-evenly;
-  width: 226px;
-  height: 36px; /* 增加高度 */
-  background-color: #e6e8f2;
-  border-radius: 6px;
-  margin-top: 20px;
-  margin-left: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 增加阴影 */
-}
-
-.l2ab {
-  width: 100px;
-  height: 100%;
-  border-radius: 6px;
-  font-size: 14px; /* 增大字体 */
-  line-height: 36px; /* 垂直居中 */
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease; /* 增加过渡效果 */
-  color: #757a8c; /* 默认文字颜色 */
-}
-
-.l2ab:hover {
-  background-color: #d7d8df; /* 悬停效果 */
-  color: #409eff; /* 悬停文字颜色 */
-}
-
-.active-tab {
-  background-color: white; /* 激活状态背景色 */
-  color: #409eff; /* 激活状态文字颜色 */
-  font-weight: bold; /* 激活状态加粗 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 激活状态阴影 */
-}
-
-h2 {
-  font-size: 16px; /* 调整标题大小 */
-  font-weight: 600;
-  color: inherit; /* 继承父元素颜色 */
-  margin: 0; /* 去除默认 margin */
-}
-.tmmc1 {
-  padding-right: 30px;
-  width: 200px;
-}
-.tmmc {
-  width: 500px;
-  margin: 20px auto;
-  font-size: 18px;
-}
-
-.switch {
- position: relative;
- top: 56px;
- display: inline-block;
- left: -10px;
- width: 120px;
- height: 34px;
-}
-
-
-
-.cjxx {
-  margin-left: 10px;
-  margin-top: -10px;
-}
-.handquestion {
-  width: 100%;
-  margin-top: 10px;
-  border-radius: 25px;
-  background-color: #fff;
+  border-radius: 8px;
+  margin-top: -20px;
   padding: 20px;
+  height: calc(100% - 60px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.AIquestion {
-  width: 100%;
-  height: 300px;
-  margin-top: 10px;
-  border-radius: 25px;
-  background-color: #fff;
-}
-
-/* 选项项样式 */
-.option-item {
-  margin-bottom: 10px;
+/* 选项卡切换器 */
+.tab-switcher {
   display: flex;
-  height: auto;
-}
-
-.option-row {
-  display: flex;
-  position: relative;
-  align-items: center;
-  gap: 10px;
-}
-
-.option-label {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  margin-left: 10px;
-  align-items: center;
-  justify-content: center;
-  background-color: #409eff;
-  color: white;
-  border-radius: 50%;
-  font-size: 14px;
-}
-
-.option-input {
-  flex: 1;
-}
-.delete-button {
-  margin-left: 10px;
-  float: left;
-  position: absolute;
-  right: 100px;
-  border: none;
-  background-color: transparent;
-}
-.delete-button el-icon {
-  color: #7e3e3e;
-}
-
-.answer-checkbox {
-  margin-left: 10px;
-}
-
-.answer-tag {
-  margin-left: 10px;
-  color: green;
-  font-weight: bold;
-}
-
-.multiple-choice-tag {
-  margin-left: 10px;
-  color: red;
-  font-weight: bold;
-}
-
-/* 已创建题目样式 */
-.question-text {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.options-list {
-  list-style: none;
-  padding: 0;
-}
-
-.options-list li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.options-list .option-label {
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  margin-right: 8px;
-}
-
-/* 其他样式 */
-.l2a:not(.l21):hover {
-  background-color: #d7d8df;
-}
-
-.l21 {
-  background-color: white;
-}
-
-.l2a {
-  width: 60px;
-  height: 20px;
-  border-radius: 5px;
-  font-size: 12px;
-  margin-top: 3px;
-  float: left;
-  text-align: center;
-  cursor: pointer;
-}
-.l2ab {
-  width: 100px;
-  height: 20px;
-  border-radius: 5px;
-  font-size: 12px;
-  line-height: 20px;
-  text-align: center;
-  margin-top: 3px;
-  float: left;
-  text-align: center;
-  cursor: pointer;
-}
-.lastf12 {
-  display: flex;
-  align-content: center;
-  justify-content: space-evenly;
-  width: 226px;
-  height: 26px;
+  width: 240px;
+  height: 40px;
   background-color: #e6e8f2;
   border-radius: 6px;
-  margin-top: 20px;
-  margin-left: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #757a8c;
+
+    h2 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    &:hover {
+      background-color: #d7d8df;
+      color: #409eff;
+    }
+
+    &.active-tab {
+      background-color: #fff;
+      color: #409eff;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
 }
 
-.lastf1 {
-  display: flex;
-  align-content: center;
-  justify-content: space-evenly;
-  width: 126px;
-  height: 26px;
-  background-color: #e6e8f2;
-  border-radius: 6px;
-  margin-top: 20px;
-  margin-left: 20px;
-}
-
-.elscbody {
-  width: 100%;
-  height: 700px;
-}
-
-h2 {
+/* 分区标题 */
+.section-title {
   font-size: 18px;
+  color: #303133;
+  margin-bottom: 20px;
   font-weight: 600;
-  color: #757a8c;
 }
 
-.scrollbar-demo-item {
-  padding: 10px;
-  margin: 4px;
-  border-radius: 4px;
+/* 滚动容器 */
+.scroll-container {
+  height: calc(100% - 60px);
+  border-radius: 8px;
   background-color: #fff;
-  color: #757a8c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-.questionbody {
-  width: 100%;
-  height: 700px;
+/* 应用列表项 */
+.app-list {
+  .app-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .app-info {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .app-avatar {
+      margin-right: 12px;
+    }
+
+    .app-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #303133;
+    }
+  }
+
+  .app-actions {
+    .el-button {
+      margin-left: 10px;
+      color: #606266;
+
+      &:hover {
+        color: #409eff;
+      }
+    }
+  }
 }
 
-.questionMan {
-  max-width: 1350px;
-  height: 98vh;
-  min-width: 1350px;
-  margin: 0px auto;
-  margin-top: 1vh;
+/* 创建应用视图 */
+.create-app-view {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-.arrow-icon {
-  transition: transform 0.3s;
+/* 应用基本信息表单 */
+.app-basic-info {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+
+  .avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .new-app-avatar {
+      margin-bottom: 10px;
+      border: 1px solid #ebeef5;
+    }
+
+    .upload-btn {
+      width: 100px;
+    }
+  }
+
+  .app-name-input {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .name-input {
+      flex: 1;
+    }
+
+    .type-select {
+      width: 150px;
+    }
+  }
+
+  .app-description {
+    margin-bottom: 20px;
+
+    .description-textarea {
+      width: 100%;
+    }
+  }
+
+  .submit-btn {
+    width: 150px;
+    margin-top: 10px;
+  }
 }
 
-.rotate {
-  transform: rotate(180deg);
+/* 评分策略表单 */
+.scoring-policy {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+
+  .policy-title {
+    font-size: 18px;
+    color: #303133;
+    margin-bottom: 25px;
+    font-weight: 600;
+  }
+
+  .policy-form {
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ebeef5;
+    border-radius: 6px;
+    position: relative;
+
+    .policy-subtitle {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: #fff;
+      padding: 0 10px;
+      color: #409eff;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .score-input,
+    .prop-select,
+    .result-name-input,
+    .result-desc-input {
+      width: 100%;
+    }
+  }
+
+  .save-policy-btn {
+    width: 150px;
+    margin-top: 10px;
+    margin-left: 150px;
+  }
 }
 
+/* 对话框样式 */
+:deep(.el-dialog) {
+  border-radius: 10px;
+
+  .el-dialog__header {
+    border-bottom: 1px solid #ebeef5;
+    padding: 15px 20px;
+    margin-right: 0;
+
+    .el-dialog__title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 20px;
+  }
+
+  .el-dialog__footer {
+    border-top: 1px solid #ebeef5;
+    padding: 15px 20px;
+    text-align: right;
+  }
+
+  .app-avatar-large {
+    margin-right: 15px;
+    vertical-align: middle;
+  }
+
+  .upload-btn {
+    margin-left: 15px;
+  }
+}
+
+/* 空状态样式 */
+:deep(.el-empty) {
+  padding: 40px 0;
+
+  .el-empty__description {
+    color: #909399;
+    margin-top: 10px;
+  }
+}
 </style>

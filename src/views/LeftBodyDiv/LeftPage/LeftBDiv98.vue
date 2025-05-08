@@ -60,12 +60,12 @@
     <!-- 6 -->
     <div class="leftmenu4">
       <h3>temperature </h3>
-      <el-slider v-model="value5"  />
+      <el-slider v-model="value5" :max="1" :step="0.1" />
     </div>
     <!-- 7 -->
     <div class="leftmenu4">
       <h3>top_p </h3>
-      <el-slider v-model="value6" />
+      <el-slider v-model="value6"  :max="1" :step="0.01" />
     </div>
     <hr style="border:1px solid #e0e0e0; margin-top: 10px;">
 
@@ -117,14 +117,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted ,watch} from 'vue'
 import QRCodeShare from '../../../components/share/QRCodeShare.vue'
 import { listMyChatWindowsVOByPage } from '../../../api/chat.js'
 import { useRouter, useRoute } from 'vue-router'
 import { addChatWindows, deleteChatWindows } from '../../../api/chat.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
-
+import {useUserStore} from '@/store/message'
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 const isLoading = ref(false) // 加载状态
@@ -133,8 +134,8 @@ const value1 = ref('')
 const value2 = ref('')
 const value3 = ref(false)
 const value4 = ref(100)
-const value5 = ref(100)
-const value6 = ref(100)
+const value5 = ref(1)
+const value6 = ref(1)
 const value7 = ref(false)
 const value8 = ref(false)
 const value9 = ref(false)
@@ -142,7 +143,6 @@ const textarea = ref('')
 const newChat = ref('')
 const userId = ref()
 const options1 = ref([])
-
 const options2 = [
   { value: 'glm-4-plus', label: 'glm-4-plus' },
   { value: 'Option2', label: 'Option2' },
@@ -151,6 +151,18 @@ const options2 = [
   { value: 'Option5', label: 'Option5' }
 ]
 
+
+watch(
+  [value4, value5, value6],
+  ([maxTokens, temperature, topP]) => {
+    userStore.login({
+      max_tokens: maxTokens,
+      temperature: temperature,
+      top_p: topP
+    });
+  },
+  { immediate: true } // 初始化时同步一次
+);
 const currentConfig = computed(() => ({
   webSearch: value7.value,
   knowledgeBase: value8.value,

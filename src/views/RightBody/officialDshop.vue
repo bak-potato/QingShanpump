@@ -4,7 +4,7 @@
     <div>
       <img src="/src/images/RC.jpg" alt="智能体广场" width="20px" class="img" />
     </div>
-    <h2 class="title">xxxxx</h2>
+    <h2 class="title">官方应用</h2>
     <p class="description">您可以在智能体广场，查看或体验基于模板创建的智能体，这些智能体由智谱官方发布，涉及各类行业及开发者使用场景。</p>
     <div class="box">
       <el-tabs v-model="activeName" type="card" class="demo-tabs" @tab-click="handleClick">
@@ -30,7 +30,7 @@
           <span class="tag" v-for="tag in item.tags" :key="tag">{{tag}}</span>
         </div>
         <div style="display: flex;justify-content: space-between;">
-          <p class="agent-date">2024-11-10 发布</p>
+          <p class="agent-date">2025-04-25 发布</p>
           <div class="agent-type">对话型</div>
         </div>
       </el-card>
@@ -50,15 +50,7 @@ const cards = [
     id: 1,
     name: 'AI女友',
     description: '智谱开放平台AI智能客服魔镜体，知识库内容为专有知识不支持复制，需替换自有知识库',
-    tags: ['商业服务'],
-    date: '2024-11-10',
-    type: '对话型',
-  },
-  {
-    id: 2,
-    name: 'AI助手',
-    description: '智谱开放平台AI智能客服魔镜体，知识库内容为专有知识不支持复制，需替换自有知识库',
-    tags: ['商业服务', '工作提效'],
+    tags: ['生活助手'],
     date: '2024-11-10',
     type: '对话型',
   }
@@ -139,6 +131,10 @@ onMounted(() => {
 .agent-icon {
   width: 40px;
   height: 40px;
+  background-image: url('../../images/生成女生头像.png');
+  background-size: cover;
+  border-radius: 50%;
+  margin-right: 10px;
   border-radius: 4px;
   margin-bottom: 8px;
 }

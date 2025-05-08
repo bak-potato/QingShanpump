@@ -25,7 +25,6 @@
               <el-option label="AI测评" :value="1"></el-option>
             </el-select>
           </el-col>
-
           <el-col :span="4">
             <el-button type="primary" @click="handleSearch">搜索</el-button>
             <el-button @click="resetSearch">重置</el-button>
@@ -34,7 +33,6 @@
             <el-button type="success" @click="handleAdd">新增应用</el-button>
           </el-col>
         </el-row>
-
         <!-- 表格 -->
         <el-table
           v-loading="loading"

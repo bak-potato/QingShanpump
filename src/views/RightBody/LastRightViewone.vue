@@ -1,134 +1,151 @@
 <template>
   <div class="lastright">
-<el-scrollbar height="670px">
- <el-card  v-for="item in 20" :key="item" style="min-width: 400px; position: relative; margin: 10px; height: 140px; width: 90%;border-radius: 15px;" shadow="hover">
-<div class="lrf mouse">
-</div>
-<div class="lrr ">
-  <div class="lrr1 mouse">图文生成工具
-    <div class="lrr2 clickable">
-      <img  width="12px" src="@/icons/wenjianxiazaicopy.png">
-      应用</div>
-  </div>
-  <div class="lrr3">
-<img width="16px" src="@/icons/50309213222.png" >&nbsp; @山清官方
-  </div>
-  <div class="lrr4">
-    这是一个图文生成工具，你可以通过输入文字生成图片，也可以通过输入图片生成文字。
-  </div>
-</div>
-  <div class="hrt1"></div>
-
-<div class="ftca">
-<img width="16px" class="mouse" height="16px" src="@/icons/navbar_guanzhong.png" > <p>304.7k</p>
-<img width="16px" class="mouse" height="16px" src="@/icons/31pinglun.png" > <p>304.7k</p>
-<img width="16px" class="mouse" height="16px" src="@/icons/shoucang.png" > <p>304.7k</p>
-
-</div>
- </el-card>
-</el-scrollbar>
-
+    <el-scrollbar height="670px">
+      <el-card
+        v-for="item in listData"
+        :key="item.id"
+        style="min-width: 400px; position: relative; margin: 10px; height: 140px; width: 90%;border-radius: 15px;"
+        shadow="hover"
+      >
+        <div class="app-card-container">
+          <div class="app-icon">
+            <img :src="item.appIcon" alt="" class="imgg">
+          </div>
+          <div class="app-content">
+            <h3 class="app-title">{{ item.appName }}</h3>
+            <p class="app-description">{{ item.appDesc }}</p>
+            <div class="app-stats">
+              <span><img width="16px" height="16px" src="@/icons/navbar_guanzhong.png"> {{ item.views || '304.7k' }}</span>
+              <span><img width="16px" height="16px" src="@/icons/31pinglun.png"> {{ item.comments || '304.7k' }}</span>
+              <span><img width="16px" height="16px" src="@/icons/shoucang.png"> {{ item.favorites || '304.7k' }}</span>
+            </div>
+          </div>
+          <el-button
+            type="primary"
+            class="view-btn"
+            @click="answer(item.id)"
+            size="small"
+          >
+            查看
+          </el-button>
+        </div>
+      </el-card>
+    </el-scrollbar>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { listAppVOByPage } from "@/api/app";
+import router from '@/router';
+
+// 应用列表数据
+const listData = ref([]);
+
+// 渲染应用列表
+const renderAppList = async() => {
+  const res = await listAppVOByPage({page: null});
+  listData.value = res.data.data.records.filter(item => item.reviewMessage !== null);
+};
+
+onMounted(() => {
+  renderAppList();
+});
+
+const answer = (id) => {
+  sessionStorage.setItem('view', 99);
+  router.push({
+    path: '/answer',
+    query: {
+      id: id
+    }
+  });
+  setTimeout(() => {
+    window.location.reload();
+  }, 100);
+};
 </script>
+
 <style scoped>
-.lastright{
+.lastright {
   height: 600px;
   background-color: #ffffff;
 }
-.ftca p{
-  float: left;
-    font-size: 18px;
-  margin-left: 10px;
-  margin-top: 6px;
-}
-.ftca img{
-  float: left;
-  margin-top: 5px;
-margin-left: 10px;
-}
-.ftca{
-  color: #757a8c;
-  margin-top: 5px;
-  height: 16px;
-  position: absolute;
-  bottom: 13px;
-  line-height: 16px;
-}
-.hrt1{
-  height: 1px;
-  top: 105px;
-  margin: 0px auto;
-  margin-left: 5%;
-  width: 90%;
-  background-color: #ebedff;
-  position: absolute;
+
+.app-card-container {
+  display: flex;
+  height: 100%;
+  padding: 10px;
+  position: relative;
 }
 
-.lrr4{
-  font-size: 13px;
-  height: 40px;
-  color: #999999;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lrr3 img{
-  float: left;
-  margin-top: 2px;
-  border-radius: 25px;
-}
-.lrr3{
-  height: 20px;
-  line-height: 20px;
-  font-size: 12px;
-  color: #999999;
-}
-.lrr2 img{
-  width: 12px;
-  float: left;
-  margin-left: 12px;
-  height: 12px;
-  margin-top: 6px;
-}
-.lrr2{
-  position: absolute;
-  right: 2px;
-  top: 2px;
-  font-size: 12px;
-  border-radius: 10px;
-  text-align: center;
-  line-height: 24px;
-  height: 24px;
-  width: 62px;
-  color: #4d53e8;
-  background-color: #e6e9ff;
-}
-.lrr1{
-  font-size: 18px;
-  font-weight: bold;
-}
-.lrr{
-  position: absolute;
-  left: 100px;
+.app-icon {
+  width: 80px;
   height: 80px;
-  top: 10px;
-  width: 80%;
+  margin-right: 15px;
 }
+
+.app-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.app-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.app-description {
+  font-size: 12px;
+  color: #666;
+  margin: 5px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.app-stats {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+  color: #757a8c;
+}
+
+.app-stats img {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.view-btn {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+  top: 20px;
+  padding: 8px 20px;
+  border-radius: 15px;
+  background-color: #5147ff;
+  border: none;
+}
+
+.view-btn:hover {
+  background-color: #4538ff;
+}
+
 :deep(.el-card__body) {
   padding: 0;
-}
-
-.lrf{
-  width: 80px;
-  background-color: antiquewhite;
-  background-image: url("@/icons/img1.png");
-  background-size: 100% 100%;
-  height: 80px;
-  position:absolute;
-  left: 10px;
-  top: 10px;
-  border-radius: 10px;
+  height: 100%;
 }
 </style>

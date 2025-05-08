@@ -45,7 +45,7 @@
       class="leftmenu1"
       :class="{ active: activeMenu === 'charmanage' }"
     >
-      <img width="20px" src="@/icons/shenhe.png">
+      <img width="20px" src="@/icons/yunyingguanli-liaotianguanli.png">
       聊天管理
     </div>
   </div>

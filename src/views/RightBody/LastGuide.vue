@@ -1,7 +1,7 @@
 <template>
   <div class="lastguide">
     <div class="lastguidein">
-      <div class="topf clickable">关注</div>
+      <div class="topf clickable">推荐应用</div>
       <div class="topf2">帖子 </div>
 
       <div class="lastf">

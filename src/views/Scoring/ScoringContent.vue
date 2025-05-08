@@ -1,32 +1,104 @@
 <template>
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">策略详情</h1>
-            <el-form :model="form" label-width="auto" class="space-y-4">
-                <el-form-item label="分数">
-                    <el-input v-model="form.resultScoreRange" class="w-full" />
+    <div class="min-h-screen bg-gray-50 flex items-center justify-center py-8">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl transition-all duration-300 hover:shadow-xl">
+            <!-- 标题优化 -->
+            <div class="mb-8 text-center space-y-2">
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center justify-center">
+                    <el-icon class="mr-2 text-blue-500"><Document /></el-icon>
+                    策略详情管理
+                </h1>
+                <p class="text-gray-500 text-sm">请填写或修改策略相关信息</p>
+            </div>
+
+            <!-- 表单布局优化 -->
+            <el-form
+                :model="form"
+                label-width="120px"
+                label-position="left"
+                class="space-y-6"
+                :rules="rules"
+            >
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 分数范围 -->
+                    <el-form-item label="分数范围" prop="resultScoreRange">
+                        <el-input
+                            v-model="form.resultScoreRange"
+                            placeholder="示例：80-100"
+                            clearable
+                            class="input-with-icon"
+                        >
+                            <template #prefix>
+                                <el-icon class="text-gray-400"><TrendCharts /></el-icon>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+
+                    <!-- 属性设置 -->
+                    <el-form-item label="属性设置" prop="resultProp">
+                        <el-input
+                            v-model="form.resultProp"
+                            placeholder="多个属性用逗号分隔"
+                            clearable
+                            class="input-with-icon"
+                        >
+                            <template #prefix>
+                                <el-icon class="text-gray-400"><CollectionTag /></el-icon>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                </div>
+
+                <!-- 结果名称 -->
+                <el-form-item label="结果名称" prop="resultName">
+                    <el-input
+                        v-model="form.resultName"
+                        placeholder="请输入测试结果名称"
+                        clearable
+                        class="input-with-icon"
+                    >
+                        <template #prefix>
+                            <el-icon class="text-gray-400"><Tickets /></el-icon>
+                        </template>
+                    </el-input>
                 </el-form-item>
-                <el-form-item label="属性">
-                    <el-input v-model="form.resultProp" class="w-full" />
+
+                <!-- 结果描述 -->
+                <el-form-item label="结果描述" prop="resultDesc">
+                    <el-input
+                        v-model="form.resultDesc"
+                        type="textarea"
+                        :rows="4"
+                        placeholder="请输入详细的测试结果描述"
+                        resize="none"
+                        class="rounded-lg custom-textarea"
+                    />
                 </el-form-item>
-                <el-form-item label="结果名称">
-                    <el-input v-model="form.resultName" class="w-full" />
-                </el-form-item>
-                <el-form-item label="结果描述">
-                    <el-input v-model="form.resultDesc" type="textarea" class="w-full" />
-                </el-form-item>
-                <el-form-item class="flex justify-center">
-                    <el-button type="primary" @click="submitForm" class="px-6 py-2">提交更改</el-button>
-                </el-form-item>
-                <el-form-item class="flex justify-center" style="position: relative;left: 100px;top: -50px;">
-                    <el-button type="primary" @click="router.push('/applist')" class="px-6 py-2">返回</el-button>
-                </el-form-item>
+
+                <!-- 按钮组优化 -->
+                <div class="flex justify-end space-x-4 mt-8 pt-6 border-t">
+                    <el-button
+                        type="info"
+                        @click="router.push('/applist')"
+                        class="action-btn"
+                    >
+                        <el-icon class="mr-1"><ArrowLeft /></el-icon>
+                        返回列表
+                    </el-button>
+                    <el-button
+                        type="primary"
+                        @click="submitForm"
+                        class="action-btn"
+                    >
+                        <el-icon class="mr-1"><Check /></el-icon>
+                        提交更改
+                    </el-button>
+                </div>
             </el-form>
         </div>
     </div>
 </template>
-
 <script setup>
+import { Document, TrendCharts, CollectionTag, Tickets, ArrowLeft, Check } from '@element-plus/icons-vue'
 import { getScoringResultVOById, editScoringResult } from '@/api/scoring';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -81,24 +153,82 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.el-input__inner {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 8px 12px;
-    transition: border-color 0.3s ease;
+/* 输入框优化 */
+.input-with-icon {
+    :deep(.el-input__inner) {
+        padding-left: 40px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #e5e7eb;
+
+        &:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    }
+
+    :deep(.el-input__prefix) {
+        left: 12px;
+        display: flex;
+        align-items: center;
+    }
 }
 
-.el-input__inner:focus {
-    border-color: #2563eb;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+/* 文本域优化 */
+.custom-textarea {
+    :deep(.el-textarea__inner) {
+        border-radius: 8px;
+        padding: 12px 16px;
+        line-height: 1.6;
+        border: 1px solid #e5e7eb;
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    }
 }
 
-.el-button {
-    transition: background-color 0.3s ease;
+/* 按钮样式 */
+.action-btn {
+    @apply px-5 py-2.5 rounded-lg font-medium;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
 }
 
-.el-button:hover {
-    background-color: #1d4ed8;
+/* 表单标签样式 */
+:deep(.el-form-item__label) {
+    @apply text-gray-600 font-medium;
+    padding-right: 20px !important;
+}
+
+/* 卡片入场动画 */
+@keyframes card-entrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bg-white {
+    animation: card-entrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 验证错误提示优化 */
+:deep(.el-form-item__error) {
+    @apply text-red-500 text-sm mt-1;
 }
 </style>
